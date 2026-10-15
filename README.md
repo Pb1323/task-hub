@@ -3,7 +3,7 @@
 Local-only app (runs on my PC) to track tasks and link out to Gmail, Claude and other apps.
 
 ## Status
-**v0 BUILT 2026-10-15** (Electron). Tested live on Windows 11: collapsed strip, hover-expand, add task (persists), focus timer start/pause, habit ring +1, health-nudge banner, startup entry registered. NOT tested: the actual 30/50/75-minute reminders firing on their own, the focus-block-finished banner, the Claude Code button, link buttons, reboot auto-launch, light (mint) theme, multi-monitor.
+**v0 BUILT + HARDENED 2026-10-15** (Electron). Verified live on Windows 11: collapsed strip, hover-expand, tasks (persist), focus timer ring, scheduled water/walk/stretch reminders (sped-up test) with Done/Snooze, focus-done banner, Claude Code button (opens its own terminal), link tiles (opened GitHub in Edge), light + dark theme, startup entry. Still NOT verified: real 30/50/75-minute waits, reboot auto-launch, multi-monitor, behaviour over full-screen apps. Design notes for later features: `docs/next-features.md`.
 
 ## MVP (owner's words, 2026-10-14, paraphrased closely; message was cut off)
 A floating tab/bar over the screen (not a true OS overlay). Features wanted:
@@ -44,7 +44,8 @@ Single v0 success criterion and stop point (goal-gate rule). Tech stack.
 - Auto-launch is a Run-key entry pointing at `D:\task-hub-deps\nm2\electron\dist\electron.exe C:\Users\email\Downloads\task-hub` (dev mode, no installer). Moving either folder breaks it. Toggle in the app's settings or the tray menu.
 - Tray icon: show/hide, expand, startup toggle, quit. Ctrl+Alt+H shows/hides.
 - Reminders only count while you're active (paused after 5 min idle); a banner auto-snoozes 5 min after 25 s.
-- Test hook: `TASKHUB_TEST_BANNER=1 npm start` pops a water banner after 3 s.
+- Test switches (env vars, never needed day to day): `TASKHUB_DATA_DIR=<folder>` throwaway profile (no single-instance lock, no autostart); `TASKHUB_FAST=1` one reminder 'minute' = 1 s; `TASKHUB_THEME=light|dark`; `TASKHUB_TEST_BANNER=1` water banner after 3 s.
+- Saved data is validated on write; an unreadable `data.json` is copied to `data.json.bad-<time>` instead of being overwritten. Reminders reset after sleep/resume. Esc collapses; auto-collapse waits while you have unsent task text or settings open.
 - Look: `design/apple-design-system.html`. The real window can't blur the desktop behind it (Electron limitation with transparent windows), so the panel is a 92% opaque tint.
 
 ## Next (after you've used v0)
