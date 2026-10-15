@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>task-hub Apple design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,"SF Pro Display","SF Pro Text",Inter,system-ui,sans-serif;background:#000;color:#fff}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 16px;background:#000;position:sticky;top:0;z-index:50;border-bottom:1px solid #222}
+.seg{display:inline-flex;background:#1c1c1e;border-radius:10px;padding:2px}
+.seg button{background:none;border:0;color:#aaa;padding:7px 13px;border-radius:8px;font:500 13px inherit;font-family:inherit;cursor:pointer}
+.seg button.on{background:#636366;color:#fff}
+.top .lbl{font-size:12px;color:#8e8e93;margin-left:6px}
+#stage{position:relative;height:calc(100vh - 54px);min-height:760px;overflow:hidden;background:var(--wall);transition:background .4s}
+/* ---- palettes: every token changes ---- */
+#stage[data-t=light]{--wall:linear-gradient(160deg,#cfe3ff,#f4e9ff 55%,#ffe6d5);--glass:rgba(255,255,255,.62);--glass2:rgba(255,255,255,.55);--fg:#1c1c1e;--mut:#6c6c70;--sep:rgba(60,60,67,.18);--acc:#007aff;--acc2:#34c759;--acc3:#ff9500;--on-acc:#fff;--shadow:0 20px 60px rgba(40,60,120,.25);--ring-bg:rgba(60,60,67,.12)}
+#stage[data-t=dark]{--wall:radial-gradient(120% 90% at 20% 10%,#1d2b4d,#0a0b10 60%,#000);--glass:rgba(40,40,46,.55);--glass2:rgba(255,255,255,.08);--fg:#fff;--mut:#98989f;--sep:rgba(255,255,255,.12);--acc:#0a84ff;--acc2:#30d158;--acc3:#ff9f0a;--on-acc:#fff;--shadow:0 20px 60px rgba(0,0,0,.6);--ring-bg:rgba(255,255,255,.12)}
+#stage[data-t=sunset]{--wall:linear-gradient(165deg,#ff8a5c,#ff4d79 45%,#5b2a86);--glass:rgba(255,255,255,.2);--glass2:rgba(255,255,255,.18);--fg:#fff;--mut:rgba(255,255,255,.7);--sep:rgba(255,255,255,.25);--acc:#fff;--acc2:#ffe27a;--acc3:#ffd1e0;--on-acc:#c2305a;--shadow:0 20px 60px rgba(90,20,70,.45);--ring-bg:rgba(255,255,255,.25)}
+#stage[data-t=mint]{--wall:linear-gradient(160deg,#d9f7ea,#bfeedd 50%,#a7dfe8);--glass:rgba(255,255,255,.6);--glass2:rgba(255,255,255,.5);--fg:#10332a;--mut:#4f7568;--sep:rgba(16,51,42,.15);--acc:#00a878;--acc2:#0aa5c7;--acc3:#f2a900;--on-acc:#fff;--shadow:0 20px 60px rgba(0,90,70,.22);--ring-bg:rgba(16,51,42,.12)}
+#stage[data-t=aurora]{--wall:radial-gradient(90% 70% at 15% 20%,#6d4cff55,transparent 60%),radial-gradient(80% 70% at 85% 80%,#00d4ff44,transparent 60%),#0b0616;--glass:rgba(30,22,60,.5);--glass2:rgba(255,255,255,.08);--fg:#f4f0ff;--mut:#a79fc7;--sep:rgba(255,255,255,.12);--acc:#9b7bff;--acc2:#5ee0ff;--acc3:#ff7ad9;--on-acc:#12062e;--shadow:0 20px 60px rgba(60,30,160,.5);--ring-bg:rgba(255,255,255,.12)}
+.win{position:absolute;left:5%;top:9%;width:50%;height:58%;border-radius:22px;background:var(--glass2);border:1px solid var(--sep);padding:16px;font-size:12px;color:var(--mut)}
+.win.w2{left:16%;top:30%;width:44%;height:52%}
+/* ---- the floating sidebar (iOS 26 style: inset, big continuous radius, glass) ---- */
+#hub{position:absolute;top:14px;bottom:14px;right:14px;width:372px;border-radius:38px;background:var(--glass);
+ -webkit-backdrop-filter:blur(40px) saturate(1.8);backdrop-filter:blur(40px) saturate(1.8);border:1px solid var(--sep);
+ box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.25);color:var(--fg);padding:22px 18px;overflow:auto;display:flex;flex-direction:column;gap:14px;transition:.3s}
+#hub.left{right:auto;left:14px}
+#hub.mini{width:72px;padding:18px 10px;align-items:center;overflow:hidden}
+#hub.mini .full{display:none}
+#hub .ico{display:none;flex-direction:column;gap:18px;align-items:center}
+#hub.mini .ico{display:flex}
+.ico .sq{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--glass2)}
+.eyebrow{font-size:13px;font-weight:600;color:var(--mut)}
+.title{font-size:32px;font-weight:800;letter-spacing:-.8px;line-height:1.1;margin-top:2px}
+.card{background:var(--glass2);border-radius:26px;padding:16px;border:1px solid var(--sep)}
+.h{font-size:13px;font-weight:600;color:var(--mut);margin-bottom:10px;display:flex;justify-content:space-between}
+.h b{color:var(--acc);font-weight:600}
+.focus{display:flex;align-items:center;gap:16px}
+.big{font-size:40px;font-weight:700;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.goal{font-size:15px;font-weight:600}.goal small{display:block;color:var(--mut);font-weight:400;font-size:13px;margin-top:2px}
+.pill{border:0;background:var(--acc);color:var(--on-acc);font:600 15px inherit;font-family:inherit;padding:11px 20px;border-radius:999px;cursor:pointer}
+.pill.ghost{background:var(--glass2);color:var(--acc)}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--sep);font-size:16px;cursor:pointer}
+.row:last-child{border:0}
+.row .c{width:24px;height:24px;border-radius:50%;border:2px solid var(--mut);flex:none;display:grid;place-items:center;font-size:13px;color:transparent}
+.row.done .c{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.row.done .t{color:var(--mut);text-decoration:line-through}
+.rings{display:flex;justify-content:space-around;text-align:center;font-size:12px;color:var(--mut)}
+.rings svg{display:block;margin:0 auto 6px}
+.apps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;text-align:center;font-size:11px;color:var(--mut)}
+.apps .a{width:100%;aspect-ratio:1;border-radius:22%;display:grid;place-items:center;font-size:22px;color:#fff;margin-bottom:5px}
+.quote{font-size:15px;line-height:1.35;font-weight:500}
+/* iOS-style notification banner */
+#toast{position:absolute;left:50%;top:18px;width:360px;transform:translate(-50%,-140px);transition:.5s cubic-bezier(.2,.9,.3,1.1);z-index:60;border-radius:28px;padding:14px 16px;background:var(--glass);-webkit-backdrop-filter:blur(40px) saturate(1.8);backdrop-filter:blur(40px) saturate(1.8);border:1px solid var(--sep);box-shadow:var(--shadow);color:var(--fg);display:flex;gap:12px;align-items:center}
+#toast.show{transform:translate(-50%,0)}
+#toast .tic{width:40px;height:40px;border-radius:10px;background:var(--acc);display:grid;place-items:center;font-size:20px}
+#toast b{font-size:15px}#toast span{font-size:13px;color:var(--mut);display:block}
+/* spec panel */
+#spec{position:absolute;left:14px;bottom:14px;width:430px;max-width:calc(100% - 420px);background:var(--glass);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border:1px solid var(--sep);border-radius:24px;padding:16px 18px;color:var(--fg);font-size:12px;line-height:1.5}
+#spec h3{font-size:15px;margin-bottom:4px}
+#spec .sw{display:flex;gap:6px;margin:8px 0}#spec .sw i{width:30px;height:30px;border-radius:50%;border:1px solid var(--sep)}
+#spec dl{display:grid;grid-template-columns:90px 1fr;gap:2px 8px;color:var(--mut)}#spec dt{color:var(--fg);font-weight:600}
+</style></head><body>
+<div class="top">
+ <div class="seg" id="pal">
+  <button data-t="light" class="on">Light</button><button data-t="dark">Dark</button><button data-t="sunset">Sunset</button><button data-t="mint">Mint</button><button data-t="aurora">Aurora</button>
+ </div>
+ <div class="seg"><button id="col">Collapse</button><button id="side">Side</button><button id="nud">Nudge</button></div>
+ <span class="lbl">Same layout, only the colour scheme changes. Font here is Inter, a stand-in for SF Pro.</span>
+</div>
+<div id="stage" data-t="light">
+ <div class="win">Your normal windows sit here</div><div class="win w2"></div>
+ <div id="toast"><div class="tic">&#128167;</div><div><b>Time for water</b><span>Drink a glass, then back to it.</span></div></div>
+ <div id="spec"></div>
+ <aside id="hub">
+  <div class="ico"><div class="sq">&#10022;</div><div class="sq">&#10003;</div><div class="sq">&#9201;</div><div class="sq">&#128279;</div></div>
+  <div class="full">
+   <div class="eyebrow">Wednesday 15 October</div>
+   <div class="title">Good morning, Srinivas</div>
+  </div>
+  <div class="card full">
+   <div class="h">Focus <b>Edit goal</b></div>
+   <div class="focus">
+    <div style="flex:1"><div class="big" id="t">44:12</div><div class="goal">Finish 10 outreach DMs<small>45 min block &middot; next: water in 12 min</small></div></div>
+    <button class="pill" id="go">Start</button>
+   </div>
+  </div>
+  <div class="card full">
+   <div class="h">Today <b>3 of 4 left</b></div>
+   <div class="row done"><div class="c">&#10003;</div><div class="t">Reply to Chris Pearse</div></div>
+   <div class="row"><div class="c">&#10003;</div><div class="t">Ask school about BPhO entry</div></div>
+   <div class="row"><div class="c">&#10003;</div><div class="t">Test /questions on phone</div></div>
+   <div class="row"><div class="c">&#10003;</div><div class="t">Stretch and walk</div></div>
+  </div>
+  <div class="card full">
+   <div class="h">Health habits</div>
+   <div class="rings" id="rings"></div>
+  </div>
+  <div class="card full">
+   <div class="h">Quick launch</div>
+   <div class="apps">
+    <div><div class="a" style="background:#d97757">&#10022;</div>Claude</div>
+    <div><div class="a" style="background:#ea4335">&#9993;</div>Gmail</div>
+    <div><div class="a" style="background:#25d366">&#128172;</div>Instinct</div>
+    <div><div class="a" style="background:#5856d6">&#9638;</div>Triage</div>
+    <div><div class="a" style="background:#ff9500">&#9733;</div>Goals</div>
+   </div>
+  </div>
+  <div class="card full">
+   <div class="h">Daily</div>
+   <div class="quote">"Small steps, repeated daily, beat big bursts."</div>
+  </div>
+ </aside>
+</div>
+<script>
+var stage=document.getElementById('stage'),hub=document.getElementById('hub');
+var S={light:{n:'Light',d:'Apple default. Soft pastel wallpaper, white glass, system blue. Calm and familiar, easy in daylight.',c:['#007aff','#34c759','#ff9500','#1c1c1e','#fff']},
+dark:{n:'Dark',d:'OLED black with deep blue glow, charcoal glass, bright system blue. Best at night, least eye strain.',c:['#0a84ff','#30d158','#ff9f0a','#fff','#000']},
+sunset:{n:'Sunset',d:'Warm orange to magenta gradient, white frosted glass, white accent. Energetic, feels like a lock screen.',c:['#fff','#ffe27a','#ffd1e0','#ff8a5c','#5b2a86']},
+mint:{n:'Mint',d:'Fresh green and aqua. Reads like Apple Health and Fitness. Good for a habits focus.',c:['#00a878','#0aa5c7','#f2a900','#10332a','#d9f7ea']},
+aurora:{n:'Aurora',d:'Deep violet with purple and cyan glow. Moody and futuristic, high contrast accents.',c:['#9b7bff','#5ee0ff','#ff7ad9','#f4f0ff','#0b0616']}};
+function spec(t){var s=S[t];document.getElementById('spec').innerHTML='<h3>'+s.n+'</h3><div>'+s.d+'</div><div class="sw">'+s.c.map(function(x){return '<i style="background:'+x+'"></i>'}).join('')+'</div><dl><dt>Type</dt><dd>SF Pro. Title 32/800, body 16, caption 12/13</dd><dt>Shape</dt><dd>Panel radius 38, cards 26, icons 22% squircle, pills fully round</dd><dt>Material</dt><dd>Blur 40px + 1.8x saturation, 1px inner highlight</dd><dt>Motion</dt><dd>Spring ease 0.3-0.5s for collapse and banners</dd></dl>'}
+function rings(){var R=[['Water',0.6,'var(--acc)'],['Move',0.35,'var(--acc2)'],['Stretch',0.8,'var(--acc3)']];
+document.getElementById('rings').innerHTML=R.map(function(r){var c=2*Math.PI*26;return '<div><svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--ring-bg)" stroke-width="8"/><circle cx="32" cy="32" r="26" fill="none" stroke="'+r[2]+'" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+(c*r[1])+' '+c+'" transform="rotate(-90 32 32)"/></svg>'+r[0]+'</div>'}).join('')}
+function setT(t){stage.dataset.t=t;document.querySelectorAll('#pal button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});spec(t)}
+document.querySelectorAll('#pal button').forEach(function(b){b.onclick=function(){setT(b.dataset.t)}});setT('light');rings();
+document.getElementById('col').onclick=function(){hub.classList.toggle('mini')};
+document.getElementById('side').onclick=function(){hub.classList.toggle('left')};
+document.querySelectorAll('.row').forEach(function(r){r.onclick=function(){r.classList.toggle('done')}});
+var toast=document.getElementById('toast');
+document.getElementById('nud').onclick=function(){toast.classList.add('show');setTimeout(function(){toast.classList.remove('show')},3500)};
+var s=44*60+12;setInterval(function(){s=s>0?s-1:0;document.getElementById('t').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000);
+document.getElementById('go').onclick=function(){this.textContent=this.textContent==='Start'?'Pause':'Start'};
+</script></body></html>

@@ -29,7 +29,7 @@ Single v0 success criterion and stop point (goal-gate rule). Tech stack.
 - Reminds you of the day's tasks; you choose what to start with and set goals within an allocated time.
 - Auto timer that nudges health habits: get up and walk, drink water, stretch.
 - Plus every feature listed above. Personalised, multifunctional.
-- Owner left the look open: brainstorm options, owner picks. `design/visual-options.html` has 5 styles (Glass, Soft Ghibli, Terminal, Bold, Calm focus) with collapse, side-switch and a nudge preview. Open question: always-open sidebar or collapse to a thin strip on hover?
+- Owner left the look open: brainstorm options, owner picks. first mockup was rejected (styles looked identical). Owner wants an Apple look, iPhone 17 Pro Max / iOS 26 Liquid Glass. `design/apple-design-system.html` shows one layout in 5 colour schemes (Light, Dark, Sunset, Mint, Aurora) plus tokens (type, radii, materials). Open question: always-open sidebar or collapse to a thin strip on hover?
 
 ## v0 proposal (NOT yet agreed, needs owner's yes)
 Frameless always-on-top sidebar: tasks + checklist + quick-launch links + a button opening claude.ai, saved locally. Success: launch at boot, tick a task or open a link in under 5 seconds. Stop point: no timetable, health timer, feed, Instinct or Triage/GOALS views until v0 works. Open: whether the goal/time-box + health timer belongs in v0, since the owner described it as core.
