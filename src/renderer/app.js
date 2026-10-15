@@ -127,7 +127,9 @@ async function refreshNudge() {
 
 // ---------- events ----------
 function expand() { clearTimeout(collapseTimer); if (hubEl.classList.contains('collapsed')) window.hub.setCollapsed(false); }
-function busy() { const a = document.activeElement; return (a && (a.tagName === 'INPUT') && a !== document.body) || !$('settings').hidden; }
+function busy() { const a = document.activeElement; return (a && a.tagName === 'INPUT' && a.type === 'text' && a.id === 'addText' && a.value.trim() !== '') || !$('settings').hidden; }
+// (only unsent text or open settings block auto-collapse)
+function _unused() { }
 function maybeCollapse() {
   clearTimeout(collapseTimer);
   if (!S || S.settings.pinned) return;
