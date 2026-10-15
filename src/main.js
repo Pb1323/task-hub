@@ -41,7 +41,10 @@ const DEFAULTS = () => ({
   },
 });
 
-function today() { return new Date().toISOString().slice(0, 10); }
+function today() { // local calendar date, so the habit rings reset at local midnight (not UTC)
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 let state;
 let win, tray, bannerWin;
@@ -89,7 +92,7 @@ function view() {
 function push() { if (win && !win.isDestroyed()) win.webContents.send('state:push', view()); }
 
 function loginOpts() { return { path: process.execPath, args: app.isPackaged ? [] : [app.getAppPath()] }; }
-function setAutoLaunch(on) { app.setLoginItemSettings({ openAtLogin: !!on, ...loginOpts() }); }
+function setAutoLaunch(on) { app.setLoginItemSettings({ openAtLogin: !!on, ...loginOpts() }); rebuildTray(); }
 
 function bounds(isCollapsed) {
   const wa = screen.getPrimaryDisplay().workArea;
@@ -130,19 +133,21 @@ function toggleVisible() {
   if (win.isVisible()) win.hide(); else win.showInactive();
 }
 
+let rebuildTray = () => {};
 function createTray() {
   const icon = nativeImage.createFromPath(path.join(__dirname, '..', 'assets', 'icon.png')).resize({ width: 16, height: 16 });
   tray = new Tray(icon);
   tray.setToolTip('task-hub');
-  const rebuild = () => tray.setContextMenu(Menu.buildFromTemplate([
+  rebuildTray = () => tray.setContextMenu(Menu.buildFromTemplate([
     { label: 'Show / hide  (Ctrl+Alt+H)', click: toggleVisible },
     { label: 'Expand', click: () => { win.showInactive(); setCollapsed(false); } },
     { label: 'Launch at startup', type: 'checkbox', checked: app.getLoginItemSettings(loginOpts()).openAtLogin, click: (m) => { setAutoLaunch(m.checked); push(); } },
     { type: 'separator' },
     { label: 'Quit task-hub', click: () => app.quit() },
   ]));
-  rebuild();
+  rebuildTray();
   tray.on('click', toggleVisible);
+  tray.on('right-click', rebuildTray);
 }
 
 // ---------- banners (health nudges, focus done) ----------
