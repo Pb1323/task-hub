@@ -40,20 +40,25 @@
       <div class="set"><span>Quit task-hub</span><button class="pill ghost" id="bQuit">Quit</button></div>
     </section>
 
-    <section class="card">
-      <div class="h">Focus</div>
+    <section class="card focusCard">
+      <div class="h">Focus <b id="focusState"></b></div>
       <div class="timeRow">
-        <div class="big" id="time">25:00</div>
+        <div class="tring">
+          <svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+            <circle cx="66" cy="66" r="58" fill="none" stroke="var(--ring)" stroke-width="9"/>
+            <circle id="tArc" cx="66" cy="66" r="58" fill="none" stroke="var(--acc)" stroke-width="9" stroke-linecap="round" stroke-dasharray="364.4 364.4" stroke-dashoffset="364.4" transform="rotate(-90 66 66)"/>
+          </svg>
+          <div class="big" id="time">25:00</div>
+        </div>
         <div class="ctl">
           <button class="pill" id="bStart">Start</button>
           <button class="pill ghost" id="bReset">Reset</button>
         </div>
       </div>
-      <input class="field" id="goal" placeholder="Goal for this block, e.g. send 10 DMs" maxlength="120">
+      <input class="field" id="goal" placeholder="Goal for this block, e.g. send 10 DMs" maxlength="120" aria-label="Goal">
       <div class="seg" id="mins">
         <button data-m="15">15</button><button data-m="25">25</button><button data-m="45">45</button><button data-m="60">60</button><button data-m="90">90</button>
       </div>
-      <div class="bar"><i id="bar"></i></div>
       <div class="sub" id="nextNudge"></div>
     </section>
 

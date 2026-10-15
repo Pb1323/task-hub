@@ -56,7 +56,9 @@ function renderTimer() {
   const f = S.focus, rem = remaining(), total = f.minutes * 60000;
   const running = !!f.endsAt;
   $('time').textContent = fmt(rem);
-  $('bar').style.width = (f.endsAt || f.pausedLeft != null ? (1 - rem / total) * 100 : 0) + '%';
+  const C = 364.4, started = f.endsAt || f.pausedLeft != null;
+  $('tArc').style.strokeDashoffset = started ? C * (1 - Math.max(0, Math.min(1, rem / total))) : C;
+  $('focusState').textContent = running ? 'running' : f.pausedLeft != null ? 'paused' : '';
   $('bStart').textContent = running ? 'Pause' : (f.pausedLeft != null ? 'Resume' : 'Start');
   $('sTimer').textContent = running || f.pausedLeft != null ? fmt(rem) : '';
 }

@@ -1,5 +1,5 @@
 // task-hub main process. Local only: no network, no servers. Opens links in the default browser on request.
-const { app, BrowserWindow, ipcMain, shell, screen, Tray, Menu, nativeImage, powerMonitor, globalShortcut } = require('electron');
+const { nativeTheme, app, BrowserWindow, ipcMain, shell, screen, Tray, Menu, nativeImage, powerMonitor, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -51,15 +51,23 @@ const dataFile = () => path.join(app.getPath('userData'), 'data.json');
 
 function loadState() {
   const d = DEFAULTS();
+  let raw = null;
+  try { raw = fs.readFileSync(dataFile(), 'utf8').replace(/^﻿/, ''); } catch { /* first run */ }
   try {
-    const saved = JSON.parse(fs.readFileSync(dataFile(), 'utf8'));
+    if (raw === null) throw new Error('none');
+    const saved = JSON.parse(raw);
     state = {
       ...d, ...saved,
       focus: { ...d.focus, ...saved.focus },
       habits: { ...d.habits, ...saved.habits },
       settings: { ...d.settings, ...saved.settings, nudges: { ...d.settings.nudges, ...(saved.settings || {}).nudges }, goals: { ...d.settings.goals, ...(saved.settings || {}).goals } },
     };
-  } catch { state = d; }
+  } catch (e) {
+    state = d;
+    if (raw !== null) { // unreadable file: keep a copy so a later save can't destroy it
+      try { fs.copyFileSync(dataFile(), dataFile() + '.bad-' + Date.now()); } catch { /* ignore */ }
+    }
+  }
   if (state.habits.date !== today()) state.habits = { date: today(), water: 0, walk: 0, stretch: 0 };
 }
 
@@ -214,6 +222,7 @@ ipcMain.handle('nudge:status', () => {
 });
 
 app.whenReady().then(() => {
+  if (process.env.TASKHUB_THEME) nativeTheme.themeSource = process.env.TASKHUB_THEME; // test only: light | dark
   loadState();
   if (!TEST && !state.settings.autoLaunchInit) { setAutoLaunch(true); state.settings.autoLaunchInit = true; saveSoon(); }
   initNudges();
