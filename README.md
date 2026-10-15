@@ -34,5 +34,8 @@ Single v0 success criterion and stop point (goal-gate rule). Tech stack.
 ## v0 proposal (NOT yet agreed, needs owner's yes)
 Frameless always-on-top sidebar: tasks + checklist + quick-launch links + a button opening claude.ai, saved locally. Success: launch at boot, tick a task or open a link in under 5 seconds. Stop point: no timetable, health timer, feed, Instinct or Triage/GOALS views until v0 works. Open: whether the goal/time-box + health timer belongs in v0, since the owner described it as core.
 
+## Far-future idea (owner, 2026-10-15). NOT in v0, do not design around it yet
+Right-click on any page in any browser, choose "Export to task-hub", and the page's information/context lands in the to-do list. The longer-term version is a local Claude integration for the browser (more advanced) that reads the page and turns it into proper tasks. Parked until the core app works. When revisited, treat page content as untrusted input (prompt injection) and keep it local-only.
+
 ## Security stance (from the 2026-09-28 research session)
 Localhost only, never exposed to the internet; per-integration least-privilege tokens; no agent should combine private data + untrusted content + outbound actions without confirmation.
