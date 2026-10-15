@@ -141,8 +141,11 @@ function maybeCollapse() {
 
 window.hub.onCollapsed((c) => hubEl.classList.toggle('collapsed', c));
 window.hub.onPush((s) => { S = s; render(); });
-hubEl.addEventListener('mouseenter', () => { if (hubEl.classList.contains('collapsed')) expand(); else clearTimeout(collapseTimer); });
-hubEl.addEventListener('mouseleave', maybeCollapse);
+hubEl.addEventListener('mouseenter', () => { window.hub.setIgnore(false); if (hubEl.classList.contains('collapsed')) expand(); else clearTimeout(collapseTimer); });
+hubEl.addEventListener('mouseleave', () => { maybeCollapse(); });
+// The window is transparent and click-through; it only takes the mouse while the pointer is over the panel.
+// With forwarding on, mousemove still arrives over the empty area, so we can hand the mouse back as soon as the pointer enters the panel.
+document.addEventListener('mousemove', (e) => { window.hub.setIgnore(!e.target.closest('#hub')); });
 $('sExpand').onclick = () => { S.settings.pinned = true; save(); window.hub.setCollapsed(false); render(); };
 document.querySelectorAll('[data-link]').forEach((b) => (b.onclick = () => window.hub.openLink(b.dataset.link)));
 

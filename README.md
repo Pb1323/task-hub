@@ -46,7 +46,7 @@ Single v0 success criterion and stop point (goal-gate rule). Tech stack.
 - Reminders only count while you're active (paused after 5 min idle); a banner auto-snoozes 5 min after 25 s.
 - Test switches (env vars, never needed day to day): `TASKHUB_DATA_DIR=<folder>` throwaway profile (no single-instance lock, no autostart); `TASKHUB_FAST=1` one reminder 'minute' = 1 s; `TASKHUB_THEME=light|dark`; `TASKHUB_TEST_BANNER=1` water banner after 3 s.
 - Saved data is validated on write; an unreadable `data.json` is copied to `data.json.bad-<time>` instead of being overwritten. Reminders reset after sleep/resume. Esc collapses; auto-collapse waits while you have unsent task text or settings open.
-- Look: `design/apple-design-system.html`. The real window can't blur the desktop behind it (Electron limitation with transparent windows), so the panel is a 92% opaque tint.
+- Look: `design/apple-design-system.html`. The window is one fixed transparent full-height window; the panel inside animates between pill and full with CSS, and the empty area is click-through (`setIgnoreMouseEvents` + forwarded mouse moves). A transparent window can't blur the desktop, so the panel is a ~97% opaque tint. `TASKHUB_ACRYLIC=1` tries real Windows 11 acrylic blur: it works but looks muddy grey and forces near-square corners, so it stays off.
 
 ## Next (after you've used v0)
 Polish the look (more Apple, more sophisticated), proper packaging/installer, then timetable, daily feed, Instinct, GOALS.md/Triage views.

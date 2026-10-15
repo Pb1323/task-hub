@@ -96,25 +96,21 @@ function push() { if (win && !win.isDestroyed()) win.webContents.send('state:pus
 function loginOpts() { return { path: process.execPath, args: app.isPackaged ? [] : [app.getAppPath()] }; }
 function setAutoLaunch(on) { app.setLoginItemSettings({ openAtLogin: !!on, ...loginOpts() }); rebuildTray(); }
 
-function bounds(isCollapsed) {
+// The window is always full height and expanded width; the panel inside collapses/expands with CSS and
+// the renderer makes the empty (transparent) part click-through (see ui:ignore).
+function bounds() {
   const wa = screen.getPrimaryDisplay().workArea;
-  if (isCollapsed) {
-    const h = Math.min(300, wa.height - 2 * MARGIN);
-    return { x: wa.x + wa.width - COLLAPSED_W - MARGIN, y: wa.y + Math.round((wa.height - h) / 2), width: COLLAPSED_W, height: h };
-  }
   return { x: wa.x + wa.width - EXPANDED_W - MARGIN, y: wa.y + MARGIN, width: EXPANDED_W, height: wa.height - 2 * MARGIN };
 }
 
 function setCollapsed(c) {
   collapsed = c;
-  if (!win) return;
-  win.setBounds(bounds(c));
-  win.webContents.send('ui:collapsed', c);
+  if (win && !win.isDestroyed()) win.webContents.send('ui:collapsed', c);
 }
 
 function createWindow() {
   win = new BrowserWindow({
-    ...bounds(true),
+    ...bounds(),
     frame: false, resizable: false, maximizable: false, minimizable: false,
     skipTaskbar: true, alwaysOnTop: true, hasShadow: false, show: false, focusable: true,
     ...(ACRYLIC ? { backgroundMaterial: 'acrylic', roundedCorners: true } : { transparent: true }),
@@ -122,6 +118,7 @@ function createWindow() {
   });
   win.setAlwaysOnTop(true, 'screen-saver');
   win.setVisibleOnAllWorkspaces?.(true);
+  if (!ACRYLIC) win.setIgnoreMouseEvents(true, { forward: true }); // transparent area must not block clicks on other apps
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: ACRYLIC ? { acrylic: '1' } : {} });
@@ -235,6 +232,7 @@ ipcMain.on('state:set', (_e, s) => {
   saveSoon();
 });
 ipcMain.on('ui:collapsed', (_e, c) => setCollapsed(!!c));
+ipcMain.on('ui:ignore', (_e, ignore) => { if (win && !win.isDestroyed() && !ACRYLIC) win.setIgnoreMouseEvents(!!ignore, { forward: true }); });
 ipcMain.on('open:link', (_e, url) => {
   try { const u = new URL(url); if (URL_OK.has(u.protocol)) shell.openExternal(u.toString()); } catch { /* ignore bad url */ }
 });
@@ -264,7 +262,7 @@ app.whenReady().then(() => {
   if (process.env.TASKHUB_TEST_BANNER) setTimeout(() => { pending = 'water'; showBanner({ kind: 'water', ...KINDS.water, actions: true }); }, 3000);
   globalShortcut.register('Control+Alt+H', toggleVisible);
   powerMonitor.on('resume', () => { initNudges(); pending = null; }); // don't fire a backlog of reminders after sleep
-  screen.on('display-metrics-changed', () => win && win.setBounds(bounds(collapsed)));
+  screen.on('display-metrics-changed', () => win && win.setBounds(bounds()));
 });
 app.on('second-instance', () => { if (win) { win.showInactive(); setCollapsed(false); } });
 app.on('will-quit', () => globalShortcut.unregisterAll());
