@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>task-hub visual options</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{font-family:system-ui,Segoe UI,sans-serif;background:#111;color:#eee;min-height:100vh}
+.top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 16px;background:#000;position:sticky;top:0;z-index:50}
+.top b{margin-right:8px}
+.top button{background:#222;color:#eee;border:1px solid #444;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.top button.on{background:#eee;color:#000}
+.top .sp{flex:1}
+#desk{position:relative;height:calc(100vh - 56px);min-height:640px;overflow:hidden;background:linear-gradient(135deg,#2b4c7e,#6a3d7c 55%,#c0667a)}
+#desk .win{position:absolute;left:8%;top:12%;width:46%;height:60%;background:rgba(255,255,255,.12);border-radius:10px;padding:14px;font-size:12px;opacity:.7}
+#desk .win2{left:22%;top:34%;width:40%;height:50%;opacity:.5}
+#hub{--bg:#fff;--fg:#222;--mut:#777;--acc:#4a7;--card:#f4f4f4;--bd:#ddd;--r:14px;--font:system-ui;
+ position:absolute;top:0;right:0;bottom:0;width:340px;background:var(--bg);color:var(--fg);font-family:var(--font);
+ border-left:1px solid var(--bd);padding:16px;overflow:auto;transition:.25s;display:flex;flex-direction:column;gap:12px;font-size:14px}
+#hub.collapsed{width:56px;padding:10px 6px;align-items:center;overflow:hidden}
+#hub.collapsed .full{display:none}
+#hub .mini{display:none;flex-direction:column;gap:14px;align-items:center;font-size:20px}
+#hub.collapsed .mini{display:flex}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px}
+h4{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);margin-bottom:8px;font-weight:600}
+.hello{font-size:20px;font-weight:700}.sub{color:var(--mut);font-size:12px;margin-top:2px}
+.row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.row input{accent-color:var(--acc)}
+.row.done span{text-decoration:line-through;color:var(--mut)}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:calc(var(--r) - 4px);padding:8px 12px;cursor:pointer;font:inherit;font-weight:600}
+.bar{height:6px;border-radius:9px;background:var(--bd);overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;width:40%;background:var(--acc)}
+.time{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 10px;border:1px solid var(--bd);border-radius:99px;font-size:12px;cursor:pointer;background:var(--bg)}
+#toast{position:absolute;left:50%;top:24px;transform:translateX(-50%) translateY(-120px);background:#fff;color:#222;padding:14px 18px;border-radius:14px;box-shadow:0 8px 30px #0006;transition:.4s;z-index:60;max-width:340px}
+#toast.show{transform:translateX(-50%)}
+.note{position:absolute;left:16px;bottom:16px;background:#000b;color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;max-width:360px;z-index:5}
+[data-t=glass]{--bg:rgba(20,22,34,.62);--fg:#f2f4ff;--mut:#9aa0c0;--acc:#8ab4ff;--card:rgba(255,255,255,.07);--bd:rgba(255,255,255,.12);--r:16px;backdrop-filter:blur(22px) saturate(1.4)}
+[data-t=glass] .btn{color:#0b1020}
+[data-t=ghibli]{--bg:#fbf6ea;--fg:#3d4a3a;--mut:#8a9484;--acc:#7fae7a;--card:#f3ecd8;--bd:#e3d9bb;--r:20px;--font:Georgia,'Palatino Linotype',serif}
+[data-t=ghibli] .btn{color:#fffdf5}
+[data-t=term]{--bg:#0b0f0b;--fg:#9dffa3;--mut:#4f8a54;--acc:#9dffa3;--card:#0f160f;--bd:#1f3a22;--r:2px;--font:'Cascadia Mono',Consolas,monospace}
+[data-t=term] .btn{color:#021}
+[data-t=term] .hello::before{content:"> "}
+[data-t=brut]{--bg:#fff7d6;--fg:#000;--mut:#444;--acc:#ff5c8a;--card:#fff;--bd:#000;--r:0px;--font:'Arial Black',Impact,sans-serif;border-left:4px solid #000}
+[data-t=brut] .card{border-width:3px;box-shadow:5px 5px 0 #000}
+[data-t=brut] .btn{border:3px solid #000;color:#000;box-shadow:3px 3px 0 #000}
+[data-t=brut] h4{color:#000}
+[data-t=focus]{--bg:#16181d;--fg:#e9e9ee;--mut:#80848f;--acc:#ff7a45;--card:#1d2027;--bd:#2a2e38;--r:10px}
+[data-t=focus] .btn{color:#16181d}
+[data-t=focus] .card{background:transparent;border:0;border-bottom:1px solid var(--bd);border-radius:0;padding:10px 2px}
+</style></head><body>
+<div class="top">
+ <b>task-hub: pick a look</b>
+ <button data-t="glass" class="on">1 Glass</button>
+ <button data-t="ghibli">2 Soft Ghibli</button>
+ <button data-t="term">3 Terminal</button>
+ <button data-t="brut">4 Bold</button>
+ <button data-t="focus">5 Calm focus</button>
+ <span class="sp"></span>
+ <button id="col">Collapse / expand</button>
+ <button id="side">Switch side</button>
+ <button id="nud">Preview a health nudge</button>
+</div>
+<div id="desk">
+ <div class="win">Your normal windows sit here. The hub sits on top, always visible.</div>
+ <div class="win win2"></div>
+ <div class="note" id="note"></div>
+ <div id="toast"></div>
+ <aside id="hub" data-t="glass">
+  <div class="mini"><span title="Claude">&#10022;</span><span>&#10003;</span><span>&#9201;</span><span>&#128279;</span><span>&#128167;</span></div>
+  <div class="full">
+   <div class="hello">Good morning, Srinivas</div>
+   <div class="sub">Wed 15 Oct &middot; 3 tasks planned &middot; 2h 30m allocated</div>
+  </div>
+  <div class="card full">
+   <h4>Start with</h4>
+   <div class="chips"><span class="chip">Biology site</span><span class="chip">Outreach DMs</span><span class="chip">Portfolio</span></div>
+   <div style="margin:10px 0 6px">Goal: <b>finish 10 outreach DMs</b></div>
+   <div class="row"><span style="color:var(--mut)">Time box</span><b>45 min</b><span style="flex:1"></span><button class="btn" id="go">Start</button></div>
+  </div>
+  <div class="card full">
+   <h4>Focus timer</h4>
+   <div class="time" id="t">44:12</div>
+   <div class="bar"><i></i></div>
+   <div class="sub">Next nudge: &#128167; water in 12 min</div>
+  </div>
+  <div class="card full">
+   <h4>Today</h4>
+   <label class="row done"><input type="checkbox" checked><span>Reply to Chris Pearse</span></label>
+   <label class="row"><input type="checkbox"><span>Ask school about BPhO entry</span></label>
+   <label class="row"><input type="checkbox"><span>Test /questions on phone</span></label>
+   <label class="row"><input type="checkbox"><span>Stretch + walk (break)</span></label>
+  </div>
+  <div class="card full">
+   <h4>Quick launch</h4>
+   <div class="chips"><span class="chip">&#10022; Claude</span><span class="chip">&#9993; Gmail</span><span class="chip">&#128172; Instinct</span><span class="chip">&#9638; Triage</span><span class="chip">&#8962; GOALS.md</span></div>
+  </div>
+  <div class="card full">
+   <h4>Daily feed</h4>
+   <div style="font-size:13px">"Small steps, repeated daily, beat big bursts."</div>
+   <div class="sub" style="margin-top:6px">News and achievements from your saved sources (RSS, no scraping)</div>
+  </div>
+ </aside>
+</div>
+<script>
+var hub=document.getElementById('hub'),note=document.getElementById('note');
+var notes={glass:'Frosted dark glass. Modern, blends with the desktop, easy on the eyes.',ghibli:'Soft cream and green, rounded, serif. Matches the Ghibli feel you like on your other sites.',term:'Green on black terminal. Techy and compact.',brut:'Loud colours, thick borders. Hard to ignore, which helps with reminders.',focus:'Quiet charcoal, one orange accent, no boxes. Least distracting while you work.'};
+function setT(t){hub.dataset.t=t;document.querySelectorAll('.top button[data-t]').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});note.textContent=notes[t]}
+document.querySelectorAll('.top button[data-t]').forEach(function(b){b.onclick=function(){setT(b.dataset.t)}});setT('glass');
+document.getElementById('col').onclick=function(){hub.classList.toggle('collapsed')};
+var left=false;document.getElementById('side').onclick=function(){left=!left;hub.style.right=left?'auto':'0';hub.style.left=left?'0':'auto'};
+document.querySelectorAll('.row input').forEach(function(i){i.onchange=function(){i.closest('.row').classList.toggle('done',i.checked)}});
+var toast=document.getElementById('toast');
+document.getElementById('nud').onclick=function(){var L=[['&#128167;','Time for water','Drink a glass, then back to it.'],['&#128694;','Get up and walk','2 minutes away from the screen.'],['&#129496;','Stretch','Neck, shoulders, wrists.']];var m=L[Math.floor(Math.random()*3)];toast.innerHTML='<b>'+m[0]+' '+m[1]+'</b><br><span style="font-size:13px">'+m[2]+'</span>';toast.classList.add('show');setTimeout(function(){toast.classList.remove('show')},3500)};
+var s=44*60+12;setInterval(function(){s=s>0?s-1:0;document.getElementById('t').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000);
+document.getElementById('go').onclick=function(){this.textContent='Running'};
+</script></body></html>
