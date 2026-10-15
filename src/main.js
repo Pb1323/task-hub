@@ -9,13 +9,13 @@ const { today, clean, safeUrl } = require('./lib');
 // TASKHUB_DATA_DIR = throwaway profile for tests (separate data, no single-instance lock, no autostart).
 const TEST = !!process.env.TASKHUB_DATA_DIR;
 if (TEST) app.setPath('userData', process.env.TASKHUB_DATA_DIR);
-else if (!app.requestSingleInstanceLock()) app.quit();
+const GOT_LOCK = TEST || app.requestSingleInstanceLock();
+if (!GOT_LOCK) app.quit();
 
 // Experiment (TASKHUB_ACRYLIC=1): real Windows 11 blur behind the panel, at the cost of the large rounded corners.
 const ACRYLIC = !!process.env.TASKHUB_ACRYLIC;
 const MARGIN = 14;
 const EXPANDED_W = 392;
-const COLLAPSED_W = 64;
 const SNOOZE_MS = 5 * 60 * 1000;
 const IDLE_PAUSE_S = 5 * 60;
 
@@ -70,6 +70,8 @@ function loadState() {
       try { fs.copyFileSync(dataFile(), dataFile() + '.bad-' + Date.now()); } catch { /* ignore */ }
     }
   }
+  if (!Array.isArray(state.tasks)) state.tasks = [];
+  if (!Array.isArray(state.links)) state.links = d.links;
   state.links.forEach((l) => { if (l.color === '#24292f') l.color = '#57606a'; }); // old GitHub tile was invisible in dark mode
   if (state.habits.date !== today()) state.habits = { date: today(), water: 0, walk: 0, stretch: 0, focus: 0 };
 }
@@ -160,7 +162,9 @@ function showBanner(payload) {
   bannerWin.loadFile(path.join(__dirname, 'banner', 'banner.html'), { query: { d: JSON.stringify(payload) } });
   bannerWin.once('ready-to-show', () => bannerWin.showInactive());
   const mine = bannerWin;
-  setTimeout(() => { if (!mine.isDestroyed()) { mine.close(); if (payload.kind) answer(payload.kind, 'snooze'); } }, 25000);
+  // However a reminder banner goes away (timeout, replaced by another banner, closed), an unanswered one counts as snoozed.
+  mine.on('closed', () => { if (payload.kind) answer(payload.kind, 'snooze', false); });
+  setTimeout(() => { if (!mine.isDestroyed()) mine.close(); }, 25000);
   return mine;
 }
 
@@ -171,7 +175,7 @@ let pending = null;
 const MIN = process.env.TASKHUB_FAST ? 1000 : 60000;
 function resetNext(kind) { next[kind] = Date.now() + state.settings.nudges[kind] * MIN; }
 function initNudges() { Object.keys(KINDS).forEach(resetNext); }
-function answer(kind, action) {
+function answer(kind, action, closeBanner = true) {
   if (pending !== kind) return;
   pending = null;
   if (action === 'done') {
@@ -181,7 +185,7 @@ function answer(kind, action) {
   } else {
     next[kind] = Date.now() + SNOOZE_MS;
   }
-  if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close();
+  if (closeBanner && bannerWin && !bannerWin.isDestroyed()) bannerWin.close();
 }
 setInterval(() => {
   if (!state) return;
@@ -226,6 +230,7 @@ ipcMain.handle('nudge:status', () => {
 });
 
 app.whenReady().then(() => {
+  if (!GOT_LOCK) return; // a second copy: the first one already runs
   if (process.env.TASKHUB_THEME) nativeTheme.themeSource = process.env.TASKHUB_THEME; // test only: light | dark
   loadState();
   if (!TEST && !state.settings.autoLaunchInit) { setAutoLaunch(true); state.settings.autoLaunchInit = true; saveSoon(); }
