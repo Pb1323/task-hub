@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+if (new URLSearchParams(location.search).get('acrylic')) document.documentElement.classList.add('acrylic');
 const hubEl = $('hub');
 let S = null;            // full state, mirrored to main
 let collapseTimer = null;

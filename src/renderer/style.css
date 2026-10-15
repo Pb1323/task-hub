@@ -73,3 +73,8 @@ h1{font-size:28px;font-weight:800;letter-spacing:-.7px;line-height:1.1;margin-to
 .mins{display:flex;gap:6px}.mins label{display:flex;align-items:center;gap:2px;font-size:12px}
 .mins input{width:46px;background:var(--field);border:1px solid var(--sep);border-radius:8px;padding:4px 6px}
 [hidden]{display:none!important}
+
+/* experiment: real acrylic behind the window (TASKHUB_ACRYLIC=1): square-ish corners, much lighter tint */
+html.acrylic #hub{border-radius:8px;background:radial-gradient(120% 60% at 20% 0%,var(--glow),transparent 60%),var(--glass-acrylic)}
+:root{--glass-acrylic:rgba(244,252,248,.35)}
+@media (prefers-color-scheme:dark){:root{--glass-acrylic:rgba(18,22,26,.30)}}

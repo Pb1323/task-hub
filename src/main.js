@@ -10,6 +10,8 @@ const TEST = !!process.env.TASKHUB_DATA_DIR;
 if (TEST) app.setPath('userData', process.env.TASKHUB_DATA_DIR);
 else if (!app.requestSingleInstanceLock()) app.quit();
 
+// Experiment (TASKHUB_ACRYLIC=1): real Windows 11 blur behind the panel, at the cost of the large rounded corners.
+const ACRYLIC = !!process.env.TASKHUB_ACRYLIC;
 const MARGIN = 14;
 const EXPANDED_W = 392;
 const COLLAPSED_W = 64;
@@ -113,15 +115,16 @@ function setCollapsed(c) {
 function createWindow() {
   win = new BrowserWindow({
     ...bounds(true),
-    frame: false, transparent: true, resizable: false, maximizable: false, minimizable: false,
+    frame: false, resizable: false, maximizable: false, minimizable: false,
     skipTaskbar: true, alwaysOnTop: true, hasShadow: false, show: false, focusable: true,
+    ...(ACRYLIC ? { backgroundMaterial: 'acrylic', roundedCorners: true } : { transparent: true }),
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true },
   });
   win.setAlwaysOnTop(true, 'screen-saver');
   win.setVisibleOnAllWorkspaces?.(true);
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (e) => e.preventDefault());
-  win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  win.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: ACRYLIC ? { acrylic: '1' } : {} });
   win.once('ready-to-show', () => {
     win.showInactive();
     setCollapsed(!state.settings.pinned);
