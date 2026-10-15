@@ -5,7 +5,10 @@ const fs = require('fs');
 const os = require('os');
 const { spawn } = require('child_process');
 
-if (!app.requestSingleInstanceLock()) app.quit();
+// TASKHUB_DATA_DIR = throwaway profile for tests (separate data, no single-instance lock, no autostart).
+const TEST = !!process.env.TASKHUB_DATA_DIR;
+if (TEST) app.setPath('userData', process.env.TASKHUB_DATA_DIR);
+else if (!app.requestSingleInstanceLock()) app.quit();
 
 const MARGIN = 14;
 const EXPANDED_W = 392;
@@ -154,7 +157,9 @@ function showBanner(payload) {
 // ---------- health nudges ----------
 const next = {};
 let pending = null;
-function resetNext(kind) { next[kind] = Date.now() + state.settings.nudges[kind] * 60000; }
+// TASKHUB_FAST=1 makes one 'minute' last one second, for testing the schedule.
+const MIN = process.env.TASKHUB_FAST ? 1000 : 60000;
+function resetNext(kind) { next[kind] = Date.now() + state.settings.nudges[kind] * MIN; }
 function initNudges() { Object.keys(KINDS).forEach(resetNext); }
 function answer(kind, action) {
   if (pending !== kind) return;
@@ -210,7 +215,7 @@ ipcMain.handle('nudge:status', () => {
 
 app.whenReady().then(() => {
   loadState();
-  if (!state.settings.autoLaunchInit) { setAutoLaunch(true); state.settings.autoLaunchInit = true; saveSoon(); }
+  if (!TEST && !state.settings.autoLaunchInit) { setAutoLaunch(true); state.settings.autoLaunchInit = true; saveSoon(); }
   initNudges();
   createWindow();
   createTray();
