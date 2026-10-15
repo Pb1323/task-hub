@@ -90,7 +90,7 @@ function render() {
     const focused = S.focus.taskId === t.id;
     box.append(el('div', { class: 'row' + (t.done ? ' done' : '') + (focused ? ' focus' : '') },
       el('button', { class: 'chk', title: 'Done', onclick: () => { t.done = !t.done; if (t.done && focused) S.focus.taskId = null; save(); render(); } }, '✓'),
-      el('div', { class: 't' }, t.text),
+      el('div', { class: 't', title: 'Double-click to edit', ondblclick: (ev) => editTask(ev.currentTarget, t) }, t.text),
       el('div', { class: 'a' },
         t.done ? '' : el('button', { title: 'Focus on this', onclick: () => { S.focus.taskId = focused ? null : t.id; if (!focused) S.focus.goal = t.text; save(); render(); } }, focused ? '◉' : '◎'),
         el('button', { title: 'Delete', onclick: () => { S.tasks = S.tasks.filter((x) => x.id !== t.id); if (focused) S.focus.taskId = null; save(); render(); } }, '✕'))));
@@ -115,6 +115,7 @@ function render() {
   S.links.forEach((l) => ap.append(el('button', { onclick: () => window.hub.openLink(l.url), title: l.url },
     el('div', { class: 'a', style: `background:${/^#[0-9a-f]{3,8}$/i.test(l.color) ? l.color : '#555'}` }, l.glyph || '↗'), l.name)));
 
+  renderLinkList();
   // settings + pin
   $('oAuto').checked = !!S.autoLaunch;
   $('oNudge').checked = S.settings.nudgesOn;
@@ -128,6 +129,29 @@ async function refreshNudge() {
   const mins = Math.max(0, Math.round((st.at - Date.now()) / 60000));
   const name = { water: 'water', walk: 'a walk', stretch: 'a stretch' }[st.kind];
   $('nextNudge').textContent = S.settings.nudgesOn ? `Next reminder: ${name} in ${mins} min` : 'Health reminders are off';
+}
+
+function editTask(node, t) {
+  const inp = el('input', { class: 'edit', maxlength: '140', 'aria-label': 'Edit task' });
+  inp.value = t.text;
+  let done = false;
+  const finish = (ok) => { if (done) return; done = true; const v = inp.value.trim(); if (ok && v) { t.text = v; save(); } render(); };
+  inp.onkeydown = (e) => { if (e.key === 'Enter') finish(true); if (e.key === 'Escape') { e.stopPropagation(); finish(false); } };
+  inp.onblur = () => finish(true);
+  node.replaceChildren(inp); inp.focus(); inp.select();
+}
+
+const PALETTE = ['#5856d6', '#ff9500', '#0a84ff', '#30b0c7', '#af52de', '#ff2d55'];
+function normUrl(u) {
+  u = u.trim();
+  if (!u) return null;
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = 'https://' + u;
+  try { const p = new URL(u); return ['https:', 'http:', 'mailto:'].includes(p.protocol) ? p.toString() : null; } catch { return null; }
+}
+function renderLinkList() {
+  const box = $('linkList'); box.replaceChildren();
+  S.links.forEach((l) => box.append(el('div', { class: 'lrow' }, el('b', {}, l.name), el('i', {}, l.url),
+    el('button', { title: 'Remove', 'aria-label': 'Remove ' + l.name, onclick: () => { S.links = S.links.filter((x) => x !== l); save(); render(); } }, '✕'))));
 }
 
 // ---------- events ----------
@@ -168,6 +192,13 @@ $('addForm').onsubmit = (e) => {
   if (!v) return;
   S.tasks.unshift({ id: uid(), text: v, done: false });
   $('addText').value = ''; save(); render();
+};
+$('linkForm').onsubmit = (e) => {
+  e.preventDefault();
+  const url = normUrl($('lUrl').value), name = $('lName').value.trim() || (url && new URL(url).hostname.replace(/^www\./, ''));
+  if (!url || !name || S.links.length >= 12) { $('lUrl').focus(); return; }
+  S.links.push({ name: name.slice(0, 24), url, color: PALETTE[S.links.length % PALETTE.length], glyph: name[0].toUpperCase() });
+  $('lName').value = ''; $('lUrl').value = ''; save(); render();
 };
 $('oAuto').onchange = (e) => { window.hub.setAutoLaunch(e.target.checked); };
 $('oNudge').onchange = (e) => { S.settings.nudgesOn = e.target.checked; save(); render(); refreshNudge(); };

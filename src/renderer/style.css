@@ -81,3 +81,8 @@ h1{font-size:28px;font-weight:800;letter-spacing:-.7px;line-height:1.1;margin-to
 html.acrylic #hub{border-radius:8px;background:radial-gradient(120% 60% at 20% 0%,var(--glow),transparent 60%),var(--glass-acrylic)}
 :root{--glass-acrylic:rgba(244,252,248,.35)}
 @media (prefers-color-scheme:dark){:root{--glass-acrylic:rgba(18,22,26,.30)}}
+
+.set.col{display:block}.set.col>span{display:block;margin-bottom:6px}
+.lrow{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px}.lrow b{width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lrow i{flex:1;font-style:normal;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lrow button{width:24px;height:24px;border-radius:50%;color:var(--mut)}.lrow button:hover{background:var(--field);color:var(--fg)}
+.edit{width:100%;background:var(--field);border:1px solid var(--acc);border-radius:10px;padding:5px 8px;outline:none;user-select:text}
