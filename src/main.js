@@ -33,7 +33,7 @@ const DEFAULTS = () => ({
     { name: 'WhatsApp', url: 'https://web.whatsapp.com', color: '#25d366', glyph: '\u{1F4AC}' },
   ],
   focus: { goal: '', minutes: 25, taskId: null, endsAt: null, pausedLeft: null },
-  habits: { date: today(), water: 0, walk: 0, stretch: 0 },
+  habits: { date: today(), water: 0, walk: 0, stretch: 0, focus: 0 },
   settings: {
     pinned: false,
     nudgesOn: true,
@@ -74,7 +74,7 @@ function loadState() {
     }
   }
   state.links.forEach((l) => { if (l.color === '#24292f') l.color = '#57606a'; }); // old GitHub tile was invisible in dark mode
-  if (state.habits.date !== today()) state.habits = { date: today(), water: 0, walk: 0, stretch: 0 };
+  if (state.habits.date !== today()) state.habits = { date: today(), water: 0, walk: 0, stretch: 0, focus: 0 };
 }
 
 function saveSoon() {
@@ -123,8 +123,7 @@ function createWindow() {
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: ACRYLIC ? { acrylic: '1' } : {} });
   win.once('ready-to-show', () => {
-    win.showInactive();
-    setCollapsed(!state.settings.pinned);
+    win.showInactive(); // the panel starts collapsed (class in index.html); the renderer opens it for the startup glance
   });
 }
 
@@ -189,7 +188,7 @@ function answer(kind, action) {
 }
 setInterval(() => {
   if (!state) return;
-  if (state.habits.date !== today()) { state.habits = { date: today(), water: 0, walk: 0, stretch: 0 }; saveSoon(); push(); }
+  if (state.habits.date !== today()) { state.habits = { date: today(), water: 0, walk: 0, stretch: 0, focus: 0 }; saveSoon(); push(); }
   if (!state.settings.nudgesOn || pending) return;
   // Don't count time while the computer is idle or locked.
   if (powerMonitor.getSystemIdleTime() > IDLE_PAUSE_S) { Object.keys(next).forEach((k) => { next[k] += 5000; }); return; }
@@ -214,7 +213,7 @@ function clean(s) {
       endsAt: f.endsAt == null ? null : num(f.endsAt, 0, 8.64e15, null), pausedLeft: f.pausedLeft == null ? null : num(f.pausedLeft, 0, 2.4e7, null) };
   }
   if (s.habits && typeof s.habits === 'object') {
-    out.habits = { date: str(s.habits.date, 10), water: num(s.habits.water, 0, 999, 0), walk: num(s.habits.walk, 0, 999, 0), stretch: num(s.habits.stretch, 0, 999, 0) };
+    out.habits = { date: str(s.habits.date, 10), water: num(s.habits.water, 0, 999, 0), walk: num(s.habits.walk, 0, 999, 0), stretch: num(s.habits.stretch, 0, 999, 0), focus: num(s.habits.focus, 0, 999, 0) };
   }
   if (s.settings && typeof s.settings === 'object') {
     const t = s.settings, n = t.nudges || {}, g = t.goals || {};

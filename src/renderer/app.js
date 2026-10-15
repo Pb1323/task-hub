@@ -3,6 +3,7 @@ if (new URLSearchParams(location.search).get('acrylic')) document.documentElemen
 const hubEl = $('hub');
 let S = null;            // full state, mirrored to main
 let collapseTimer = null;
+let hovering = false;
 
 const KINDS = [
   ['water', '\u{1F4A7}', 'Water', 'var(--acc2)'],
@@ -48,6 +49,7 @@ function tickTimer() {
   const f = S.focus;
   if (f.endsAt && f.endsAt - Date.now() <= 0) {
     f.endsAt = null; f.pausedLeft = null;
+    S.habits.focus = (S.habits.focus || 0) + 1;
     window.hub.notify({ icon: '✅', title: 'Focus block done', body: f.goal || 'Nice work. Take a short break.' });
     save();
   }
@@ -69,6 +71,8 @@ function render() {
   const d = new Date();
   $('date').textContent = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   const h = d.getHours();
+  const openN = S.tasks.filter((t) => !t.done).length, fb = S.habits.focus || 0;
+  $('subline').textContent = `${openN ? openN + (openN === 1 ? ' task' : ' tasks') + ' to do' : 'Nothing left to do'} · ${fb} focus ${fb === 1 ? 'block' : 'blocks'} today`;
   $('greet').textContent = (h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening') + ', Srinivas';
 
   // focus inputs
@@ -136,13 +140,13 @@ function busy() {
 function maybeCollapse() {
   clearTimeout(collapseTimer);
   if (!S || S.settings.pinned) return;
-  collapseTimer = setTimeout(() => { if (busy()) maybeCollapse(); else window.hub.setCollapsed(true); }, 700); // never collapse mid-typing
+  collapseTimer = setTimeout(() => { if (hovering) return; if (busy()) maybeCollapse(); else window.hub.setCollapsed(true); }, 700); // never collapse mid-typing
 }
 
 window.hub.onCollapsed((c) => hubEl.classList.toggle('collapsed', c));
 window.hub.onPush((s) => { S = s; render(); });
-hubEl.addEventListener('mouseenter', () => { window.hub.setIgnore(false); if (hubEl.classList.contains('collapsed')) expand(); else clearTimeout(collapseTimer); });
-hubEl.addEventListener('mouseleave', () => { maybeCollapse(); });
+hubEl.addEventListener('mouseenter', () => { hovering = true; window.hub.setIgnore(false); if (hubEl.classList.contains('collapsed')) expand(); else clearTimeout(collapseTimer); });
+hubEl.addEventListener('mouseleave', () => { hovering = false; maybeCollapse(); });
 // The window is transparent and click-through; it only takes the mouse while the pointer is over the panel.
 // With forwarding on, mousemove still arrives over the empty area, so we can hand the mouse back as soon as the pointer enters the panel.
 document.addEventListener('mousemove', (e) => { window.hub.setIgnore(!e.target.closest('#hub')); });
@@ -182,6 +186,8 @@ $('goal').addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.b
 (async () => {
   S = await window.hub.getState();
   render(); refreshNudge();
+  // At login, show the day's tasks for a few seconds, then tuck away (unless pinned).
+  if (S.tasks.length || !S.settings.pinned) { window.hub.setCollapsed(false); setTimeout(maybeCollapse, 9000); }
   setInterval(tickTimer, 1000);
   setInterval(refreshNudge, 15000);
 })();
