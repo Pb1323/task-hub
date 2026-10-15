@@ -158,6 +158,14 @@ $('oNudge').onchange = (e) => { S.settings.nudgesOn = e.target.checked; save(); 
   $(id).onchange = (e) => { const v = Math.min(240, Math.max(5, +e.target.value || 30)); S.settings.nudges[k] = v; save(); render(); setTimeout(refreshNudge, 100); };
 });
 
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  if (!$('settings').hidden) { $('settings').hidden = true; return; }
+  S.settings.pinned = false; save(); window.hub.setCollapsed(true); render();
+});
+$('goal').addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.blur(); });
+
 (async () => {
   S = await window.hub.getState();
   render(); refreshNudge();
