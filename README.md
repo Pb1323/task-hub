@@ -31,8 +31,11 @@ Single v0 success criterion and stop point (goal-gate rule). Tech stack.
 - Plus every feature listed above. Personalised, multifunctional.
 - Owner left the look open: brainstorm options, owner picks. first mockup was rejected (styles looked identical). Owner wants an Apple look, iPhone 17 Pro Max / iOS 26 Liquid Glass. `design/apple-design-system.html` shows one layout in 5 colour schemes (Light, Dark, Sunset, Mint, Aurora) plus tokens (type, radii, materials). Open question: always-open sidebar or collapse to a thin strip on hover?
 
-## v0 proposal (NOT yet agreed, needs owner's yes)
-Frameless always-on-top sidebar: tasks + checklist + quick-launch links + a button opening claude.ai, saved locally. Success: launch at boot, tick a task or open a link in under 5 seconds. Stop point: no timetable, health timer, feed, Instinct or Triage/GOALS views until v0 works. Open: whether the goal/time-box + health timer belongs in v0, since the owner described it as core.
+## v0 (AGREED 2026-10-15, owner's answers to 10 questions)
+**Success criterion:** at Windows login the sidebar appears on its own (right side, collapsed to a thin icon strip, expands on hover/click). In under 5 seconds you can tick a task or open a link; you can pick a task, set a time-boxed goal and start a focus timer; and you get water (30 min), walk (50), stretch (75) reminders. Tasks persist across restarts.
+**Stop point:** nothing beyond this. No timetable, news/inspiration feed, Instinct, Triage/GOALS views, or browser right-click export until v0 is used for real.
+**Decisions:** Electron on Windows (node_modules on D: because C: is full); Mint (light) + Dark following the Windows theme, Apple/iOS 26 glass look from `design/apple-design-system.html`; tasks in a local JSON file in the app's userData folder; auto-launch with an on/off switch in the app; Claude buttons open claude.ai in the browser and Claude Code in a PowerShell window; seeded links: Claude, Gmail, GitHub, WhatsApp Web (plain link only).
+**Run:** `npm start` (see Build notes below once written).
 
 ## Far-future idea (owner, 2026-10-15). NOT in v0, do not design around it yet
 Right-click on any page in any browser, choose "Export to task-hub", and the page's information/context lands in the to-do list. The longer-term version is a local Claude integration for the browser (more advanced) that reads the page and turns it into proper tasks. Parked until the core app works. When revisited, treat page content as untrusted input (prompt injection) and keep it local-only.

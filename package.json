@@ -1,0 +1,9 @@
+﻿{
+  "name": "task-hub",
+  "version": "0.1.0",
+  "description": "Local-only floating sidebar: tasks, focus timer, health nudges, quick launch",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": { "start": "electron ." },
+  "devDependencies": { "electron": "^33.2.0" }
+}
