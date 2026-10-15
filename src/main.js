@@ -36,6 +36,7 @@ const DEFAULTS = () => ({
   focus: { goal: '', minutes: 25, taskId: null, endsAt: null, pausedLeft: null },
   habits: { date: today(), water: 0, walk: 0, stretch: 0, focus: 0 },
   settings: {
+    name: 'Srinivas',
     pinned: false,
     nudgesOn: true,
     nudges: { water: 30, walk: 50, stretch: 75 },

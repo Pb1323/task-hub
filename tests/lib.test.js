@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { today, clean, safeUrl } = require('../src/lib');
 
-const SETTINGS = { pinned: false, nudgesOn: true, nudges: { water: 30, walk: 50, stretch: 75 }, goals: { water: 8, walk: 6, stretch: 4 }, autoLaunchInit: true };
+const SETTINGS = { name: 'Srinivas', pinned: false, nudgesOn: true, nudges: { water: 30, walk: 50, stretch: 75 }, goals: { water: 8, walk: 6, stretch: 4 }, autoLaunchInit: true };
 
 test('today() is a local YYYY-MM-DD date', () => {
   const t = today();
@@ -56,4 +56,10 @@ test('clean() clamps focus and reminder numbers', () => {
 
 test('clean() ignores non-object sections', () => {
   assert.deepStrictEqual(clean({ focus: 'x', habits: 5, settings: null, tasks: 'no', links: {} }, SETTINGS), {});
+});
+
+test('clean() keeps the saved name when the new one is blank, and trims/limits it', () => {
+  assert.strictEqual(clean({ settings: { name: '   ' } }, SETTINGS).settings.name, 'Srinivas');
+  assert.strictEqual(clean({ settings: { name: '  Ana  ' } }, SETTINGS).settings.name, 'Ana');
+  assert.strictEqual(clean({ settings: { name: 'x'.repeat(80) } }, SETTINGS).settings.name.length, 24);
 });

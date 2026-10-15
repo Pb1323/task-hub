@@ -73,7 +73,7 @@ function render() {
   const h = d.getHours();
   const openN = S.tasks.filter((t) => !t.done).length, fb = S.habits.focus || 0;
   $('subline').textContent = `${openN ? openN + (openN === 1 ? ' task' : ' tasks') + ' to do' : 'Nothing left to do'} · ${fb} focus ${fb === 1 ? 'block' : 'blocks'} today`;
-  $('greet').textContent = (h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening') + ', Srinivas';
+  $('greet').textContent = (h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening') + ', ' + (S.settings.name || 'there');
 
   // focus inputs
   if (document.activeElement !== $('goal')) $('goal').value = S.focus.goal;
@@ -117,6 +117,7 @@ function render() {
 
   renderLinkList();
   // settings + pin
+  if (document.activeElement !== $('oName')) $('oName').value = S.settings.name || '';
   $('oAuto').checked = !!S.autoLaunch;
   $('oNudge').checked = S.settings.nudgesOn;
   $('nWater').value = S.settings.nudges.water; $('nWalk').value = S.settings.nudges.walk; $('nStretch').value = S.settings.nudges.stretch;
@@ -200,6 +201,7 @@ $('linkForm').onsubmit = (e) => {
   S.links.push({ name: name.slice(0, 24), url, color: PALETTE[S.links.length % PALETTE.length], glyph: name[0].toUpperCase() });
   $('lName').value = ''; $('lUrl').value = ''; save(); render();
 };
+$('oName').onchange = (e) => { S.settings.name = e.target.value.trim() || 'Srinivas'; save(); render(); };
 $('oAuto').onchange = (e) => { window.hub.setAutoLaunch(e.target.checked); };
 $('oNudge').onchange = (e) => { S.settings.nudgesOn = e.target.checked; save(); render(); refreshNudge(); };
 [['nWater', 'water'], ['nWalk', 'walk'], ['nStretch', 'stretch']].forEach(([id, k]) => {

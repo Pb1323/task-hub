@@ -21,7 +21,7 @@ function clean(s, currentSettings) {
   }
   if (s.settings && typeof s.settings === 'object') {
     const t = s.settings, n = t.nudges || {}, g = t.goals || {};
-    out.settings = { ...currentSettings, pinned: !!t.pinned, nudgesOn: !!t.nudgesOn,
+    out.settings = { ...currentSettings, name: str(t.name, 24).trim() || currentSettings.name, pinned: !!t.pinned, nudgesOn: !!t.nudgesOn,
       nudges: { water: num(n.water, 5, 240, 30), walk: num(n.walk, 5, 240, 50), stretch: num(n.stretch, 5, 240, 75) },
       goals: { water: num(g.water, 1, 99, 8), walk: num(g.walk, 1, 99, 6), stretch: num(g.stretch, 1, 99, 4) } };
   }
