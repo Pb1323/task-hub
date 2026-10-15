@@ -127,7 +127,12 @@ async function refreshNudge() {
 
 // ---------- events ----------
 function expand() { clearTimeout(collapseTimer); if (hubEl.classList.contains('collapsed')) window.hub.setCollapsed(false); }
-function maybeCollapse() { clearTimeout(collapseTimer); if (S && !S.settings.pinned) collapseTimer = setTimeout(() => window.hub.setCollapsed(true), 700); }
+function busy() { const a = document.activeElement; return (a && (a.tagName === 'INPUT') && a !== document.body) || !$('settings').hidden; }
+function maybeCollapse() {
+  clearTimeout(collapseTimer);
+  if (!S || S.settings.pinned) return;
+  collapseTimer = setTimeout(() => { if (busy()) maybeCollapse(); else window.hub.setCollapsed(true); }, 700); // never collapse mid-typing
+}
 
 window.hub.onCollapsed((c) => hubEl.classList.toggle('collapsed', c));
 window.hub.onPush((s) => { S = s; render(); });

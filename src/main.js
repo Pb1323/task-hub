@@ -27,7 +27,7 @@ const DEFAULTS = () => ({
   links: [
     { name: 'Claude', url: 'https://claude.ai', color: '#d97757', glyph: '✦' },
     { name: 'Gmail', url: 'https://mail.google.com', color: '#ea4335', glyph: '✉' },
-    { name: 'GitHub', url: 'https://github.com/Pb1323', color: '#24292f', glyph: '⌥' },
+    { name: 'GitHub', url: 'https://github.com/Pb1323', color: '#57606a', glyph: '⌥' },
     { name: 'WhatsApp', url: 'https://web.whatsapp.com', color: '#25d366', glyph: '\u{1F4AC}' },
   ],
   focus: { goal: '', minutes: 25, taskId: null, endsAt: null, pausedLeft: null },
@@ -68,6 +68,7 @@ function loadState() {
       try { fs.copyFileSync(dataFile(), dataFile() + '.bad-' + Date.now()); } catch { /* ignore */ }
     }
   }
+  state.links.forEach((l) => { if (l.color === '#24292f') l.color = '#57606a'; }); // old GitHub tile was invisible in dark mode
   if (state.habits.date !== today()) state.habits = { date: today(), water: 0, walk: 0, stretch: 0 };
 }
 
@@ -231,7 +232,9 @@ ipcMain.on('open:link', (_e, url) => {
 });
 ipcMain.on('open:claudeCode', () => {
   try {
-    spawn('powershell.exe', ['-NoExit', '-Command', 'claude'], { cwd: path.join(os.homedir(), 'Downloads'), detached: true, stdio: 'ignore' }).unref();
+    // `start` gives the shell its own console window; a bare detached spawn with ignored stdio exits at once.
+    spawn('cmd.exe', ['/c', 'start', '"task-hub: Claude Code"', 'powershell.exe', '-NoExit', '-Command', 'claude'],
+      { cwd: path.join(os.homedir(), 'Downloads'), detached: true, stdio: 'ignore', windowsVerbatimArguments: true, windowsHide: true }).unref();
   } catch (e) { console.error('claude launch failed', e.message); }
 });
 ipcMain.on('app:autoLaunch', (_e, on) => { setAutoLaunch(on); push(); });

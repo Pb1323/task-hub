@@ -7,7 +7,7 @@
 <main id="hub" class="collapsed">
   <!-- collapsed strip -->
   <div class="strip">
-    <button class="sq" id="sExpand" title="Open task-hub">&#10003;<span class="badge" id="sBadge"></span></button>
+    <button class="sq" id="sExpand" title="Open task-hub" aria-label="Open task-hub">&#10003;<span class="badge" id="sBadge"></span></button>
     <div class="sTimer" id="sTimer"></div>
     <button class="sq" data-link="https://claude.ai" title="Claude">&#10022;</button>
     <div class="sRings" id="sRings"></div>
@@ -21,9 +21,9 @@
         <h1 id="greet"></h1>
       </div>
       <div class="tools">
-        <button class="ib" id="bGear" title="Settings">&#9881;</button>
-        <button class="ib" id="bPin" title="Keep open">&#128204;</button>
-        <button class="ib" id="bCollapse" title="Collapse">&#10095;</button>
+        <button class="ib" id="bGear" title="Settings" aria-label="Settings">&#9881;</button>
+        <button class="ib" id="bPin" title="Keep open" aria-label="Keep sidebar open">&#128204;</button>
+        <button class="ib" id="bCollapse" title="Collapse" aria-label="Collapse sidebar">&#10095;</button>
       </div>
     </header>
 
@@ -64,7 +64,7 @@
 
     <section class="card">
       <div class="h">Today <b id="left"></b></div>
-      <form id="addForm" class="add"><input class="field" id="addText" placeholder="Add a task" maxlength="140" autocomplete="off"><button class="pill" type="submit">Add</button></form>
+      <form id="addForm" class="add"><input class="field" id="addText" aria-label="New task" placeholder="Add a task" maxlength="140" autocomplete="off"><button class="pill" type="submit">Add</button></form>
       <div id="tasks"></div>
     </section>
 
