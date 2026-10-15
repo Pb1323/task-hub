@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { today, clean, safeUrl } = require('../src/lib');
+const { today, clean, safeUrl, rollHabits, pickDue } = require('../src/lib');
 
 const SETTINGS = { name: 'Srinivas', pinned: false, nudgesOn: true, nudges: { water: 30, walk: 50, stretch: 75 }, goals: { water: 8, walk: 6, stretch: 4 }, autoLaunchInit: true };
 
@@ -62,4 +62,17 @@ test('clean() keeps the saved name when the new one is blank, and trims/limits i
   assert.strictEqual(clean({ settings: { name: '   ' } }, SETTINGS).settings.name, 'Srinivas');
   assert.strictEqual(clean({ settings: { name: '  Ana  ' } }, SETTINGS).settings.name, 'Ana');
   assert.strictEqual(clean({ settings: { name: 'x'.repeat(80) } }, SETTINGS).settings.name.length, 24);
+});
+
+test('rollHabits() resets counters on a new day and keeps them on the same day', () => {
+  const h = { date: '2026-10-14', water: 5, walk: 3, stretch: 2, focus: 4 };
+  assert.strictEqual(rollHabits(h, '2026-10-14'), h);
+  assert.deepStrictEqual(rollHabits(h, '2026-10-15'), { date: '2026-10-15', water: 0, walk: 0, stretch: 0, focus: 0 });
+});
+
+test('pickDue() returns the reminder overdue the longest, or null', () => {
+  assert.strictEqual(pickDue({ water: 1000, walk: 2000, stretch: 3000 }, 999), null);
+  assert.strictEqual(pickDue({ water: 1000, walk: 2000, stretch: 3000 }, 1000), 'water');
+  assert.strictEqual(pickDue({ water: 5000, walk: 2000, stretch: 3000 }, 4000), 'walk');
+  assert.strictEqual(pickDue({}, 1e12), null);
 });

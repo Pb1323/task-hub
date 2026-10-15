@@ -33,4 +33,15 @@ function safeUrl(url) {
   try { const u = new URL(url); return URL_OK.has(u.protocol) ? u.toString() : null; } catch { return null; }
 }
 
-module.exports = { today, clean, safeUrl };
+// Fresh habit counters when the local date has changed. Returns the same object if it is still today.
+function rollHabits(habits, now = today()) {
+  return habits.date === now ? habits : { date: now, water: 0, walk: 0, stretch: 0, focus: 0 };
+}
+
+// Which reminder should fire now: the one that has been due longest, or null.
+function pickDue(next, now) {
+  const due = Object.keys(next).filter((k) => now >= next[k]).sort((a, b) => next[a] - next[b]);
+  return due.length ? due[0] : null;
+}
+
+module.exports = { today, clean, safeUrl, rollHabits, pickDue };

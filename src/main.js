@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { spawn } = require('child_process');
-const { today, clean, safeUrl } = require('./lib');
+const { today, clean, safeUrl, rollHabits, pickDue } = require('./lib');
 
 // TASKHUB_DATA_DIR = throwaway profile for tests (separate data, no single-instance lock, no autostart).
 const TEST = !!process.env.TASKHUB_DATA_DIR;
@@ -74,7 +74,7 @@ function loadState() {
   if (!Array.isArray(state.tasks)) state.tasks = [];
   if (!Array.isArray(state.links)) state.links = d.links;
   state.links.forEach((l) => { if (l.color === '#24292f') l.color = '#57606a'; }); // old GitHub tile was invisible in dark mode
-  if (state.habits.date !== today()) state.habits = { date: today(), water: 0, walk: 0, stretch: 0, focus: 0 };
+  state.habits = rollHabits(state.habits);
 }
 
 function saveSoon() {
@@ -190,12 +190,12 @@ function answer(kind, action, closeBanner = true) {
 }
 setInterval(() => {
   if (!state) return;
-  if (state.habits.date !== today()) { state.habits = { date: today(), water: 0, walk: 0, stretch: 0, focus: 0 }; saveSoon(); push(); }
+  const rolled = rollHabits(state.habits);
+  if (rolled !== state.habits) { state.habits = rolled; saveSoon(); push(); }
   if (!state.settings.nudgesOn || pending) return;
   // Don't count time while the computer is idle or locked.
   if (powerMonitor.getSystemIdleTime() > IDLE_PAUSE_S) { Object.keys(next).forEach((k) => { next[k] += 5000; }); return; }
-  const now = Date.now();
-  const due = Object.keys(KINDS).filter((k) => now >= next[k]).sort((a, b) => next[a] - next[b])[0];
+  const due = pickDue(next, Date.now());
   if (due) { pending = due; showBanner({ kind: due, ...KINDS[due], actions: true }); }
 }, 5000);
 
@@ -224,7 +224,7 @@ ipcMain.on('open:claudeCode', () => {
 ipcMain.on('app:autoLaunch', (_e, on) => { setAutoLaunch(on); push(); });
 ipcMain.on('app:quit', () => app.quit());
 ipcMain.on('notify', (_e, p) => showBanner({ icon: String(p.icon || '✅'), title: String(p.title || ''), body: String(p.body || ''), actions: false }));
-ipcMain.on('banner:action', (_e, kind, action) => { if (kind in KINDS) answer(kind, action); else if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close(); });
+ipcMain.on('banner:action', (_e, kind, action) => { if (Object.hasOwn(KINDS, kind)) answer(kind, action); else if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close(); });
 ipcMain.handle('nudge:status', () => {
   const k = Object.keys(KINDS).sort((a, b) => next[a] - next[b])[0];
   return { kind: k, at: next[k], pending };
