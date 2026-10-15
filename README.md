@@ -38,7 +38,7 @@ Single v0 success criterion and stop point (goal-gate rule). Tech stack.
 **Run:** `npm start` from this folder (`npm.cmd` in PowerShell).
 
 ## Build notes (v0)
-- `src/main.js` window, tray, nudge scheduler, banners, storage, IPC. `src/preload.js` is the only bridge. `src/renderer/` panel UI. `src/banner/` notification banner.
+- `src/lib.js` pure helpers (local date, state validation, safe-URL check) with unit tests: `npm.cmd test` (6 tests, no Electron needed). `src/main.js` window, tray, nudge scheduler, banners, storage, IPC. `src/preload.js` is the only bridge. `src/renderer/` panel UI. `src/banner/` notification banner.
 - Data: `%APPDATA%\task-hub\data.json`. Nothing leaves the PC; the only outbound action is opening a link in your default browser (http/https/mailto only).
 - C: is nearly full, so `node_modules` is a junction to `D:\task-hub-deps\nm2`. Don't re-run `npm install` blindly: it replaced the junction with a real folder once, and Electron's binary was extracted by hand (`dist` + `path.txt`). If it breaks, re-create the junction and the Electron `dist`.
 - Auto-launch is a Run-key entry pointing at `D:\task-hub-deps\nm2\electron\dist\electron.exe C:\Users\email\Downloads\task-hub` (dev mode, no installer). Moving either folder breaks it. Toggle in the app's settings or the tray menu.
