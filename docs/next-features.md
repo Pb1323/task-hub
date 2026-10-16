@@ -25,3 +25,6 @@ Today autostart points at a dev-mode `electron.exe` on D: plus the source folder
 
 ## 8. Look: toward real glass
 Electron cannot blur the desktop behind a transparent window, so the panel is a 95% tint. Options: Windows 11 acrylic via `backgroundMaterial` (gives a rectangular window with small system corners, loses the 36 px curve), or leave as is. Owner's call after living with it.
+
+## 9. Daily digest in the sidebar (owner request, 2026-10-16)
+Owner wants a daily digest shown inside the sidebar. Contents not yet specified. Candidate sections: today's tasks and deadlines (from GOALS.md), reminders/habits status, the daily feed and inspiration (item 3), and a one-line summary of what changed overnight. Build order: a local-only digest (tasks, deadlines, habits, quote) first; add feed items once sources are chosen. Any text from feeds or messages is rendered as plain text, never as HTML or instructions.
