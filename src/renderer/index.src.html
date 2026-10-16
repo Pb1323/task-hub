@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'">
+<title>task-hub</title>
+<link rel="stylesheet" href="glass.css">
+<link rel="stylesheet" href="hub.css">
+</head><body>
+<!--SPRITE-->
+<main id="hub" class="scene light closed" data-mode="tab">
+
+  <!-- small always-visible tab -->
+  <div class="taskbar" role="toolbar" aria-label="task-hub tab">
+    <button class="gb on" id="tOpen" aria-label="Open sidebar"><span class="gi" data-n="check-circle"><svg aria-hidden="true"><use href="#g-check-circle"/></svg><i class="sp"></i></span><span class="tbadge" id="tBadge"></span></button>
+    <button class="gb" id="tFocus" aria-label="Focus"><span class="gi" data-n="clock"><svg aria-hidden="true"><use href="#g-clock"/></svg><i class="sp"></i></span><span class="ttime" id="tTime"></span></button>
+    <button class="gb" id="tClaude" aria-label="Open Claude in terminal"><span class="gi" data-n="sparkle"><svg aria-hidden="true"><use href="#g-sparkle"/></svg><i class="sp"></i></span></button>
+  </div>
+
+  <!-- sidebar -->
+  <aside class="panel" aria-label="Hub sidebar">
+    <div class="phd">
+      <span class="brand"><i></i><b class="lb">Hub</b></span>
+      <button class="gb colbtn" id="bRail" aria-label="Collapse sidebar"><span class="gi" data-n="chevron-right"><svg aria-hidden="true"><use href="#g-chevron-right"/></svg><i class="sp"></i></span></button>
+      <button class="gb" id="bBig" aria-label="Open full view"><span class="gi" data-n="plus"><svg aria-hidden="true"><use href="#g-expand"/></svg><i class="sp"></i></span></button>
+      <button class="gb closebtn" id="bClose" aria-label="Minimise to tab"><span class="gi" data-n="close"><svg aria-hidden="true"><use href="#g-close"/></svg><i class="sp"></i></span></button>
+    </div>
+    <nav class="grp" id="nav" aria-label="Primary"></nav>
+    <div class="sum"><div class="rg big" role="img" aria-label="Tasks done today"><svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--track)" stroke-width="5"/><circle class="rv" id="sumArc" cx="36" cy="36" r="30" fill="none" stroke="var(--acc)" stroke-width="5" stroke-linecap="round" pathLength="1" style="--p:0" transform="rotate(-90 36 36)"/></svg><b id="sumN">0</b></div><div class="num" id="sumT">--:--</div></div>
+    <svg class="area" viewBox="0 0 220 70" preserveAspectRatio="none" role="img" aria-label="Focus blocks this week"><defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc)" stop-opacity=".45"/><stop offset="1" stop-color="var(--acc)" stop-opacity="0"/></linearGradient></defs><path class="af" id="areaF" d="" fill="url(#gf)"/><path class="al" id="areaL" d="" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" pathLength="1"/></svg>
+    <button class="claudeBtn" id="bClaude"><svg aria-hidden="true"><use href="#g-terminal"/></svg><span class="lb">Open Claude in terminal</span></button>
+    <div class="grp tools" aria-label="Tools"><span class="gl lb">Tools</span><div class="tg" id="tools"></div></div>
+    <div class="grp bot">
+      <button class="nv" id="nvSettings"><span class="gi" data-n="gear"><svg aria-hidden="true"><use href="#g-gear"/></svg><i class="sp"></i></span><span class="lb">Settings</span><em class="lb"></em></button>
+      <div class="prof"><span class="av" id="av">S</span><span class="lb" id="pname">You</span></div>
+    </div>
+  </aside>
+
+  <!-- full view -->
+  <section class="work" id="work" aria-label="Workspace">
+    <header class="wh"><div><div class="eyebrow" id="wDate"></div><h1 id="wTitle">Tasks</h1></div><div class="wtools" id="wTools"></div></header>
+    <div class="wbody" id="wBody"></div>
+  </section>
+
+  <div class="peek" id="peek" hidden></div>
+</main>
+<script src="app.js"></script>
+</body></html>

@@ -3,6 +3,8 @@
 Local-only app (runs on my PC) to track tasks and link out to Gmail, Claude and other apps.
 
 ## Status
+**v1 BUILT 2026-10-16** (owner asked for comprehensive functionality): Instinct "liquid glass" UI ported; tab / sidebar / full-view modes; tasks; focus timer + session to-do checklist; GOALS.md view with tick-to-write-back (short/long term, linked to each project's latest update and to-dos); Triage Board local copy with tickable items; Projects view from the status board + project docs; daily digest (inspiration + UGC people, the Cowork email digest, live BBC news); water/walk/stretch + eye rest (every 10 min, 10 s); all links in Chrome; Claude opens in Windows Terminal; reopen with Ctrl+Alt+H, tray, Start-menu "task-hub" or `Open task-hub.cmd`. The Instinct WhatsApp button was dropped. Details, data locations and what is NOT automatic: see `HANDOFF.md`. The sections below are the earlier v0 record.
+
 **v0 BUILT + HARDENED 2026-10-15** (Electron). Verified live on Windows 11: collapsed strip, hover-expand, tasks (persist), focus timer ring, scheduled water/walk/stretch reminders (sped-up test) with Done/Snooze, focus-done banner, Claude Code button (opens its own terminal), link tiles (opened GitHub in Edge), light + dark theme, startup entry. Still NOT verified: real 30/50/75-minute waits, reboot auto-launch, multi-monitor, behaviour over full-screen apps. Design notes for later features: `docs/next-features.md`.
 
 ## MVP (owner's words, 2026-10-14, paraphrased closely; message was cut off)

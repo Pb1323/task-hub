@@ -1,5 +1,7 @@
 # Next features: design notes (NOT built, NOT approved)
 
+> UPDATE 2026-10-16: items 1 (GOALS view), 2 (session checklist as the timetable), 3 (daily feed: RSS news + inspiration digest), 4 (Triage view as a local copy, tickable, synced through Claude), 9 (digest) and the Chrome/Windows Terminal launching are BUILT in v1; item 5 (Instinct) was dropped by the owner; 6 and 7 remain. See HANDOFF.md.
+
 Written 2026-10-15 while v0 was being hardened. Nothing here is in scope until the owner uses v0 and says which to build first. Ordered by value for effort.
 
 ## 1. GOALS.md view (small, safe)
