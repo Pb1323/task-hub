@@ -5,7 +5,7 @@ contextBridge.exposeInMainWorld('hub', {
   setState: (s) => ipcRenderer.send('state:set', s),
   onPush: (fn) => ipcRenderer.on('state:push', (_e, s) => fn(s)),
   onMode: (fn) => ipcRenderer.on('ui:mode', (_e, m) => fn(m)),
-  setIgnore: (b) => ipcRenderer.send('ui:ignore', b),
+  setMode: (m) => ipcRenderer.send('ui:mode', m),
   hideWindow: () => ipcRenderer.send('ui:hide'),
   openLink: (url) => ipcRenderer.send('open:link', url),
   openClaude: (o) => ipcRenderer.send('open:claude', o || {}),

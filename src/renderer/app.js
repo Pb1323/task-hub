@@ -41,6 +41,7 @@ const hasUrl = (u) => u && /^https?:/.test(u);
 // ---------- modes ----------
 function setMode(m) {
   mode = m;
+  window.hub.setMode(m);   // main resizes the window to fit what is showing, on the right screen
   hubEl.dataset.mode = m;
   hubEl.classList.toggle('closed', m === 'tab');
   if (m === 'big') renderView();
@@ -48,11 +49,7 @@ function setMode(m) {
   render();
 }
 function busy() { const a = document.activeElement; return a && a.tagName === 'INPUT' && a.type !== 'checkbox' && a.value.trim() !== ''; }
-function maybeCollapse() {
-  clearTimeout(collapseTimer);
-  if (!S || S.settings.pinned || mode !== 'side') return;
-  collapseTimer = setTimeout(() => { if (hovering || mode !== 'side') return; if (busy()) maybeCollapse(); else setMode('tab'); }, 700);
-}
+function maybeCollapse() { clearTimeout(collapseTimer); } // nothing collapses by itself any more: close it with X / Esc
 
 // ---------- focus timer ----------
 function remaining() { const f = S.focus; if (f.endsAt) return f.endsAt - Date.now(); if (f.pausedLeft != null) return f.pausedLeft; return f.minutes * 60000; }
@@ -381,24 +378,19 @@ function loadAll() { loadGoals(); loadTriage(); loadProjects(); loadDigest(); }
 // ---------- events ----------
 window.hub.onMode((m) => setMode(m));
 window.hub.onPush((s) => { S = s; render(); });
-$('tOpen').onclick = () => setMode('side');
-$('tFocus').onclick = () => { view = 'focus'; setMode('big'); };
+$('tOpen').title = 'Double-click to open';
+$('tFocus').title = 'Double-click to open';
 $('tClaude').onclick = () => window.hub.openClaude({});
 $('bClaude').onclick = () => window.hub.openClaude({});
 $('bBig').onclick = () => setMode(mode === 'big' ? 'side' : 'big');
 $('bClose').onclick = () => { S.settings.pinned = false; save(); setMode('tab'); };
 $('bRail').onclick = () => { hubEl.dataset.rail = hubEl.dataset.rail === 'on' ? 'off' : 'on'; $('bRail').setAttribute('aria-label', hubEl.dataset.rail === 'on' ? 'Expand sidebar' : 'Collapse sidebar'); render(); };
 $('nvSettings').onclick = () => go('settings');
-hubEl.addEventListener('mouseenter', () => { hovering = true; clearTimeout(collapseTimer); });
-hubEl.addEventListener('mouseleave', () => { hovering = false; maybeCollapse(); });
-$('tOpen').parentElement.addEventListener('mouseenter', () => { if (mode === 'tab') setMode('side'); });
-// The window is transparent and click-through; it only takes the mouse while the pointer is over our own surfaces.
-document.addEventListener('mousemove', (e) => {
-  const over = !!e.target.closest('.taskbar,.panel,.work');
-  window.hub.setIgnore(!over);
-  if (over) { hovering = true; clearTimeout(collapseTimer); }
-  else if (hovering) { hovering = false; maybeCollapse(); } // pointer left the sidebar: tuck back into the tab after a moment
-});
+// Nothing expands on hover or single click. Double-click any part of the tab to open the sidebar, and any empty part of
+// the sidebar to open the full view (and the full view's header to go back).
+$('tOpen').parentElement.addEventListener('dblclick', () => { if (mode === 'tab') setMode('side'); });
+document.querySelector('.panel').addEventListener('dblclick', (e) => { if (mode === 'side' && !e.target.closest('input,textarea')) setMode('big'); });
+$('work').addEventListener('dblclick', (e) => { if (mode === 'big' && e.target.closest('.wh') && !e.target.closest('button')) setMode('side'); });
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
@@ -414,7 +406,7 @@ function applyTheme() { const dark = window.matchMedia('(prefers-color-scheme: d
   if (qv && VIEWS[qv]) view = qv;
   render(); loadAll();
   if (qm) setMode(qm);
-  else { setMode('side'); if (!S.settings.pinned) setTimeout(maybeCollapse, 9000); } // glance at login, then tuck into the tab
+  else setMode('tab');
   setInterval(tickTimer, 1000);
   setInterval(refreshNudge, 15000);
   setInterval(() => { loadGoals(); loadTriage(); }, 60000);

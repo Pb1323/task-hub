@@ -116,12 +116,31 @@ function push() { if (win && !win.isDestroyed()) win.webContents.send('state:pus
 function loginOpts() { return { path: process.execPath, args: app.isPackaged ? [] : [app.getAppPath()] }; }
 function setAutoLaunch(on) { app.setLoginItemSettings({ openAtLogin: !!on, ...loginOpts() }); rebuildTray(); }
 
-// One transparent window sized for the biggest layout; the renderer makes the empty area click-through (ui:ignore).
-function bounds() {
-  const wa = screen.getPrimaryDisplay().workArea;
-  const w = Math.min(MAX_W, wa.width - 2 * MARGIN);
-  return { x: wa.x + wa.width - w - MARGIN, y: wa.y + MARGIN, width: w, height: wa.height - 2 * MARGIN };
+// The window is sized to what is showing (small tab / sidebar / full view) and sits on one chosen screen, so it never
+// covers or blocks anything else and follows that screen's size. No click-through tricks (they misbehave across monitors).
+let curMode = 'tab';
+function targetDisplay() {
+  const all = screen.getAllDisplays();
+  return all.find((d) => d.id === (state && state.settings.displayId)) || screen.getPrimaryDisplay();
 }
+function bounds(mode = curMode) {
+  const wa = targetDisplay().workArea;
+  const full = wa.height - 2 * MARGIN;
+  if (mode === 'tab') { const h = Math.min(260, full); return { x: wa.x + wa.width - 90 - MARGIN, y: Math.round(wa.y + (wa.height - h) / 2), width: 90, height: h }; }
+  const w = mode === 'side' ? 340 : Math.min(MAX_W, wa.width - 2 * MARGIN);
+  return { x: wa.x + wa.width - w - MARGIN, y: wa.y + MARGIN, width: w, height: full };
+}
+function applyBounds() { // set twice: Electron mis-scales the first call when the target screen has a different DPI
+  if (!win || win.isDestroyed()) return;
+  const b = bounds(); win.setBounds(b); win.setBounds(b);
+}
+function moveToDisplay(d) { state.settings.displayId = d.id; saveSoon(); applyBounds(); }
+function nextDisplay() {
+  const all = screen.getAllDisplays(); if (all.length < 2) return;
+  const i = all.findIndex((d) => d.id === targetDisplay().id);
+  moveToDisplay(all[(i + 1) % all.length]);
+}
+function showOnCursorScreen() { moveToDisplay(screen.getDisplayNearestPoint(screen.getCursorScreenPoint())); win.showInactive(); }
 function sendMode(m) { if (win && !win.isDestroyed()) win.webContents.send('ui:mode', m); }
 
 function createWindow() {
@@ -133,7 +152,6 @@ function createWindow() {
   });
   win.setAlwaysOnTop(true, 'screen-saver');
   win.setVisibleOnAllWorkspaces?.(true);
-  win.setIgnoreMouseEvents(true, { forward: true }); // transparent area must not block clicks on other apps
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: process.env.TASKHUB_MODE ? { mode: process.env.TASKHUB_MODE, view: process.env.TASKHUB_VIEW || '' } : {} });
@@ -144,6 +162,7 @@ function createWindow() {
         try { await win.webContents.executeJavaScript(process.env.TASKHUB_EVAL); } catch (e) { console.error('eval failed', e.message); }
         await new Promise((r) => setTimeout(r, 1500));
       }
+      console.log('BOUNDS', JSON.stringify({ win: win.getBounds(), mode: curMode, displays: screen.getAllDisplays().map((d) => ({ id: d.id, wa: d.workArea, scale: d.scaleFactor, primary: d.id === screen.getPrimaryDisplay().id })) }));
       const img = await win.webContents.capturePage();
       fs.writeFileSync(process.env.TASKHUB_SHOT, img.toPNG());
       app.exit(0);
@@ -153,7 +172,7 @@ function createWindow() {
 
 function toggleVisible() {
   if (!win) return;
-  if (win.isVisible()) win.hide(); else { win.showInactive(); sendMode('side'); }
+  if (win.isVisible()) win.hide(); else showOnCursorScreen(); // comes back on the screen you are using
 }
 
 let rebuildTray = () => {};
@@ -163,8 +182,9 @@ function createTray() {
   tray.setToolTip('task-hub');
   rebuildTray = () => tray.setContextMenu(Menu.buildFromTemplate([
     { label: 'Show / hide  (Ctrl+Alt+H)', click: toggleVisible },
-    { label: 'Open sidebar', click: () => { win.showInactive(); sendMode('side'); } },
-    { label: 'Open full view', click: () => { win.showInactive(); sendMode('big'); } },
+    { label: 'Open sidebar', click: () => { showOnCursorScreen(); sendMode('side'); } },
+    { label: 'Open full view', click: () => { showOnCursorScreen(); sendMode('big'); } },
+    { label: 'Move to next screen  (Ctrl+Alt+M)', click: nextDisplay },
     { label: 'Launch at startup', type: 'checkbox', checked: app.getLoginItemSettings(loginOpts()).openAtLogin, click: (m) => { setAutoLaunch(m.checked); push(); } },
     { type: 'separator' },
     { label: 'Quit task-hub', click: () => app.quit() },
@@ -405,7 +425,7 @@ ipcMain.on('state:set', (_e, s) => {
   if (JSON.stringify([state.settings.nudges, state.settings.eyesEvery]) !== prev) initNudges();
   saveSoon();
 });
-ipcMain.on('ui:ignore', (_e, ignore) => { if (win && !win.isDestroyed()) win.setIgnoreMouseEvents(!!ignore, { forward: true }); });
+ipcMain.on('ui:mode', (_e, m) => { if (['tab', 'side', 'big'].includes(m)) { curMode = m; applyBounds(); } });
 ipcMain.on('ui:hide', () => { if (win) win.hide(); });
 ipcMain.on('open:link', (_e, url) => openUrl(url));
 ipcMain.on('open:claude', (_e, o) => openClaude(o && typeof o === 'object' ? o : {}));
@@ -443,10 +463,11 @@ app.whenReady().then(() => {
   createTray();
   if (process.env.TASKHUB_TEST_BANNER) setTimeout(() => { pending = 'water'; showBanner({ kind: 'water', ...KINDS.water, actions: true }); }, 3000);
   globalShortcut.register('Control+Alt+H', toggleVisible);
-  powerMonitor.on('resume', () => { initNudges(); pending = null; }); // don't fire a backlog of reminders after sleep
-  screen.on('display-metrics-changed', () => win && win.setBounds(bounds()));
+  globalShortcut.register('Control+Alt+M', nextDisplay);
+  powerMonitor.on('resume', () => { initNudges(); pending = null; setTimeout(applyBounds, 1500); }); // no backlog of reminders after sleep; re-fit once screens settle
+  ['display-added', 'display-removed', 'display-metrics-changed'].forEach((ev) => screen.on(ev, () => setTimeout(applyBounds, 400)));
   if (!TEST) { setTimeout(newsRefresh, 4000); setInterval(newsRefresh, 3 * 3600 * 1000); }
 });
-app.on('second-instance', () => { if (win) { win.showInactive(); sendMode('side'); } });
+app.on('second-instance', () => { if (win) { showOnCursorScreen(); sendMode('side'); } });
 app.on('will-quit', () => globalShortcut.unregisterAll());
 app.on('window-all-closed', (e) => e.preventDefault());
