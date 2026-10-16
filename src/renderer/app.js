@@ -118,6 +118,15 @@ function renderPanel() {
   let mini = $('mini');
   if (!mini) { mini = el('div', { class: 'mini', id: 'mini' }); $('areaL').closest('svg').after(mini); }
   mini.replaceChildren(...open_.slice(0, 4).map((t) => el('div', { class: 'row' }, el('button', { class: 'chk', 'aria-label': 'Done', onclick: () => { t.done = true; save(); render(); } }, '✓'), el('div', { class: 't' }, t.text))));
+  // daily pick from today's inspiration digest, shown in the sidebar (one different person per day)
+  let pick = $('pick');
+  if (!pick) { pick = el('button', { class: 'pick', id: 'pick', onclick: () => { dLane = 'all'; go('digest'); } }); $('areaL').closest('svg').after(pick); }
+  const its = DG && DG.inspo ? DG.inspo.items : [];
+  if (its.length) {
+    const day = Math.floor(Date.now() / 86400000), it = its[day % its.length];
+    pick.replaceChildren(el('span', { class: 'gl' }, 'Daily pick'), el('b', {}, it.person), el('span', {}, it.headline));
+    pick.hidden = false;
+  } else pick.hidden = true;
   // tools
   const tools = $('tools'); tools.replaceChildren();
   const L = (name) => (S.links.find((l) => l.name.toLowerCase() === name) || {}).url;
@@ -384,7 +393,12 @@ hubEl.addEventListener('mouseenter', () => { hovering = true; clearTimeout(colla
 hubEl.addEventListener('mouseleave', () => { hovering = false; maybeCollapse(); });
 $('tOpen').parentElement.addEventListener('mouseenter', () => { if (mode === 'tab') setMode('side'); });
 // The window is transparent and click-through; it only takes the mouse while the pointer is over our own surfaces.
-document.addEventListener('mousemove', (e) => { window.hub.setIgnore(!e.target.closest('.taskbar,.panel,.work')); hovering = !!e.target.closest('.taskbar,.panel,.work'); });
+document.addEventListener('mousemove', (e) => {
+  const over = !!e.target.closest('.taskbar,.panel,.work');
+  window.hub.setIgnore(!over);
+  if (over) { hovering = true; clearTimeout(collapseTimer); }
+  else if (hovering) { hovering = false; maybeCollapse(); } // pointer left the sidebar: tuck back into the tab after a moment
+});
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();

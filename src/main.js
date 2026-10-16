@@ -140,6 +140,10 @@ function createWindow() {
   win.once('ready-to-show', () => win.showInactive());
   if (process.env.TASKHUB_SHOT) { // test only: screenshot the window then quit
     win.webContents.once('did-finish-load', () => setTimeout(async () => {
+      if (process.env.TASKHUB_EVAL) { // test only: run a snippet in the page (e.g. click a button), then let it settle
+        try { await win.webContents.executeJavaScript(process.env.TASKHUB_EVAL); } catch (e) { console.error('eval failed', e.message); }
+        await new Promise((r) => setTimeout(r, 1500));
+      }
       const img = await win.webContents.capturePage();
       fs.writeFileSync(process.env.TASKHUB_SHOT, img.toPNG());
       app.exit(0);
