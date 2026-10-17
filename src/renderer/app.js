@@ -39,15 +39,23 @@ const btn = (label, fn, cls = '') => el('button', { class: 'btn ' + cls, onclick
 const hasUrl = (u) => u && /^https?:/.test(u);
 
 // ---------- modes ----------
+const RANK = { tab: 0, side: 1, big: 2 };
+let resizeTimer = null;
+// Opening: grow the window first, then let the content animate in. Closing: animate out first, then shrink the window.
 function setMode(m) {
+  const prev = mode;
   mode = m;
-  window.hub.setMode(m);   // main resizes the window to fit what is showing, on the right screen
-  hubEl.dataset.mode = m;
-  hubEl.classList.toggle('closed', m === 'tab');
-  if (m === 'big') renderView();
-  if (m !== 'tab') clearTimeout(collapseTimer);
-  render();
+  clearTimeout(resizeTimer);
+  const apply = () => {
+    hubEl.dataset.mode = m;
+    hubEl.classList.toggle('closed', m === 'tab');
+    if (m === 'big') { lastView = null; renderView(); }
+    render();
+  };
+  if (RANK[m] >= RANK[prev]) { window.hub.setMode(m); requestAnimationFrame(() => requestAnimationFrame(apply)); }
+  else { apply(); resizeTimer = setTimeout(() => window.hub.setMode(m), 340); }
 }
+let lastView = null;
 function busy() { const a = document.activeElement; return a && a.tagName === 'INPUT' && a.type !== 'checkbox' && a.value.trim() !== ''; }
 function maybeCollapse() { clearTimeout(collapseTimer); } // nothing collapses by itself any more: close it with X / Esc
 
@@ -94,7 +102,7 @@ function navCount(k) {
 }
 function renderNav() {
   const nav = $('nav'); nav.replaceChildren();
-  NAV.forEach(([k, label, ic]) => nav.append(el('button', { class: 'nv' + (mode === 'big' && view === k ? ' active' : ''), onclick: () => go(k) }, icon(ic), el('span', { class: 'lb' }, label), el('em', { class: 'lb' }, String(navCount(k))))));
+  NAV.forEach(([k, label, ic]) => nav.append(el('button', { class: 'nv' + (mode === 'big' && view === k ? ' active' : ''), 'data-tip': label, onclick: () => go(k) }, icon(ic), el('span', { class: 'lb' }, label), el('em', { class: 'lb' }, String(navCount(k))))));
   $('nvSettings').classList.toggle('active', mode === 'big' && view === 'settings');
 }
 function go(k) { view = k; if (mode !== 'big') setMode('big'); else { renderView(); render(); } }
@@ -341,6 +349,7 @@ function pendingTicks() {
 function renderView() {
   if (!S || mode !== 'big') return;
   const keep = $('wBody').scrollTop;
+  const swapping = lastView !== view; lastView = view;
   $('wBody').replaceChildren();
   const sub = VIEWS[view]();
   $('wTitle').textContent = TITLES[view] || '';
@@ -351,6 +360,7 @@ function renderView() {
   if (view === 'digest') tools.append(btn('Reload news', async () => { DG = { ...DG, news: await window.hub.refreshNews() }; renderView(); }, 'sm'));
   tools.append(btn('Back to sidebar', () => setMode('side'), 'sm'));
   $('wBody').scrollTop = keep;
+  if (swapping) { const wb = $('wBody'); wb.classList.remove('swap'); void wb.offsetWidth; wb.classList.add('swap'); setTimeout(() => wb.classList.remove('swap'), 600); }
 }
 function render() {
   if (!S) return;

@@ -10,18 +10,18 @@
 
   <!-- small always-visible tab -->
   <div class="taskbar" role="toolbar" aria-label="task-hub tab">
-    <button class="gb on" id="tOpen" aria-label="Open sidebar"><span class="gi" data-n="check-circle"><svg aria-hidden="true"><use href="#g-check-circle"/></svg><i class="sp"></i></span><span class="tbadge" id="tBadge"></span></button>
-    <button class="gb" id="tFocus" aria-label="Focus"><span class="gi" data-n="clock"><svg aria-hidden="true"><use href="#g-clock"/></svg><i class="sp"></i></span><span class="ttime" id="tTime"></span></button>
-    <button class="gb" id="tClaude" aria-label="Open Claude in terminal"><span class="gi" data-n="sparkle"><svg aria-hidden="true"><use href="#g-sparkle"/></svg><i class="sp"></i></span></button>
+    <button class="gb on" id="tOpen" data-tip="Tasks" aria-label="Open sidebar"><span class="gi" data-n="check-circle"><svg aria-hidden="true"><use href="#g-check-circle"/></svg><i class="sp"></i></span><span class="tbadge" id="tBadge"></span></button>
+    <button class="gb" id="tFocus" data-tip="Focus" aria-label="Focus"><span class="gi" data-n="clock"><svg aria-hidden="true"><use href="#g-clock"/></svg><i class="sp"></i></span><span class="ttime" id="tTime"></span></button>
+    <button class="gb" id="tClaude" data-tip="Claude" aria-label="Open Claude in terminal"><span class="gi" data-n="sparkle"><svg aria-hidden="true"><use href="#g-sparkle"/></svg><i class="sp"></i></span></button>
   </div>
 
   <!-- sidebar -->
   <aside class="panel" aria-label="Hub sidebar">
     <div class="phd">
       <span class="brand"><i></i><b class="lb">Hub</b></span>
-      <button class="gb colbtn" id="bRail" aria-label="Collapse sidebar"><span class="gi" data-n="chevron-right"><svg aria-hidden="true"><use href="#g-chevron-right"/></svg><i class="sp"></i></span></button>
-      <button class="gb" id="bBig" aria-label="Open full view"><span class="gi" data-n="plus"><svg aria-hidden="true"><use href="#g-expand"/></svg><i class="sp"></i></span></button>
-      <button class="gb closebtn" id="bClose" aria-label="Minimise to tab"><span class="gi" data-n="close"><svg aria-hidden="true"><use href="#g-close"/></svg><i class="sp"></i></span></button>
+      <button class="gb colbtn" id="bRail" data-tip="Collapse" aria-label="Collapse sidebar"><span class="gi" data-n="chevron-right"><svg aria-hidden="true"><use href="#g-chevron-right"/></svg><i class="sp"></i></span></button>
+      <button class="gb" id="bBig" data-tip="Full view" aria-label="Open full view"><span class="gi" data-n="plus"><svg aria-hidden="true"><use href="#g-expand"/></svg><i class="sp"></i></span></button>
+      <button class="gb closebtn" id="bClose" data-tip="Close" aria-label="Minimise to tab"><span class="gi" data-n="close"><svg aria-hidden="true"><use href="#g-close"/></svg><i class="sp"></i></span></button>
     </div>
     <nav class="grp" id="nav" aria-label="Primary"></nav>
     <div class="sum"><div class="rg big" role="img" aria-label="Tasks done today"><svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--track)" stroke-width="5"/><circle class="rv" id="sumArc" cx="36" cy="36" r="30" fill="none" stroke="var(--acc)" stroke-width="5" stroke-linecap="round" pathLength="1" style="--p:0" transform="rotate(-90 36 36)"/></svg><b id="sumN">0</b></div><div class="num" id="sumT">--:--</div></div>
@@ -29,7 +29,7 @@
     <button class="claudeBtn" id="bClaude"><svg aria-hidden="true"><use href="#g-terminal"/></svg><span class="lb">Open Claude in terminal</span></button>
     <div class="grp tools" aria-label="Tools"><span class="gl lb">Tools</span><div class="tg" id="tools"></div></div>
     <div class="grp bot">
-      <button class="nv" id="nvSettings"><span class="gi" data-n="gear"><svg aria-hidden="true"><use href="#g-gear"/></svg><i class="sp"></i></span><span class="lb">Settings</span><em class="lb"></em></button>
+      <button class="nv" id="nvSettings" data-tip="Settings"><span class="gi" data-n="gear"><svg aria-hidden="true"><use href="#g-gear"/></svg><i class="sp"></i></span><span class="lb">Settings</span><em class="lb"></em></button>
       <div class="prof"><span class="av" id="av">S</span><span class="lb" id="pname">You</span></div>
     </div>
   </aside>

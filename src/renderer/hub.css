@@ -8,18 +8,17 @@ input,textarea{user-select:text;-webkit-user-select:text}
 #hub{position:fixed;inset:0;height:auto;border-radius:0;overflow:visible;background:none;isolation:auto}
 
 /* small tab: vertical pill on the right edge */
-.taskbar{left:auto;right:22px;bottom:auto;top:50%;transform:translateY(-50%);flex-direction:column;gap:8px;padding:8px;border-radius:24px;animation:tabin 300ms cubic-bezier(.2,.9,.25,1) both}
+.taskbar{left:auto;right:22px;bottom:auto;top:50%;transform:translateY(-50%);flex-direction:column;gap:8px;padding:8px;border-radius:24px;animation:none;opacity:0;pointer-events:none;transform:translateY(-50%) translateX(18px) scale(.88);transition:opacity 200ms ease-out,transform 280ms cubic-bezier(.2,.9,.25,1)}
+#hub[data-mode=tab] .taskbar{opacity:1;pointer-events:auto;transform:translateY(-50%);transition-delay:160ms}
 @keyframes tabin{from{opacity:0;transform:translateY(-50%) translateX(14px) scale(.96)}to{opacity:1;transform:translateY(-50%)}}
 .taskbar .gi{width:40px;height:40px;border-radius:14px}
 .tbadge,.ttime{position:absolute;font:600 10px system-ui;font-variant-numeric:tabular-nums;color:var(--txt);pointer-events:none}
 .tbadge{right:-3px;top:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;display:grid;place-items:center;background:var(--acc);color:#fff}
 .tbadge:empty,.ttime:empty{display:none}
 .ttime{left:0;right:0;bottom:-11px;text-align:center}
-#hub:not([data-mode=tab]) .taskbar{display:none}
 
 .panel{top:22px;bottom:22px;right:22px;overflow:hidden auto;scrollbar-width:none}
 .panel::-webkit-scrollbar{display:none}
-#hub[data-mode=tab] .panel,#hub[data-mode=tab] .work{display:none}
 .claudeBtn{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;border:0;border-radius:16px;cursor:pointer;color:#fff;font:600 14px system-ui;background:linear-gradient(145deg,#E58A6A,#C8603F);box-shadow:inset 1px 1px 0 rgba(255,255,255,.45),0 6px 16px rgba(200,96,63,.35)}
 .claudeBtn svg{width:20px;height:20px}.claudeBtn:hover{filter:brightness(1.06)}.claudeBtn:active{transform:scale(.98)}
 .panel.rail .claudeBtn{justify-content:center;padding:0}.panel.rail .claudeBtn .lb{display:none}
@@ -28,11 +27,10 @@ input,textarea{user-select:text;-webkit-user-select:text}
 .sum .num{font-size:34px}
 
 /* workspace */
-.work{position:absolute;top:22px;bottom:22px;right:332px;width:min(880px,calc(100vw - 360px));border-radius:30px;padding:22px 24px;display:none;flex-direction:column;gap:14px;background:var(--g-bg);color:var(--txt);box-shadow:inset 1px 1px 0 var(--g-edge),inset -1px -1px 0 var(--g-edge2),var(--g-sh);backdrop-filter:blur(26px) saturate(1.9);overflow:hidden}
-#hub[data-mode=big] .work{display:flex;animation:workin 260ms cubic-bezier(.2,.9,.25,1) both}
+.work{position:absolute;top:22px;bottom:22px;right:332px;width:min(880px,calc(100vw - 360px));border-radius:30px;padding:22px 24px;display:flex;flex-direction:column;gap:14px;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(34px) scale(.96);filter:blur(6px);transform-origin:100% 50%;transition:opacity 220ms ease-out,transform 280ms cubic-bezier(.2,.9,.25,1),filter 240ms ease-out,visibility 0s linear 290ms;background:var(--g-bg);color:var(--txt);box-shadow:inset 1px 1px 0 var(--g-edge),inset -1px -1px 0 var(--g-edge2),var(--g-sh);backdrop-filter:blur(26px) saturate(1.9);overflow:hidden}
+#hub[data-mode=big] .work{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none;transition-delay:90ms,90ms,90ms,0s}
 #hub[data-mode=big][data-rail=on] .work{right:116px;width:min(1000px,calc(100vw - 150px))}
 @keyframes workin{from{opacity:0;transform:translateX(24px) scale(.98)}to{opacity:1;transform:none}}
-#hub[data-mode=side] .work{display:none}
 .wh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .eyebrow{font:600 11px system-ui;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 .wh h1{margin:2px 0 0;font:300 34px/38px system-ui;letter-spacing:-.02em}
@@ -102,3 +100,25 @@ input,textarea{user-select:text;-webkit-user-select:text}
 .pick .gl{padding:0 0 2px}
 .panel.rail .pick{display:none}
 @media (max-height:860px){.pick{display:none}}
+
+/* motion: header and content rise in when the full view opens or the view changes */
+.wh,.wbody{transition:opacity 240ms ease-out,transform 300ms cubic-bezier(.2,.9,.25,1)}
+#hub:not([data-mode=big]) .wh,#hub:not([data-mode=big]) .wbody{opacity:0;transform:translateY(10px)}
+#hub[data-mode=big] .wh{transition-delay:160ms}#hub[data-mode=big] .wbody{transition-delay:230ms}
+.wbody.swap>*{animation:rise 340ms cubic-bezier(.2,.9,.25,1) both}
+.wbody.swap>*:nth-child(2){animation-delay:40ms}.wbody.swap>*:nth-child(3){animation-delay:80ms}.wbody.swap>*:nth-child(4){animation-delay:110ms}
+.wbody.swap>*:nth-child(5){animation-delay:140ms}.wbody.swap>*:nth-child(6){animation-delay:165ms}.wbody.swap>*:nth-child(n+7){animation-delay:190ms}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.nv.active .gi{animation:navpop 360ms cubic-bezier(.2,.9,.25,1)}
+@keyframes navpop{0%{transform:scale(.85)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.taskbar .gb:hover .gi{transform:translateY(-1px) scale(1.06)}
+.chk{transition:background 160ms,border-color 160ms,color 160ms,transform 160ms cubic-bezier(.2,.9,.25,1)}.chk:active{transform:scale(.82)}
+
+/* hover labels: 1-2 words under the icon */
+[data-tip]{position:relative}
+[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translate(-50%,-3px);padding:3px 9px;border-radius:9px;white-space:nowrap;pointer-events:none;z-index:60;opacity:0;font:500 11px/14px system-ui;color:var(--txt);background:var(--g-bg);box-shadow:inset 1px 1px 0 var(--g-edge),0 6px 16px rgba(0,0,0,.28);transition:opacity 140ms ease-out,transform 160ms cubic-bezier(.2,.9,.25,1)}
+[data-tip]:hover::after{opacity:1;transform:translate(-50%,0);transition-delay:.3s}
+.nv[data-tip]::after{display:none}.panel.rail .nv[data-tip]::after{display:block;left:50%}
+.panel .phd [data-tip]::after{left:auto;right:0;transform:translate(0,-3px)}.panel .phd [data-tip]:hover::after{transform:none}
+.panel.rail .phd [data-tip]::after{left:50%;right:auto;transform:translate(-50%,-3px)}.panel.rail .phd [data-tip]:hover::after{transform:translate(-50%,0)}
+.taskbar [data-tip]::after{left:auto;right:-4px;transform:translate(0,-3px)}.taskbar [data-tip]:hover::after{transform:none}

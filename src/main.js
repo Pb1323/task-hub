@@ -160,7 +160,7 @@ function createWindow() {
     win.webContents.once('did-finish-load', () => setTimeout(async () => {
       if (process.env.TASKHUB_EVAL) { // test only: run a snippet in the page (e.g. click a button), then let it settle
         try { await win.webContents.executeJavaScript(process.env.TASKHUB_EVAL); } catch (e) { console.error('eval failed', e.message); }
-        await new Promise((r) => setTimeout(r, 1500));
+        await new Promise((r) => setTimeout(r, Number(process.env.TASKHUB_EVAL_WAIT) || 1500));
       }
       console.log('BOUNDS', JSON.stringify({ win: win.getBounds(), mode: curMode, displays: screen.getAllDisplays().map((d) => ({ id: d.id, wa: d.workArea, scale: d.scaleFactor, primary: d.id === screen.getPrimaryDisplay().id })) }));
       const img = await win.webContents.capturePage();
