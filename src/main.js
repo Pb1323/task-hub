@@ -314,7 +314,7 @@ function showBanner(payload, ttl = 10000) {
   bannerWin = new BrowserWindow({
     x: wa.x + Math.round((wa.width - w) / 2), y: wa.y + 14, width: w, height: h,
     frame: false, transparent: true, resizable: false, skipTaskbar: true, alwaysOnTop: true, hasShadow: false, show: false, focusable: false,
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true },
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, autoplayPolicy: 'no-user-gesture-required' },
   });
   bannerWin.setAlwaysOnTop(true, 'screen-saver');
   bannerWin.loadFile(path.join(__dirname, 'banner', 'banner.html'), { query: { d: JSON.stringify(payload) } });
@@ -626,7 +626,14 @@ ipcMain.handle('locations:get', () => LOCATIONS().map(([n]) => n));
 ipcMain.on('app:autoLaunch', (_e, on) => { setAutoLaunch(on); push(); });
 ipcMain.on('app:quit', () => app.quit());
 ipcMain.on('notify', (_e, p) => showBanner({ icon: String(p.icon || 'check'), title: String(p.title || ''), body: String(p.body || ''), actions: false }));
-ipcMain.on('banner:action', (_e, kind, action) => { if (Object.hasOwn(KINDS, kind)) answer(kind, action); else if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close(); });
+ipcMain.on('banner:action', (_e, kind, action) => {
+  if (kind === 'focus') {
+    if (action === 'repeat') { const f = state.focus; f.endsAt = Date.now() + f.minutes * 60000; f.pausedLeft = null; saveSoon(); push(); } // another block of the same length
+    if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close();                                                                       // closing the window also ends the ringing
+    return;
+  }
+  if (Object.hasOwn(KINDS, kind)) answer(kind, action); else if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close();
+});
 ipcMain.handle('nudge:status', () => ({
   next: { water: next.water, walk: next.walk, stretch: next.stretch, eyes: nextEyes },
   last: Object.fromEntries(['water', 'walk', 'stretch', 'eyes'].map((k) => [k, (state.remind[k] || {}).last || 0])),
@@ -643,12 +650,16 @@ ipcMain.handle('digest:run', () => { runDigestUpdate(true); return true; });
 ipcMain.handle('news:refresh', () => newsRefresh());
 
 // focus-block completion lives here (not in a window) so it fires exactly once, even with the windows hidden
+function focusDoneBanner() {
+  const f = state.focus, left = state.session.filter((t) => !t.done).length, alarm = state.settings.focusAlarm !== false;
+  const payload = { kind: 'focus', icon: 'clock', title: 'Focus block done', body: left ? `${left} session ${left === 1 ? 'task' : 'tasks'} still open.` : (f.goal || 'Nice work. Take a short break.'), actions: false, alarm, repeatMin: f.minutes, countdown: alarm ? 30 : 10 };
+  showBanner(payload, alarm ? 30000 : 10000);
+}
 setInterval(() => {
   const f = state && state.focus;
   if (!f || !f.endsAt || Date.now() < f.endsAt) return;
   f.endsAt = null; f.pausedLeft = null; state.habits.focus = (state.habits.focus || 0) + 1;
-  const left = state.session.filter((t) => !t.done).length;
-  showBanner({ icon: 'check', title: 'Focus block done', body: left ? `${left} session ${left === 1 ? 'task' : 'tasks'} still open.` : (f.goal || 'Nice work. Take a short break.'), actions: false, countdown: 10 });
+  focusDoneBanner();
   saveSoon(); push();
 }, 1000);
 
@@ -664,6 +675,7 @@ app.whenReady().then(() => {
   const start = process.env.TASKHUB_MODE || 'tab';
   if (process.env.TASKHUB_VIEW) curView = process.env.TASKHUB_VIEW;
   setUiMode(start).then(() => setTimeout(testHook, 150));
+  if (process.env.TASKHUB_TEST_FOCUS) setTimeout(focusDoneBanner, 2500);
   if (process.env.TASKHUB_TEST_BANNER) setTimeout(() => { pending = 'water'; showBanner({ kind: 'water', ...KINDS.water, actions: true }); }, 3000);
   if (process.env.TASKHUB_DIGEST_NOW) setTimeout(() => runDigestUpdate(true), 5000); // run the daily digest update right away (used once to check it end to end)
   globalShortcut.register('Control+Alt+H', toggleVisible);
@@ -678,7 +690,7 @@ function testHook() {
   if (!process.env.TASKHUB_SHOT) return;
   const role = process.env.TASKHUB_SHOT_WIN || (uiMode === 'tab' ? 'tab' : 'side');
   setTimeout(async () => {
-    const w = wins[role];
+    const w = role === 'banner' ? bannerWin : wins[role];
     if (process.env.TASKHUB_EVAL) {
       try { const r = await w.webContents.executeJavaScript(process.env.TASKHUB_EVAL); if (r !== undefined) console.log('EVAL', JSON.stringify(r)); } catch (e) { console.error('eval failed', e.message); }
       await new Promise((r) => setTimeout(r, Number(process.env.TASKHUB_EVAL_WAIT) || 800));

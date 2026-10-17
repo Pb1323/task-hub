@@ -37,7 +37,7 @@ function clean(s, currentSettings) {
     out.settings = { ...currentSettings, name: str(t.name, 24).trim() || currentSettings.name, pinned: !!t.pinned, nudgesOn: !!t.nudgesOn,
       nudges: { water: num(n.water, 5, 240, 30), walk: num(n.walk, 5, 240, 50), stretch: num(n.stretch, 5, 240, 75) },
       goals: { water: num(g.water, 1, 99, 8), walk: num(g.walk, 1, 99, 6), stretch: num(g.stretch, 1, 99, 4) },
-      eyesOn: t.eyesOn !== false, digestAuto: t.digestAuto !== false, eyesEvery: num(t.eyesEvery, 5, 120, 10), chromeProfile: str(t.chromeProfile, 40).replace(/[^A-Za-z0-9 _-]/g, ''), mode: ['tab', 'side', 'big'].includes(t.mode) ? t.mode : 'tab' };
+      eyesOn: t.eyesOn !== false, digestAuto: t.digestAuto !== false, focusAlarm: t.focusAlarm !== false, eyesEvery: num(t.eyesEvery, 5, 120, 10), chromeProfile: str(t.chromeProfile, 40).replace(/[^A-Za-z0-9 _-]/g, ''), mode: ['tab', 'side', 'big'].includes(t.mode) ? t.mode : 'tab' };
   }
   return out;
 }

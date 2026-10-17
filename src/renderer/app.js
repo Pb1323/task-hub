@@ -423,6 +423,7 @@ const VIEWS = {
       row('Water / walk / stretch every (min)', el('span', { class: 'add' }, num(S.settings.nudges.water, 5, 240, (v) => { S.settings.nudges.water = v; }), num(S.settings.nudges.walk, 5, 240, (v) => { S.settings.nudges.walk = v; }), num(S.settings.nudges.stretch, 5, 240, (v) => { S.settings.nudges.stretch = v; }))),
       row('Eye rest (10 s)', el('span', { class: 'add' }, chk(S.settings.eyesOn, (v) => { S.settings.eyesOn = v; save(); render(); }), num(S.settings.eyesEvery, 5, 120, (v) => { S.settings.eyesEvery = v; }))),
       row('Update the digest by itself each morning (a short background Claude run)', chk(S.settings.digestAuto !== false, (v) => { S.settings.digestAuto = v; save(); render(); })),
+      row('Focus-end alarm (rings for 30 s until you stop it)', chk(S.settings.focusAlarm !== false, (v) => { S.settings.focusAlarm = v; save(); render(); })),
       row('Chrome profile folder (if you use several)', prof));
     b.append(c);
     const lc = el('div', { class: 'card' }, el('h3', {}, 'Quick-launch links'));
