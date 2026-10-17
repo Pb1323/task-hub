@@ -133,3 +133,14 @@ input,textarea{user-select:text;-webkit-user-select:text}
 #hub[data-mode=big] .work{transition-delay:60ms,60ms,0s!important}
 .taskbar{will-change:transform,opacity}
 .panel .lb,.panel .tl,.claudeBtn,.nv{white-space:nowrap}
+
+/* simple mode: no open/close, swap or idle animations (hover effects stay) */
+#hub.scene *,#hub.scene *::before,#hub.scene *::after{animation:none!important}
+.taskbar,.panel,.panel>*,.work,.wh,.wbody,.work>*{transition:none!important;will-change:auto!important;filter:none!important}
+#hub[data-mode=tab] .panel,#hub:not([data-mode=big]) .work{display:none!important}
+#hub:not([data-mode=tab]) .taskbar{display:none!important}
+.taskbar{opacity:1!important;pointer-events:auto!important;transform:translateY(-50%)!important}
+.panel,.scene.closed .panel{opacity:1!important;transform:none!important;pointer-events:auto!important}
+.work,#hub[data-mode=big] .work{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:none!important}
+#hub:not([data-mode=big]) .wh,#hub:not([data-mode=big]) .wbody{opacity:1!important;transform:none!important}
+#hub.swapping{visibility:hidden}

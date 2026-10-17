@@ -433,7 +433,12 @@ ipcMain.on('state:set', (_e, s) => {
   if (JSON.stringify([state.settings.nudges, state.settings.eyesEvery]) !== prev) initNudges();
   saveSoon();
 });
-ipcMain.on('ui:mode', (_e, m) => { if (['tab', 'side', 'big'].includes(m)) { curMode = m; applyBounds(); } });
+ipcMain.handle('ui:mode', async (_e, m) => { // resolves after the resize has settled, so the page can stay hidden while the window moves
+  if (!['tab', 'side', 'big'].includes(m)) return false;
+  curMode = m; applyBounds();
+  await new Promise((r) => setTimeout(r, 140));
+  return true;
+});
 ipcMain.on('ui:hide', () => { if (win) win.hide(); });
 const lastOpen = {};
 const once = (key) => { const n = Date.now(); if (n - (lastOpen[key] || 0) < 900) return false; lastOpen[key] = n; return true; };

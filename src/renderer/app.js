@@ -39,28 +39,20 @@ const btn = (label, fn, cls = '') => el('button', { class: 'btn ' + cls, onclick
 const hasUrl = (u) => u && /^https?:/.test(u);
 
 // ---------- modes ----------
-const RANK = { tab: 0, side: 1, big: 2 };
-let resizeTimer = null, applyTimer = null;
-// Opening: grow the window, build the content while it is still hidden, then start the transition (so the heavy work never
-// lands in the middle of an animation). Closing: animate out first, then shrink the window.
-function setMode(m) {
-  const prev = mode;
-  if (m === prev) return;
+let modeToken = 0;
+// Plain and instant: hide the page, let the window resize/move to its new size, then show the new layout. No animation.
+async function setMode(m) {
+  if (m === mode) return;
+  const token = ++modeToken;
   mode = m;
-  clearTimeout(resizeTimer); clearTimeout(applyTimer);
-  const apply = () => {
-    hubEl.dataset.mode = m;
-    hubEl.classList.toggle('closed', m === 'tab');
-    if (m === 'big') { const wb = $('wBody'); wb.classList.remove('swap'); void wb.offsetWidth; wb.classList.add('swap'); setTimeout(() => wb.classList.remove('swap'), 600); }
-  };
-  if (RANK[m] > RANK[prev]) {
-    window.hub.setMode(m);
-    lastView = null; render();
-    applyTimer = setTimeout(apply, 90);
-  } else {
-    apply(); render();
-    resizeTimer = setTimeout(() => window.hub.setMode(m), 300);
-  }
+  hubEl.classList.add('swapping');
+  await window.hub.setMode(m);
+  if (token !== modeToken) return;
+  lastView = null;
+  hubEl.dataset.mode = m;
+  hubEl.classList.toggle('closed', m === 'tab');
+  render();
+  requestAnimationFrame(() => { if (token === modeToken) hubEl.classList.remove('swapping'); });
 }
 let lastView = null;
 function busy() { const a = document.activeElement; return a && a.tagName === 'INPUT' && a.type !== 'checkbox' && a.value.trim() !== ''; }
