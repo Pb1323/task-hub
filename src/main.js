@@ -494,10 +494,12 @@ function runClaude(prompt, tools, maxTurns, timeoutMs) {
     c.on('close', (code) => fin(code));
   });
 }
-function firstJson(text) {
-  const i = text.indexOf('{'), j = text.lastIndexOf('}');
-  if (i < 0 || j <= i) return null;
-  try { return JSON.parse(text.slice(i, j + 1)); } catch { return null; }
+function firstJson(text) { // the model may add words around the JSON: try a few start/end positions
+  const starts = [], ends = [];
+  for (let i = text.indexOf('{'); i >= 0 && starts.length < 6; i = text.indexOf('{', i + 1)) starts.push(i);
+  for (let j = text.lastIndexOf('}'); j >= 0 && ends.length < 6; j = text.lastIndexOf('}', j - 1)) ends.push(j);
+  for (const i of starts) for (const j of ends) { if (j <= i) continue; try { return JSON.parse(text.slice(i, j + 1)); } catch { /* try the next pair */ } }
+  return null;
 }
 function mentorNames() {
   const names = new Set();
@@ -522,7 +524,7 @@ async function runDigestUpdate(manual) {
   const notes = [];
   try {
     // 1) email only
-    const p1 = 'Find the newest Gmail draft whose subject starts with "Daily Digest" (use list_drafts, then get_draft for the full text). Convert its body to JSON and print ONLY that JSON, no code fences and no commentary. Shape: {"date":"YYYY-MM-DD of the draft","greeting":"first line","sections":[{"title":"section heading without numbers","items":[{"title":"","text":"the main sentence(s)","idea":"business idea text if the item has one, else empty","source":"publisher name","url":"real https link"}]}]}. Plain text only. Replace any google.com/url?q=... redirect link by the real target URL. Keep every section and every item. If there is no such draft print {"error":"none"}.';
+    const p1 = 'Call the tool mcp__claude_ai_Gmail__list_drafts exactly once with exactly these arguments: {"query":"subject:\\"Daily Digest\\" newer_than:2d","pageSize":1,"view":"DRAFT_VIEW_FULL"}. It returns the newest Daily Digest draft with its full body. Convert that body to JSON and print ONLY that JSON, no code fences, no commentary. Shape: {"date":"YYYY-MM-DD of the draft","greeting":"first line","sections":[{"title":"section heading without numbers","items":[{"title":"","text":"the main sentence(s)","idea":"business idea text if the item has one, else empty","source":"publisher name","url":"real https link"}]}]}. Plain text only. Replace any google.com/url?q=... redirect link by the real target URL. Keep every section and every item. If the call returns no draft print {"error":"none"}.';
     const r1 = await runClaude(p1, ['mcp__claude_ai_Gmail__list_drafts', 'mcp__claude_ai_Gmail__get_draft'], 8, 4 * 60000);
     const j1 = firstJson(r1.out);
     if (j1 && Array.isArray(j1.sections) && j1.sections.length) {
@@ -530,7 +532,7 @@ async function runDigestUpdate(manual) {
       const clean_ = { date, kind: 'digest', greeting: T(j1.greeting, 120), sections: j1.sections.slice(0, 14).map((s) => ({ title: T(s.title, 80), items: (Array.isArray(s.items) ? s.items : []).slice(0, 10).map((x) => ({ title: T(x.title, 140), text: T(x.text, 600), idea: T(x.idea, 500), source: T(x.source, 60), url: safeUrl(String(x.url || '')) || '' })) })) };
       fs.writeFileSync(udir('digest', date + '.json'), JSON.stringify(clean_));
       notes.push('email digest ' + date + ' ok');
-    } else notes.push('email step: no digest found (code ' + r1.code + ')');
+    } else notes.push('email step: no digest found (code ' + r1.code + ', ' + T(r1.out || r1.err, 160) + ')');
 
     // 2) web only
     digestRun.step = 'people'; push();
@@ -547,7 +549,7 @@ async function runDigestUpdate(manual) {
         fs.writeFileSync(udir('digest', 'seen.json'), JSON.stringify({ seen: seenAll.slice(-300) }));
         notes.push('people ' + items.length + ' ok');
       } else notes.push('people step: too few verified items');
-    } else notes.push('people step: no JSON (code ' + r2.code + ')');
+    } else notes.push('people step: no JSON (code ' + r2.code + ', ' + T(r2.out || r2.err, 160) + ')');
   } catch (e) { notes.push('error: ' + e.message); }
   const a2 = readAuto();
   a2.last = { at: Date.now(), ok: notes.every((n) => /ok$/.test(n)), msg: notes.join('; '), manual: !!manual };
