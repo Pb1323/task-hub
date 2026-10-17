@@ -98,10 +98,6 @@ function renderPanel() {
   const mx = Math.max(3, ...days); const pts = days.map((v, i) => [i * (220 / 6), 62 - (v / mx) * 50]);
   const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
   $('areaL').setAttribute('d', line); $('areaF').setAttribute('d', line + ' V70 H0 Z');
-  // mini checklist
-  let mini = $('mini');
-  if (!mini) { mini = el('div', { class: 'mini', id: 'mini' }); $('areaL').closest('svg').after(mini); }
-  mini.replaceChildren(...open_.slice(0, 4).map((t) => el('div', { class: 'row' }, el('button', { class: 'chk', 'aria-label': 'Done', onclick: () => { t.done = true; save(); render(); } }, '✓'), el('div', { class: 't' }, t.text))));
   // daily pick from today's inspiration digest, shown in the sidebar (one different person per day)
   let pick = $('pick');
   if (!pick) { pick = el('button', { class: 'pick', id: 'pick', onclick: () => { dLane = 'all'; go('digest'); } }); $('areaL').closest('svg').after(pick); }
