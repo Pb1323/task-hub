@@ -133,7 +133,7 @@ function boundsFor(role) {
   const w = Math.max(420, Math.min(MAX_W - 340, wa.width - 340 - 2 * MARGIN));
   return { x: right - 340 - w, y: wa.y + MARGIN, width: w, height: h };
 }
-function placeAll() { eachWin((w, r) => w.setBounds(boundsFor(r))); }
+function placeAll() { eachWin((w, r) => { w.setBounds(boundsFor(r)); fit(w, r); }); }
 function broadcast(ch, ...a) { eachWin((w) => w.webContents.send(ch, ...a)); }
 function ctx() { return { mode: uiMode, view: curView }; }
 function push(except) { const v = view(); eachWin((w) => { if (!except || w.webContents !== except) w.webContents.send('state:push', v); }); }
@@ -150,7 +150,11 @@ function createWin(role) {
   w.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: { role } });
   return w;
 }
-function showRole(r) { const w = wins[r]; if (!alive(w) || w.isVisible()) return; if (r === 'tab') w.showInactive(); else w.show(); }
+function fit(w, r) { // while the window is hidden: make sure it really is where it should be (windows moved between screens of different scaling can land off by a lot)
+  const b = boundsFor(r), c = w.getBounds();
+  if (Math.abs(c.x - b.x) > 2 || Math.abs(c.y - b.y) > 2 || Math.abs(c.width - b.width) > 2 || Math.abs(c.height - b.height) > 2) { w.setBounds(b); const d = w.getBounds(); if (Math.abs(d.width - b.width) > 2 || Math.abs(d.x - b.x) > 2) w.setBounds(b); }
+}
+function showRole(r) { const w = wins[r]; if (!alive(w) || w.isVisible()) return; fit(w, r); if (r === 'tab') w.showInactive(); else w.show(); }
 function setUiMode(m) {
   if (!ROLES.includes(m)) return;
   uiMode = m; allHidden = false;
