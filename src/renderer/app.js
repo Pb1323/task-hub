@@ -391,8 +391,8 @@ function loadAll() { loadGoals(); loadTriage(); loadProjects(); loadDigest(); }
 // ---------- events ----------
 window.hub.onMode((m) => setMode(m));
 window.hub.onPush((s) => { S = s; render(); });
-$('tOpen').title = 'Double-click to open';
-$('tFocus').title = 'Double-click to open';
+$('tOpen').onclick = () => { view = 'tasks'; setMode('big'); };   // the pill's Tasks / Focus icons open that view on a click
+$('tFocus').onclick = () => { view = 'focus'; setMode('big'); };
 $('tClaude').onclick = () => window.hub.openClaude({});
 $('bClaude').onclick = () => window.hub.openClaude({});
 $('bBig').onclick = () => setMode(mode === 'big' ? 'side' : 'big');
