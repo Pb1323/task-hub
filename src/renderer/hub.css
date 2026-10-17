@@ -1,43 +1,59 @@
-/* task-hub: layout and content styles on top of the Instinct "liquid glass v8" sheet (glass.css). */
+/* task-hub styles on top of the Instinct "liquid glass v8" sheet (glass.css).
+   Three windows load this same page (tab | side | big); html[data-role] picks which part shows. Nothing animates except hovers. */
 html,body{background:transparent;height:100%;overflow:hidden;user-select:none;-webkit-user-select:none}
 input,textarea{user-select:text;-webkit-user-select:text}
-:root{--glass-light:linear-gradient(145deg,rgba(247,251,250,.93),rgba(232,243,240,.88));--glass-dark:linear-gradient(145deg,rgba(40,48,54,.95),rgba(22,27,31,.93))}
-/* a desktop window cannot blur what is behind it, so the glass is mostly opaque here */
-.scene.light{--g-bg:var(--glass-light)}
-.scene.dark{--g-bg:var(--glass-dark)}
 #hub{position:fixed;inset:0;height:auto;border-radius:0;overflow:visible;background:none;isolation:auto}
 
-/* small tab: vertical pill on the right edge */
-.taskbar{left:auto;right:22px;bottom:auto;top:50%;transform:translateY(-50%);flex-direction:column;gap:8px;padding:8px;border-radius:24px;animation:none;opacity:0;pointer-events:none;transform:translateY(-50%) translateX(18px) scale(.88);transition:opacity 200ms ease-out,transform 280ms cubic-bezier(.2,.9,.25,1)}
-#hub[data-mode=tab] .taskbar{opacity:1;pointer-events:auto;transform:translateY(-50%);transition-delay:160ms}
-@keyframes tabin{from{opacity:0;transform:translateY(-50%) translateX(14px) scale(.96)}to{opacity:1;transform:translateY(-50%)}}
+/* the window is transparent, so blur has nothing to blur: the glass is a mostly opaque tint, and all structural animation is off */
+.scene.light{--g-bg:linear-gradient(145deg,rgba(247,251,250,.94),rgba(232,243,240,.9))}
+.scene.dark{--g-bg:linear-gradient(145deg,rgba(40,48,54,.96),rgba(22,27,31,.94))}
+#hub.scene *,#hub.scene *::before,#hub.scene *::after{animation:none!important}
+.taskbar,.panel,.panel>*,.work,.work>*,.gi,.card,.pick,.work .wh,.work .wbody{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important}
+.taskbar,.panel,.panel>*,.work,.work>*{transition:none!important;transform:none}
+.scene.closed .panel{opacity:1;pointer-events:auto}
+.rg.mini .rv{animation:none!important}
+
+/* which part shows in which window */
+html[data-role=tab] .panel,html[data-role=tab] .work,html[data-role=side] .taskbar,html[data-role=side] .work,html[data-role=big] .taskbar,html[data-role=big] .panel{display:none!important}
+
+/* tab window: a small vertical pill */
+.taskbar{left:auto;right:22px;bottom:auto;top:50%;transform:translateY(-50%)!important;flex-direction:column;gap:8px;padding:8px;border-radius:24px}
 .taskbar .gi{width:40px;height:40px;border-radius:14px}
+.taskbar .gb:hover .gi{transform:translateY(-1px) scale(1.06)}
 .tbadge,.ttime{position:absolute;font:600 10px system-ui;font-variant-numeric:tabular-nums;color:var(--txt);pointer-events:none}
 .tbadge{right:-3px;top:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;display:grid;place-items:center;background:var(--acc);color:#fff}
 .tbadge:empty,.ttime:empty{display:none}
 .ttime{left:0;right:0;bottom:-11px;text-align:center}
 
-.panel{top:22px;bottom:22px;right:22px;overflow:hidden auto;scrollbar-width:none}
+/* side window: the sidebar */
+.panel{top:22px;bottom:22px;right:22px;width:296px;overflow:hidden auto;scrollbar-width:none}
 .panel::-webkit-scrollbar{display:none}
+.panel .lb,.panel .tl,.claudeBtn,.nv{white-space:nowrap}
+.claudeBtn,.nv,.sum,.tg,.grp,.pick{flex:none}
 .claudeBtn{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;border:0;border-radius:16px;cursor:pointer;color:#fff;font:600 14px system-ui;background:linear-gradient(145deg,#E58A6A,#C8603F);box-shadow:inset 1px 1px 0 rgba(255,255,255,.45),0 6px 16px rgba(200,96,63,.35)}
-.claudeBtn svg{width:20px;height:20px}.claudeBtn:hover{filter:brightness(1.06)}.claudeBtn:active{transform:scale(.98)}
-.panel.rail .claudeBtn{justify-content:center;padding:0}.panel.rail .claudeBtn .lb{display:none}
-.panel.rail .tg .tl .lb{display:none}
+.claudeBtn svg{width:20px;height:20px}.claudeBtn:hover{filter:brightness(1.06)!important}.claudeBtn:active{transform:scale(.98)}
 .tl{background:none;border:0;cursor:pointer}
 .sum .num{font-size:34px}
+.pick{display:flex;flex-direction:column;gap:2px;text-align:left;border:0;cursor:pointer;border-radius:16px;padding:10px 12px;color:var(--txt);background:rgba(255,255,255,.4);box-shadow:inset 1px 1px 0 var(--g-edge)}
+.dark .pick{background:rgba(255,255,255,.06)}
+.pick b{font:600 13px system-ui}.pick span:last-child{font:400 12px/16px system-ui;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pick .gl{padding:0 0 2px}
+.mini{display:flex;flex-direction:column;gap:2px;margin:0 -2px}
+.mini .row{padding:5px 4px}.mini .row .t{font-size:13px;line-height:17px}.mini .chk{width:20px;height:20px;font-size:11px}
+@media (max-height:860px){.nv{height:40px}.nv .gi{width:32px;height:32px}.panel{gap:8px}.area,.mini,.pick{display:none}.sum .rg.big{width:52px;height:52px}.sum .num{font-size:28px;line-height:32px}}
+@media (max-height:700px){.sum{display:none}}
 
-/* workspace */
-.work{position:absolute;top:22px;bottom:22px;right:332px;width:min(880px,calc(100vw - 360px));border-radius:30px;padding:22px 24px;display:flex;flex-direction:column;gap:14px;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(34px) scale(.96);filter:blur(6px);transform-origin:100% 50%;transition:opacity 220ms ease-out,transform 280ms cubic-bezier(.2,.9,.25,1),filter 240ms ease-out,visibility 0s linear 290ms;background:var(--g-bg);color:var(--txt);box-shadow:inset 1px 1px 0 var(--g-edge),inset -1px -1px 0 var(--g-edge2),var(--g-sh);backdrop-filter:blur(26px) saturate(1.9);overflow:hidden}
-#hub[data-mode=big] .work{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none;transition-delay:90ms,90ms,90ms,0s}
-#hub[data-mode=big][data-rail=on] .work{right:116px;width:min(1000px,calc(100vw - 150px))}
-@keyframes workin{from{opacity:0;transform:translateX(24px) scale(.98)}to{opacity:1;transform:none}}
+/* big window: the workspace, sitting to the left of the sidebar window */
+.work{display:flex;flex-direction:column;gap:14px;position:absolute;top:22px;bottom:22px;left:22px;right:6px;width:auto;border-radius:30px;padding:22px 24px;background:var(--g-bg);color:var(--txt);box-shadow:inset 1px 1px 0 var(--g-edge),inset -1px -1px 0 var(--g-edge2),var(--g-sh);overflow:hidden}
 .wh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .eyebrow{font:600 11px system-ui;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 .wh h1{margin:2px 0 0;font:300 34px/38px system-ui;letter-spacing:-.02em}
 .wtools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .wbody{flex:1;overflow:auto;padding-right:6px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--track) transparent}
+
+/* content */
 .btn{font:600 13px system-ui;color:var(--txt);border:0;border-radius:999px;padding:8px 14px;cursor:pointer;background:var(--gi-bg);box-shadow:inset 1px 1px 0 var(--g-edge)}
-.btn:hover{filter:brightness(1.05)}.btn:active{transform:scale(.97)}
+.btn:hover{filter:brightness(1.06)!important}.btn:active{transform:scale(.97)}
 .btn.pri{background:var(--acc);color:#fff;box-shadow:none}.dark .btn.pri{color:#04281e}
 .btn.sm{padding:5px 10px;font-size:12px}
 .chip{font:600 12px system-ui;padding:5px 11px;border-radius:999px;border:0;cursor:pointer;color:var(--mut);background:rgba(128,128,128,.12)}
@@ -46,19 +62,19 @@ input,textarea{user-select:text;-webkit-user-select:text}
 .dark .card{background:rgba(255,255,255,.06)}
 .card h3{margin:0 0 6px;font:600 15px system-ui}
 .card .sub,.sub{color:var(--mut);font:400 12.5px/17px system-ui}
+.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .field{font:400 14px system-ui;color:var(--txt);background:rgba(255,255,255,.55);border:0;border-radius:12px;padding:9px 12px;outline:0;min-width:0;flex:1;box-shadow:inset 0 0 0 1px var(--track)}
-.dark .field{background:rgba(255,255,255,.08)}
-.field:focus{box-shadow:inset 0 0 0 2px var(--acc)}
+.dark .field{background:rgba(255,255,255,.08)}.field:focus{box-shadow:inset 0 0 0 2px var(--acc)}
 .add{display:flex;gap:8px}
 .gh{font:600 11px system-ui;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:8px 2px 0}
 .row{display:flex;align-items:flex-start;gap:12px;padding:9px 6px;border-radius:14px}
 .row:hover{background:rgba(128,128,128,.08)}
 .row .t{flex:1;font:400 14.5px/20px system-ui;overflow-wrap:anywhere}
 .row.done .t{color:var(--mut);text-decoration:line-through}
-.chk{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--mut);background:none;color:transparent;cursor:pointer;display:grid;place-items:center;font:700 13px system-ui;padding:0;transition:all 140ms}
-.chk:hover{border-color:var(--acc)}
+.chk{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--mut);background:none;color:transparent;cursor:pointer;display:grid;place-items:center;font:700 13px system-ui;padding:0}
+.chk:hover{border-color:var(--acc)}.chk:active{transform:scale(.85)}
 .done .chk{background:var(--acc);border-color:var(--acc);color:#fff}.dark .done .chk{color:#04281e}
-.row .a{display:flex;gap:2px;opacity:0;transition:opacity 120ms}.row:hover .a{opacity:1}
+.row .a{display:flex;gap:2px;opacity:0}.row:hover .a{opacity:1}
 .row .a button,.xbtn{border:0;background:none;color:var(--mut);cursor:pointer;font:15px system-ui;padding:2px 6px;border-radius:8px}
 .row .a button:hover,.xbtn:hover{background:rgba(128,128,128,.18);color:var(--txt)}
 .row.focus .t{color:var(--acc);font-weight:600}
@@ -80,67 +96,14 @@ input,textarea{user-select:text;-webkit-user-select:text}
 .ins{display:flex;flex-direction:column;gap:6px}
 .ins .who{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.ins .who b{font:600 15px system-ui}.ins .who i{font:normal 12px system-ui;color:var(--mut)}
 .ins .take{padding:8px 10px;border-radius:12px;background:rgba(0,120,90,.1);font:500 13px/18px system-ui}.dark .ins .take{background:rgba(75,227,179,.1)}
-.lnk{color:var(--acc);cursor:pointer;font:600 12px system-ui;border:0;background:none;padding:0;text-align:left}
-.lnk:hover{text-decoration:underline}
+.lnk{color:var(--acc);cursor:pointer;font:600 12px system-ui;border:0;background:none;padding:0;text-align:left}.lnk:hover{text-decoration:underline}
 .set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--track);font:400 14px system-ui}
 .set input[type=number]{width:62px;flex:none}
-.mini{display:flex;flex-direction:column;gap:2px;margin:0 -2px}
-.mini .row{padding:5px 4px}.mini .row .t{font-size:13px;line-height:17px}.mini .chk{width:20px;height:20px;font-size:11px}
-.nav-note{font:500 11px system-ui;color:var(--mut);padding:0 6px}
-.peek{position:absolute;right:22px;bottom:22px;max-width:320px;padding:12px 14px;border-radius:18px;background:var(--g-bg);box-shadow:var(--g-sh),inset 1px 1px 0 var(--g-edge);font:500 13px/18px system-ui}
-/* short screens: tighten the sidebar so tools + settings stay visible */
-@media (max-height:860px){.nv{height:40px}.nv .gi{width:32px;height:32px}.panel{gap:8px}.area,.mini{display:none}.sum .rg.big{width:52px;height:52px}.sum .num{font-size:28px;line-height:32px}}
-@media (max-height:700px){.sum{display:none}}
-.claudeBtn,.nv,.sum,.tg,.grp{flex:none}
-.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-
-.pick{display:flex;flex-direction:column;gap:2px;text-align:left;border:0;cursor:pointer;border-radius:16px;padding:10px 12px;color:var(--txt);background:rgba(255,255,255,.4);box-shadow:inset 1px 1px 0 var(--g-edge);flex:none}
-.dark .pick{background:rgba(255,255,255,.06)}
-.pick b{font:600 13px system-ui}.pick span:last-child{font:400 12px/16px system-ui;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.pick .gl{padding:0 0 2px}
-.panel.rail .pick{display:none}
-@media (max-height:860px){.pick{display:none}}
-
-/* motion: header and content rise in when the full view opens or the view changes */
-.wh,.wbody{transition:opacity 240ms ease-out,transform 300ms cubic-bezier(.2,.9,.25,1)}
-#hub:not([data-mode=big]) .wh,#hub:not([data-mode=big]) .wbody{opacity:0;transform:translateY(10px)}
-#hub[data-mode=big] .wh{transition-delay:160ms}#hub[data-mode=big] .wbody{transition-delay:230ms}
-.wbody.swap>*{animation:rise 340ms cubic-bezier(.2,.9,.25,1) both}
-.wbody.swap>*:nth-child(2){animation-delay:40ms}.wbody.swap>*:nth-child(3){animation-delay:80ms}.wbody.swap>*:nth-child(4){animation-delay:110ms}
-.wbody.swap>*:nth-child(5){animation-delay:140ms}.wbody.swap>*:nth-child(6){animation-delay:165ms}.wbody.swap>*:nth-child(n+7){animation-delay:190ms}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.nv.active .gi{animation:navpop 360ms cubic-bezier(.2,.9,.25,1)}
-@keyframes navpop{0%{transform:scale(.85)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
-.taskbar .gb:hover .gi{transform:translateY(-1px) scale(1.06)}
-.chk{transition:background 160ms,border-color 160ms,color 160ms,transform 160ms cubic-bezier(.2,.9,.25,1)}.chk:active{transform:scale(.82)}
 
 /* hover labels: 1-2 words under the icon */
 [data-tip]{position:relative}
-[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translate(-50%,-3px);padding:3px 9px;border-radius:9px;white-space:nowrap;pointer-events:none;z-index:60;opacity:0;font:500 11px/14px system-ui;color:var(--txt);background:var(--g-bg);box-shadow:inset 1px 1px 0 var(--g-edge),0 6px 16px rgba(0,0,0,.28);transition:opacity 140ms ease-out,transform 160ms cubic-bezier(.2,.9,.25,1)}
-[data-tip]:hover::after{opacity:1;transform:translate(-50%,0);transition-delay:.3s}
-.nv[data-tip]::after{display:none}.panel.rail .nv[data-tip]::after{display:block;left:50%}
-.panel .phd [data-tip]::after{left:auto;right:0;transform:translate(0,-3px)}.panel .phd [data-tip]:hover::after{transform:none}
-.panel.rail .phd [data-tip]::after{left:50%;right:auto;transform:translate(-50%,-3px)}.panel.rail .phd [data-tip]:hover::after{transform:translate(-50%,0)}
-.taskbar [data-tip]::after{left:auto;right:-4px;transform:translate(0,-3px)}.taskbar [data-tip]:hover::after{transform:none}
-
-/* performance: this window is transparent, so blur has nothing to blur and only costs GPU. Animate transform/opacity only. */
-.taskbar,.panel,.gi,.work,.pick,.card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-.gb.on .gi{animation:none!important}.gb.on .gi::after{display:none!important}
-.rg.mini .rv{animation:rvin 700ms both!important}
-.scene.closed .panel{filter:none!important}
-.panel{transition:width 220ms cubic-bezier(.2,.9,.25,1),transform 260ms cubic-bezier(.2,.9,.25,1),opacity 200ms ease-out!important;will-change:transform,opacity}
-.work{filter:none!important;will-change:transform,opacity;transition:opacity 220ms ease-out,transform 280ms cubic-bezier(.2,.9,.25,1),visibility 0s linear 290ms!important}
-#hub[data-mode=big] .work{transition-delay:60ms,60ms,0s!important}
-.taskbar{will-change:transform,opacity}
-.panel .lb,.panel .tl,.claudeBtn,.nv{white-space:nowrap}
-
-/* simple mode: no open/close, swap or idle animations (hover effects stay) */
-#hub.scene *,#hub.scene *::before,#hub.scene *::after{animation:none!important}
-.taskbar,.panel,.panel>*,.work,.wh,.wbody,.work>*{transition:none!important;will-change:auto!important;filter:none!important}
-#hub[data-mode=tab] .panel,#hub:not([data-mode=big]) .work{display:none!important}
-#hub:not([data-mode=tab]) .taskbar{display:none!important}
-.taskbar{opacity:1!important;pointer-events:auto!important;transform:translateY(-50%)!important}
-.panel,.scene.closed .panel{opacity:1!important;transform:none!important;pointer-events:auto!important}
-.work,#hub[data-mode=big] .work{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:none!important}
-#hub:not([data-mode=big]) .wh,#hub:not([data-mode=big]) .wbody{opacity:1!important;transform:none!important}
-#hub.swapping{visibility:hidden}
+[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translate(-50%,0);padding:3px 9px;border-radius:9px;white-space:nowrap;pointer-events:none;z-index:60;opacity:0;font:500 11px/14px system-ui;color:var(--txt);background:var(--g-bg);box-shadow:inset 1px 1px 0 var(--g-edge),0 6px 16px rgba(0,0,0,.28)}
+[data-tip]:hover::after{opacity:1}
+.nv[data-tip]::after{display:none}
+.panel .phd [data-tip]::after{left:auto;right:0;transform:none}
+.taskbar [data-tip]::after{left:auto;right:-4px;transform:none}

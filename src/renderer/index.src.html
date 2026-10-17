@@ -4,9 +4,10 @@
 <title>task-hub</title>
 <link rel="stylesheet" href="glass.css">
 <link rel="stylesheet" href="hub.css">
+<script src="role.js"></script>
 </head><body>
 <!--SPRITE-->
-<main id="hub" class="scene light closed" data-mode="tab">
+<main id="hub" class="scene light">
 
   <!-- small always-visible tab -->
   <div class="taskbar" role="toolbar" aria-label="task-hub tab">
@@ -19,7 +20,6 @@
   <aside class="panel" aria-label="Hub sidebar">
     <div class="phd">
       <span class="brand"><i></i><b class="lb">Hub</b></span>
-      <button class="gb colbtn" id="bRail" data-tip="Collapse" aria-label="Collapse sidebar"><span class="gi" data-n="chevron-right"><svg aria-hidden="true"><use href="#g-chevron-right"/></svg><i class="sp"></i></span></button>
       <button class="gb" id="bBig" data-tip="Full view" aria-label="Open full view"><span class="gi" data-n="plus"><svg aria-hidden="true"><use href="#g-expand"/></svg><i class="sp"></i></span></button>
       <button class="gb closebtn" id="bClose" data-tip="Close" aria-label="Minimise to tab"><span class="gi" data-n="close"><svg aria-hidden="true"><use href="#g-close"/></svg><i class="sp"></i></span></button>
     </div>

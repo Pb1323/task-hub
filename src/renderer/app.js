@@ -3,9 +3,10 @@ const $ = (id) => document.getElementById(id);
 const hubEl = $('hub');
 const Q = new URLSearchParams(location.search);
 let S = null;                 // full state, mirrored to main
-let mode = 'tab';             // tab | side | big
+const ROLE = Q.get('role') || 'side';   // which window this is: tab | side | big
+let ctx = { mode: 'tab', view: 'tasks' }; // set by the main process
+let ctxAt = 0;
 let view = 'tasks';
-let collapseTimer = null, hovering = false;
 let G = null, TR = null, PR = null, DG = null;   // goals, triage, projects, digest caches
 let gTab = 'short', dLane = 'all', pFilter = '';
 const open = new Set();       // expanded details (keys)
@@ -39,25 +40,9 @@ const btn = (label, fn, cls = '') => el('button', { class: 'btn ' + cls, onclick
 const hasUrl = (u) => u && /^https?:/.test(u);
 
 // ---------- modes ----------
-let modeToken = 0;
-// Plain and instant: hide the page, let the window resize/move to its new size, then show the new layout. No animation.
-async function setMode(m) {
-  if (m === mode) return;
-  const token = ++modeToken;
-  mode = m;
-  hubEl.classList.add('swapping');
-  await window.hub.setMode(m);
-  if (token !== modeToken) return;
-  lastView = null;
-  hubEl.dataset.mode = m;
-  hubEl.classList.toggle('closed', m === 'tab');
-  render();
-  // let the new layout paint for two frames before the window becomes visible again
-  requestAnimationFrame(() => requestAnimationFrame(() => { if (token === modeToken) { hubEl.classList.remove('swapping'); window.hub.shown(); } }));
-}
+const setMode = (m) => window.hub.setMode(m);   // the main process shows/hides the right windows; nothing here ever resizes
 let lastView = null;
 function busy() { const a = document.activeElement; return a && a.tagName === 'INPUT' && a.type !== 'checkbox' && a.value.trim() !== ''; }
-function maybeCollapse() { clearTimeout(collapseTimer); } // nothing collapses by itself any more: close it with X / Esc
 
 // ---------- focus timer ----------
 function remaining() { const f = S.focus; if (f.endsAt) return f.endsAt - Date.now(); if (f.pausedLeft != null) return f.pausedLeft; return f.minutes * 60000; }
@@ -74,12 +59,6 @@ function resetTimer() { S.focus.endsAt = null; S.focus.pausedLeft = null; save()
 function tickTimer() {
   if (!S) return;
   const f = S.focus;
-  if (f.endsAt && f.endsAt - Date.now() <= 0) {
-    f.endsAt = null; f.pausedLeft = null; S.habits.focus = (S.habits.focus || 0) + 1;
-    const left = S.session.filter((t) => !t.done).length;
-    window.hub.notify({ icon: '✅', title: 'Focus block done', body: left ? `${left} session ${left === 1 ? 'task' : 'tasks'} still open.` : (f.goal || 'Nice work. Take a short break.') });
-    save(); render();
-  }
   const running = !!f.endsAt, started = running || f.pausedLeft != null, rem = remaining();
   const txt = started ? fmt(rem) : '--:--';
   $('sumT').textContent = txt; $('tTime').textContent = started ? txt : '';
@@ -102,14 +81,10 @@ function navCount(k) {
 }
 function renderNav() {
   const nav = $('nav'); nav.replaceChildren();
-  NAV.forEach(([k, label, ic]) => nav.append(el('button', { class: 'nv' + (mode === 'big' && view === k ? ' active' : ''), 'data-tip': label, onclick: () => go(k) }, icon(ic), el('span', { class: 'lb' }, label), el('em', { class: 'lb' }, String(navCount(k))))));
-  $('nvSettings').classList.toggle('active', mode === 'big' && view === 'settings');
+  NAV.forEach(([k, label, ic]) => nav.append(el('button', { class: 'nv' + (ctx.mode === 'big' && ctx.view === k ? ' active' : ''), 'data-tip': label, onclick: () => go(k) }, icon(ic), el('span', { class: 'lb' }, label), el('em', { class: 'lb' }, String(navCount(k))))));
+  $('nvSettings').classList.toggle('active', ctx.mode === 'big' && ctx.view === 'settings');
 }
-function go(k) {
-  if (mode === 'big' && view === k) { setMode('side'); return; } // press the same icon again to close
-  view = k;
-  if (mode !== 'big') setMode('big'); else { render(); }
-}
+function go(k) { window.hub.goto(k); } // main process opens the full view on k, or closes it if k is already showing
 
 function renderPanel() {
   const open_ = S.tasks.filter((t) => !t.done), done = S.tasks.filter((t) => t.done).length;
@@ -351,7 +326,8 @@ function pendingTicks() {
 }
 
 function renderView() {
-  if (!S || mode !== 'big') return;
+  if (!S || ROLE !== 'big') return;
+  view = ctx.view;
   const keep = $('wBody').scrollTop;
   const swapping = lastView !== view; lastView = view;
   $('wBody').replaceChildren();
@@ -368,10 +344,9 @@ function renderView() {
 }
 function render() {
   if (!S) return;
-  const rail = hubEl.dataset.rail === 'on';
-  document.querySelector('.panel').classList.toggle('rail', rail);
-  renderPanel();
-  if (mode === 'big') renderView();
+  if (ROLE === 'tab') $('tBadge').textContent = S.tasks.filter((t) => !t.done).length || '';
+  else if (ROLE === 'side') renderPanel();
+  else renderView();
   tickTimer();
 }
 
@@ -390,25 +365,28 @@ async function loadDigest() { DG = await window.hub.digest(); render(); }
 function loadAll() { loadGoals(); loadTriage(); loadProjects(); loadDigest(); }
 
 // ---------- events ----------
-window.hub.onMode((m) => setMode(m));
-window.hub.onPush((s) => { S = s; render(); });
-$('tOpen').onclick = () => { view = 'tasks'; setMode('big'); };   // the pill's Tasks / Focus icons open that view on a click
-$('tFocus').onclick = () => { view = 'focus'; setMode('big'); };
+window.hub.onPush((s) => { const hold = ROLE === 'big' && busy(); S = s; if (!hold) render(); }); // never re-render under someone who is typing
+window.hub.onCtx((c) => { ctx = c; ctxAt = Date.now(); view = c.view; render(); });
+window.hub.onShow(() => { loadGoals(); loadTriage(); loadProjects(); loadDigest(); });
+window.hub.onDataChanged(() => loadGoals());
+// a double-click on the pill opens the sidebar in the very spot you clicked: ignore clicks for a moment after a window appears
+['click', 'dblclick', 'mousedown'].forEach((t) => document.addEventListener(t, (e) => { if (Date.now() - ctxAt < 350) { e.stopPropagation(); e.preventDefault(); } }, true));
+
+$('tOpen').onclick = () => window.hub.goto('tasks');
+$('tFocus').onclick = () => window.hub.goto('focus');
 $('tClaude').onclick = () => window.hub.openClaude({});
 $('bClaude').onclick = () => window.hub.openClaude({});
-$('bBig').onclick = () => setMode(mode === 'big' ? 'side' : 'big');
-$('bClose').onclick = () => { S.settings.pinned = false; save(); setMode('tab'); };
-$('bRail').onclick = () => { hubEl.dataset.rail = hubEl.dataset.rail === 'on' ? 'off' : 'on'; $('bRail').setAttribute('aria-label', hubEl.dataset.rail === 'on' ? 'Expand sidebar' : 'Collapse sidebar'); render(); };
+$('bBig').onclick = () => setMode(ctx.mode === 'big' ? 'side' : 'big');
+$('bClose').onclick = () => setMode('tab');
 $('nvSettings').onclick = () => go('settings');
-// Nothing expands on hover or single click. Double-click any part of the tab to open the sidebar, and any empty part of
-// the sidebar to open the full view (and the full view's header to go back).
-$('tOpen').parentElement.addEventListener('dblclick', () => { if (mode === 'tab') setMode('side'); });
-document.querySelector('.panel').addEventListener('dblclick', (e) => { if (mode === 'side' && !e.target.closest('input,textarea')) setMode('big'); });
-$('work').addEventListener('dblclick', (e) => { if (mode === 'big' && e.target.closest('.wh') && !e.target.closest('button')) setMode('side'); });
+// double-click: any part of the pill opens the sidebar; an empty part of the sidebar opens the full view; the full view's header goes back
+$('tOpen').parentElement.addEventListener('dblclick', () => setMode('side'));
+document.querySelector('.panel').addEventListener('dblclick', (e) => { if (!e.target.closest('button,input,textarea,a')) setMode('big'); });
+$('work').addEventListener('dblclick', (e) => { if (e.target.closest('.wh') && !e.target.closest('button')) setMode('side'); });
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-  if (mode === 'big') setMode('side'); else if (mode === 'side') { S.settings.pinned = false; save(); setMode('tab'); }
+  if (ROLE === 'big') setMode('side'); else if (ROLE === 'side') setMode('tab');
 });
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 function applyTheme() { const dark = window.matchMedia('(prefers-color-scheme: dark)').matches; hubEl.classList.toggle('dark', dark); hubEl.classList.toggle('light', !dark); }
@@ -416,13 +394,13 @@ function applyTheme() { const dark = window.matchMedia('(prefers-color-scheme: d
 (async () => {
   applyTheme();
   S = await window.hub.getState();
-  const qm = Q.get('mode'), qv = Q.get('view');
-  if (qv && VIEWS[qv]) view = qv;
-  render(); loadAll();
-  if (qm) setMode(qm);
-  else setMode('tab');
+  ctx = await window.hub.getCtx(); view = ctx.view;
+  render();
   setInterval(tickTimer, 1000);
-  setInterval(refreshNudge, 15000);
-  setInterval(() => { loadGoals(); loadTriage(); }, 60000);
-  setInterval(loadDigest, 10 * 60000);
+  if (ROLE !== 'tab') {
+    loadAll();
+    setInterval(refreshNudge, 15000);
+    setInterval(() => { loadGoals(); loadTriage(); }, 60000);
+    setInterval(loadDigest, 10 * 60000);
+  }
 })();

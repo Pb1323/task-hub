@@ -61,7 +61,7 @@ const DEFAULTS = () => ({
 });
 
 let state;
-let win, tray, bannerWin;
+let tray, bannerWin;
 let saveTimer;
 const dataFile = () => path.join(app.getPath('userData'), 'data.json');
 const udir = (...p) => path.join(app.getPath('userData'), ...p);
@@ -111,75 +111,77 @@ function saveSoon() {
 function view() {
   return { ...state, autoLaunch: app.getLoginItemSettings(loginOpts()).openAtLogin, chrome: !!CHROME };
 }
-function push() { if (win && !win.isDestroyed()) win.webContents.send('state:push', view()); }
 
 function loginOpts() { return { path: process.execPath, args: app.isPackaged ? [] : [app.getAppPath()] }; }
 function setAutoLaunch(on) { app.setLoginItemSettings({ openAtLogin: !!on, ...loginOpts() }); rebuildTray(); }
 
-// The window is sized to what is showing (small tab / sidebar / full view) and sits on one chosen screen, so it never
-// covers or blocks anything else and follows that screen's size. No click-through tricks (they misbehave across monitors).
-let curMode = 'tab';
+// Three fixed-size windows, created once and only ever shown or hidden (never resized while visible, which is what
+// made the old single window glitch): the small tab, the sidebar, and the full-view workspace beside the sidebar.
+const ROLES = ['tab', 'side', 'big'];
+const wins = {};
+let uiMode = 'tab', curView = 'tasks', allHidden = false;
+const alive = (w) => w && !w.isDestroyed();
+const eachWin = (fn) => ROLES.forEach((r) => { if (alive(wins[r])) fn(wins[r], r); });
 function targetDisplay() {
   const all = screen.getAllDisplays();
   return all.find((d) => d.id === (state && state.settings.displayId)) || screen.getPrimaryDisplay();
 }
-function bounds(mode = curMode) {
-  const wa = targetDisplay().workArea;
-  const full = wa.height - 2 * MARGIN;
-  if (mode === 'tab') { const h = Math.min(260, full); return { x: wa.x + wa.width - 90 - MARGIN, y: Math.round(wa.y + (wa.height - h) / 2), width: 90, height: h }; }
-  const w = mode === 'side' ? 340 : Math.min(MAX_W, wa.width - 2 * MARGIN);
-  return { x: wa.x + wa.width - w - MARGIN, y: wa.y + MARGIN, width: w, height: full };
+function boundsFor(role) {
+  const wa = targetDisplay().workArea, h = wa.height - 2 * MARGIN, right = wa.x + wa.width - MARGIN;
+  if (role === 'tab') { const th = Math.min(260, h); return { x: right - 90, y: Math.round(wa.y + (wa.height - th) / 2), width: 90, height: th }; }
+  if (role === 'side') return { x: right - 340, y: wa.y + MARGIN, width: 340, height: h };
+  const w = Math.max(420, Math.min(MAX_W - 340, wa.width - 340 - 2 * MARGIN));
+  return { x: right - 340 - w, y: wa.y + MARGIN, width: w, height: h };
 }
-function applyBounds() { // one resize; only repeat it if the OS landed somewhere else (mixed-DPI screens can mis-scale the first call)
-  if (!win || win.isDestroyed()) return;
-  const b = bounds(), c = win.getBounds();
-  if (c.x === b.x && c.y === b.y && c.width === b.width && c.height === b.height) return;
-  win.setBounds(b);
-  setTimeout(() => {
-    if (!win || win.isDestroyed()) return;
-    const d = win.getBounds();
-    if (Math.abs(d.x - b.x) > 2 || Math.abs(d.y - b.y) > 2 || Math.abs(d.width - b.width) > 2 || Math.abs(d.height - b.height) > 2) win.setBounds(b);
-  }, 80);
+function placeAll() { eachWin((w, r) => w.setBounds(boundsFor(r))); }
+function broadcast(ch, ...a) { eachWin((w) => w.webContents.send(ch, ...a)); }
+function ctx() { return { mode: uiMode, view: curView }; }
+function push(except) { const v = view(); eachWin((w) => { if (!except || w.webContents !== except) w.webContents.send('state:push', v); }); }
+
+function createWin(role) {
+  const w = new BrowserWindow({
+    width: 100, height: 100, show: false, frame: false, transparent: true, resizable: false, maximizable: false, minimizable: false,
+    skipTaskbar: true, alwaysOnTop: true, hasShadow: false, focusable: true,
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false },
+  });
+  w.setAlwaysOnTop(true, 'screen-saver');
+  w.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  w.webContents.on('will-navigate', (e) => e.preventDefault());
+  w.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: { role } });
+  return w;
 }
-function moveToDisplay(d) { state.settings.displayId = d.id; saveSoon(); applyBounds(); }
+function showRole(r) { const w = wins[r]; if (!alive(w) || w.isVisible()) return; if (r === 'tab') w.showInactive(); else w.show(); }
+function setUiMode(m) {
+  if (!ROLES.includes(m)) return;
+  uiMode = m; allHidden = false;
+  const want = { tab: m === 'tab', side: m !== 'tab', big: m === 'big' };
+  ROLES.forEach((r) => { if (want[r]) showRole(r); });          // show the new layout first, then hide what is no longer needed
+  ROLES.forEach((r) => { if (!want[r] && alive(wins[r])) wins[r].hide(); });
+  broadcast('ui:ctx', ctx());
+  if (m === 'big') { const w = wins.big; if (alive(w)) w.webContents.send('ui:show'); }
+}
+function gotoView(k) {
+  if (uiMode === 'big' && curView === k) { setUiMode('side'); return; } // press the same icon again to close
+  curView = k; setUiMode('big');
+}
+function hideAll() { allHidden = true; eachWin((w) => w.hide()); }
+function restore() { allHidden = false; setUiMode(uiMode); }
+function moveToDisplay(d) {
+  state.settings.displayId = d.id; saveSoon();
+  const was = {}; eachWin((w, r) => { was[r] = w.isVisible(); if (was[r]) w.hide(); });
+  placeAll();
+  setTimeout(() => eachWin((w, r) => { if (was[r]) showRole(r); }), 60);
+}
 function nextDisplay() {
   const all = screen.getAllDisplays(); if (all.length < 2) return;
   const i = all.findIndex((d) => d.id === targetDisplay().id);
   moveToDisplay(all[(i + 1) % all.length]);
 }
-function showOnCursorScreen() { moveToDisplay(screen.getDisplayNearestPoint(screen.getCursorScreenPoint())); win.showInactive(); }
-function sendMode(m) { if (win && !win.isDestroyed()) win.webContents.send('ui:mode', m); }
-
-function createWindow() {
-  win = new BrowserWindow({
-    ...bounds(),
-    frame: false, resizable: false, maximizable: false, minimizable: false, transparent: true,
-    skipTaskbar: true, alwaysOnTop: true, hasShadow: false, show: false, focusable: true,
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true },
-  });
-  win.setAlwaysOnTop(true, 'screen-saver');
-  win.setVisibleOnAllWorkspaces?.(true);
-  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
-  win.webContents.on('will-navigate', (e) => e.preventDefault());
-  win.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: process.env.TASKHUB_MODE ? { mode: process.env.TASKHUB_MODE, view: process.env.TASKHUB_VIEW || '' } : {} });
-  win.once('ready-to-show', () => win.showInactive());
-  if (process.env.TASKHUB_SHOT) { // test only: screenshot the window then quit
-    win.webContents.once('did-finish-load', () => setTimeout(async () => {
-      if (process.env.TASKHUB_EVAL) { // test only: run a snippet in the page (e.g. click a button), then let it settle
-        try { const r = await win.webContents.executeJavaScript(process.env.TASKHUB_EVAL); if (r !== undefined) console.log('EVAL', JSON.stringify(r)); } catch (e) { console.error('eval failed', e.message); }
-        await new Promise((r) => setTimeout(r, Number(process.env.TASKHUB_EVAL_WAIT) || 1500));
-      }
-      console.log('BOUNDS', JSON.stringify({ win: win.getBounds(), mode: curMode, displays: screen.getAllDisplays().map((d) => ({ id: d.id, wa: d.workArea, scale: d.scaleFactor, primary: d.id === screen.getPrimaryDisplay().id })) }));
-      const img = await win.webContents.capturePage();
-      fs.writeFileSync(process.env.TASKHUB_SHOT, img.toPNG());
-      app.exit(0);
-    }, Number(process.env.TASKHUB_SHOT_WAIT) || 3500));
-  }
-}
-
 function toggleVisible() {
-  if (!win) return;
-  if (win.isVisible()) win.hide(); else showOnCursorScreen(); // comes back on the screen you are using
+  if (!allHidden && ROLES.some((r) => alive(wins[r]) && wins[r].isVisible())) { hideAll(); return; }
+  const d = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  if (d.id !== targetDisplay().id) { state.settings.displayId = d.id; saveSoon(); placeAll(); }
+  restore();
 }
 
 let rebuildTray = () => {};
@@ -189,10 +191,10 @@ function createTray() {
   tray.setToolTip('task-hub');
   rebuildTray = () => tray.setContextMenu(Menu.buildFromTemplate([
     { label: 'Show / hide  (Ctrl+Alt+H)', click: toggleVisible },
-    { label: 'Open sidebar', click: () => { showOnCursorScreen(); sendMode('side'); } },
-    { label: 'Open full view', click: () => { showOnCursorScreen(); sendMode('big'); } },
+    { label: 'Open sidebar', click: () => setUiMode('side') },
+    { label: 'Open full view', click: () => setUiMode('big') },
     { label: 'Move to next screen  (Ctrl+Alt+M)', click: nextDisplay },
-    { label: 'Launch at startup', type: 'checkbox', checked: app.getLoginItemSettings(loginOpts()).openAtLogin, click: (m) => { setAutoLaunch(m.checked); push(); } },
+    { label: 'Launch at startup', type: 'checkbox', checked: app.getLoginItemSettings(loginOpts()).openAtLogin, click: (mi) => { setAutoLaunch(mi.checked); push(); } },
     { type: 'separator' },
     { label: 'Quit task-hub', click: () => app.quit() },
   ]));
@@ -432,18 +434,12 @@ ipcMain.on('state:set', (_e, s) => {
   state = { ...state, ...clean(s, state.settings) };
   if (JSON.stringify([state.settings.nudges, state.settings.eyesEvery]) !== prev) initNudges();
   saveSoon();
+  push(_e.sender); // keep the other windows in step
 });
-let opTimer = null;
-ipcMain.handle('ui:mode', async (_e, mode_) => { // the whole window goes invisible while it moves/resizes, so Windows can't show a stale or stretched frame
-  if (!['tab', 'side', 'big'].includes(mode_)) return false;
-  if (win && !win.isDestroyed()) win.setOpacity(0);
-  clearTimeout(opTimer); opTimer = setTimeout(() => { if (win && !win.isDestroyed()) win.setOpacity(1); }, 1500); // safety net
-  curMode = mode_; applyBounds();
-  await new Promise((r) => setTimeout(r, 180));
-  return true;
-});
-ipcMain.on('ui:shown', () => { clearTimeout(opTimer); if (win && !win.isDestroyed()) win.setOpacity(1); });
-ipcMain.on('ui:hide', () => { if (win) win.hide(); });
+ipcMain.on('ui:setMode', (_e, mode_) => setUiMode(mode_));
+ipcMain.on('ui:goto', (_e, k) => { if (typeof k === 'string' && /^[a-z]{3,10}$/.test(k)) gotoView(k); });
+ipcMain.on('ui:hide', () => hideAll());
+ipcMain.handle('ui:ctx', () => ctx());
 const lastOpen = {};
 const once = (key) => { const n = Date.now(); if (n - (lastOpen[key] || 0) < 900) return false; lastOpen[key] = n; return true; };
 ipcMain.on('open:link', (_e, url) => { if (once('l' + url)) openUrl(url); });
@@ -465,11 +461,21 @@ ipcMain.handle('nudge:status', () => {
   return { kind: k, at: next[k], pending, eyesAt: nextEyes };
 });
 ipcMain.handle('goals:get', () => goalsGet());
-ipcMain.handle('goals:toggle', (_e, line, raw, done) => goalsToggle(line, raw, done));
+ipcMain.handle('goals:toggle', (_e, line, raw, done) => { const r = goalsToggle(line, raw, done); broadcast('data:changed'); return r; });
 ipcMain.handle('triage:get', () => triageGet());
 ipcMain.handle('projects:get', () => projectsGet());
 ipcMain.handle('digest:get', () => digestGet());
 ipcMain.handle('news:refresh', () => newsRefresh());
+
+// focus-block completion lives here (not in a window) so it fires exactly once, even with the windows hidden
+setInterval(() => {
+  const f = state && state.focus;
+  if (!f || !f.endsAt || Date.now() < f.endsAt) return;
+  f.endsAt = null; f.pausedLeft = null; state.habits.focus = (state.habits.focus || 0) + 1;
+  const left = state.session.filter((t) => !t.done).length;
+  showBanner({ icon: '✅', title: 'Focus block done', body: left ? `${left} session ${left === 1 ? 'task' : 'tasks'} still open.` : (f.goal || 'Nice work. Take a short break.'), actions: false });
+  saveSoon(); push();
+}, 1000);
 
 app.whenReady().then(() => {
   if (!GOT_LOCK) return; // a second copy: the first one already runs
@@ -478,15 +484,39 @@ app.whenReady().then(() => {
   writePrompts();
   if (!TEST && !state.settings.autoLaunchInit) { setAutoLaunch(true); state.settings.autoLaunchInit = true; saveSoon(); }
   initNudges();
-  createWindow();
+  ROLES.forEach((r) => { wins[r] = createWin(r); });
+  placeAll();
   createTray();
+  // show the first layout once every window has finished loading, so nothing ever appears half-drawn
+  const start = process.env.TASKHUB_MODE || 'tab';
+  if (process.env.TASKHUB_VIEW) curView = process.env.TASKHUB_VIEW;
+  let ready = 0;
+  ROLES.forEach((r) => wins[r].webContents.once('did-finish-load', () => { if (++ready === ROLES.length) setTimeout(() => { setUiMode(start); testHook(); }, 150); }));
   if (process.env.TASKHUB_TEST_BANNER) setTimeout(() => { pending = 'water'; showBanner({ kind: 'water', ...KINDS.water, actions: true }); }, 3000);
   globalShortcut.register('Control+Alt+H', toggleVisible);
   globalShortcut.register('Control+Alt+M', nextDisplay);
-  powerMonitor.on('resume', () => { initNudges(); pending = null; setTimeout(applyBounds, 1500); }); // no backlog of reminders after sleep; re-fit once screens settle
-  ['display-added', 'display-removed', 'display-metrics-changed'].forEach((ev) => screen.on(ev, () => setTimeout(applyBounds, 400)));
+  powerMonitor.on('resume', () => { initNudges(); pending = null; setTimeout(placeAll, 1500); }); // no backlog of reminders after sleep; re-fit once screens settle
+  ['display-added', 'display-removed', 'display-metrics-changed'].forEach((ev) => screen.on(ev, () => setTimeout(placeAll, 400)));
   if (!TEST) { setTimeout(newsRefresh, 4000); setInterval(newsRefresh, 3 * 3600 * 1000); }
 });
-app.on('second-instance', () => { if (win) { showOnCursorScreen(); sendMode('side'); } });
+
+// test only (needs TASKHUB_SHOT): run a snippet in one window, screenshot it, print geometry, quit
+function testHook() {
+  if (!process.env.TASKHUB_SHOT) return;
+  const role = process.env.TASKHUB_SHOT_WIN || (uiMode === 'tab' ? 'tab' : 'side');
+  setTimeout(async () => {
+    const w = wins[role];
+    if (process.env.TASKHUB_EVAL) {
+      try { const r = await w.webContents.executeJavaScript(process.env.TASKHUB_EVAL); if (r !== undefined) console.log('EVAL', JSON.stringify(r)); } catch (e) { console.error('eval failed', e.message); }
+      await new Promise((r) => setTimeout(r, Number(process.env.TASKHUB_EVAL_WAIT) || 800));
+    }
+    if (process.env.TASKHUB_CHECK) { try { console.log('CHECK', JSON.stringify(await wins[process.env.TASKHUB_CHECK_WIN || 'big'].webContents.executeJavaScript(process.env.TASKHUB_CHECK))); } catch (e) { console.error('check failed', e.message); } }
+    console.log('STATE', JSON.stringify({ mode: uiMode, view: curView, vis: ROLES.map((r) => [r, wins[r].isVisible(), wins[r].getBounds()]) }));
+    const img = await wins[process.env.TASKHUB_SHOT_WIN || (uiMode === 'big' ? 'big' : uiMode === 'tab' ? 'tab' : 'side')].webContents.capturePage();
+    fs.writeFileSync(process.env.TASKHUB_SHOT, img.toPNG());
+    app.exit(0);
+  }, Number(process.env.TASKHUB_SHOT_WAIT) || 1500);
+}
+app.on('second-instance', () => { restore(); setUiMode('side'); });
 app.on('will-quit', () => globalShortcut.unregisterAll());
 app.on('window-all-closed', (e) => e.preventDefault());
