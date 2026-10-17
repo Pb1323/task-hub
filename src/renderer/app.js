@@ -8,7 +8,7 @@ let ctx = { mode: 'tab', view: 'tasks' }; // set by the main process
 let ctxAt = 0;
 let view = 'tasks';
 let G = null, TR = null, PR = null, DG = null;   // goals, triage, projects, digest caches
-let gTab = 'short', dLane = 'all', pFilter = '';
+let gTab = 'short', dLane = 'all', pFilter = '', pView = 'all';
 const open = new Set();       // expanded details (keys)
 
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -33,7 +33,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = (n) => String(n).padStart(2, '0');
 const fmt = (ms) => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`; };
 const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-const save = () => window.hub.setState({ tasks: S.tasks, session: S.session, links: S.links, focus: S.focus, settings: S.settings, habits: S.habits, triageDone: S.triageDone });
+const save = () => window.hub.setState({ tasks: S.tasks, session: S.session, links: S.links, focus: S.focus, settings: S.settings, habits: S.habits, triageDone: S.triageDone, timetable: S.timetable });
 const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 const link = (url, label, cls = 'lnk') => el('button', { class: cls, onclick: () => window.hub.openLink(url), title: url }, label);
 const btn = (label, fn, cls = '') => el('button', { class: 'btn ' + cls, onclick: fn }, label);
@@ -66,14 +66,14 @@ function tickTimer() {
 }
 
 // ---------- sidebar ----------
-const NAV = [['tasks', 'Tasks', 'check-circle'], ['focus', 'Focus', 'clock'], ['goals', 'Goals', 'target'], ['triage', 'Triage', 'pin'], ['projects', 'Projects', 'code-branch'], ['digest', 'Digest', 'sparkle'], ['habits', 'Habits', 'water-drop'], ['launch', 'Launch', 'link']];
+const NAV = [['tasks', 'Tasks', 'check-circle'], ['focus', 'Focus', 'clock'], ['goals', 'Goals', 'target'], ['timetable', 'Timetable', 'calendar'], ['projects', 'Projects', 'code-branch'], ['digest', 'Digest', 'sparkle'], ['habits', 'Habits', 'water-drop'], ['launch', 'Launch', 'link']];
 function navCount(k) {
   switch (k) {
     case 'tasks': return S.tasks.filter((t) => !t.done).length || '';
     case 'focus': return S.habits.focus ? `${S.habits.focus}` : '';
     case 'goals': return G ? G.items.filter((i) => !i.done && i.term === 'short').length : '';
-    case 'triage': return TR ? TR.backlog.filter((b) => !isTicked('backlog/' + b.id, b.done)).length || '' : '';
-    case 'projects': return PR ? PR.length : '';
+    case 'timetable': return ttRemaining() || '';
+    case 'projects': return TR ? (TR.backlog.filter((x) => !isTicked('backlog/' + x.id, x.done)).length + TR.projects.filter((x) => x.needsYou && !isTicked('projects/' + x.id, x.category === 'done')).length) || '' : '';
     case 'digest': return DG && DG.inspo && DG.inspo.date === todayStr() ? 'new' : '';
     case 'habits': return ['water', 'walk', 'stretch'].filter((x) => S.habits[x] >= S.settings.goals[x]).length + '/3';
     default: return '';
@@ -158,6 +158,14 @@ function projectDetail(p) {
   return d;
 }
 
+// ---------- timetable ----------
+const DAYS = [['mon', 'Mon', 'Monday'], ['tue', 'Tue', 'Tuesday'], ['wed', 'Wed', 'Wednesday'], ['thu', 'Thu', 'Thursday'], ['fri', 'Fri', 'Friday'], ['sat', 'Sat', 'Saturday'], ['sun', 'Sun', 'Sunday']];
+const dayKey = (d = new Date()) => DAYS[(d.getDay() + 6) % 7][0];
+let ttDay = null;
+const ttItems = (key) => [...S.timetable.daily.map((i) => ({ ...i, scope: 'daily' })), ...(S.timetable.days[key] || []).map((i) => ({ ...i, scope: key }))];
+const ttDoneToday = () => S.timetable.done[todayStr()] || [];
+function ttRemaining() { if (!S || !S.timetable) return 0; const d = ttDoneToday(); return ttItems(dayKey()).filter((i) => !d.includes(i.id)).length; }
+
 // ---------- views ----------
 const VIEWS = {
   tasks() {
@@ -205,38 +213,77 @@ const VIEWS = {
     if (!items.length) b.append(el('div', { class: 'empty' }, 'No items here.'));
     return `${items.filter((i) => !i.done).length} open`;
   },
-  triage() {
-    const b = $('wBody');
-    if (!TR) { b.append(el('div', { class: 'empty' }, 'Loading…')); return ''; }
-    const pend = pendingTicks();
-    b.append(el('div', { class: 'card' }, el('div', { class: 'sub' }, `Local copy of the Triage Board, saved ${TR.snapshot ? new Date(TR.snapshot).toLocaleString('en-GB') : 'never'}. Ticks are saved here straight away; the board itself only changes when you run the sync in Claude (it shows you the changes first).`),
-      el('div', { class: 'add', style: 'margin-top:8px' }, btn(`Sync ${pend} tick${pend === 1 ? '' : 's'} to board…`, () => window.hub.openClaude({ prompt: 'triage' }), pend ? 'pri sm' : 'sm'), btn('Refresh copy…', () => window.hub.openClaude({ prompt: 'triage' }), 'sm'))));
-    const row = (key, text, sub, done) => el('div', { class: 'row' + (isTicked(key, done) ? ' done' : '') },
-      el('button', { class: 'chk', 'aria-label': 'Toggle done', onclick: () => { S.triageDone[key] = !isTicked(key, done); save(); render(); } }, '✓'),
-      el('div', { class: 't' }, text, sub ? el('div', { class: 'sub' }, sub) : ''));
-    b.append(el('div', { class: 'gh' }, 'Backlog'));
-    TR.backlog.forEach((x) => b.append(row('backlog/' + x.id, x.text, '', x.done)));
-    const act = TR.projects.filter((p) => p.category !== 'done');
-    b.append(el('div', { class: 'gh' }, `Needs you (${act.filter((p) => p.needsYou).length})`));
-    act.filter((p) => p.needsYou).forEach((p) => b.append(row('projects/' + p.id, `${p.name}: ${p.next || p.summary}`, p.tag, p.category === 'done')));
-    b.append(el('div', { class: 'gh' }, 'Other projects'));
-    act.filter((p) => !p.needsYou).forEach((p) => b.append(row('projects/' + p.id, `${p.name}: ${p.next || p.summary}`, p.tag, p.category === 'done')));
-    return `${TR.projects.length} projects`;
+  timetable() {
+    const b = $('wBody'), today = dayKey(), key = ttDay || today, isToday = key === today, T = S.timetable;
+    ttDay = key;
+    b.append(el('div', { class: 'ttday' }, DAYS.map(([k, short]) => el('button', { class: 'chip' + (k === key ? ' on' : '') + (k === today ? ' today' : ''), onclick: () => { ttDay = k; renderView(); } }, short))));
+    const dn = DAYS.find((d) => d[0] === key)[2];
+    const done = ttDoneToday();
+    const row = (it) => {
+      const ticked = isToday && done.includes(it.id);
+      return el('div', { class: 'row' + (ticked ? ' done' : '') },
+        isToday ? el('button', { class: 'chk', 'aria-label': 'Toggle done', onclick: () => { const t = todayStr(); const arr = T.done[t] || (T.done[t] = []); const k2 = arr.indexOf(it.id); if (k2 >= 0) arr.splice(k2, 1); else arr.push(it.id); save(); render(); } }, '✓') : el('div', { style: 'width:24px' }),
+        el('div', { class: 't', ondblclick: (ev) => editText(ev.currentTarget, (it.scope === 'daily' ? T.daily : T.days[it.scope]).find((x) => x.id === it.id)) }, it.text),
+        el('div', { class: 'a' }, el('button', { title: 'Remove', onclick: () => { const arr = it.scope === 'daily' ? T.daily : T.days[it.scope]; const k2 = arr.findIndex((x) => x.id === it.id); if (k2 >= 0) arr.splice(k2, 1); save(); render(); } }, '✕')));
+    };
+    const all = ttItems(key), nDone = isToday ? all.filter((i) => done.includes(i.id)).length : 0;
+    b.append(el('div', { class: 'sub' }, isToday ? `Today, ${dn}: ${nDone} of ${all.length} done. Ticks reset tomorrow.` : `Planning ${dn}. You can only tick things off on the day itself.`));
+    b.append(el('div', { class: 'gh' }, 'Non-negotiables · every day'));
+    if (!T.daily.length) b.append(el('div', { class: 'empty' }, 'Nothing here. Add the things you want to do every single day.'));
+    T.daily.forEach((i) => b.append(row({ ...i, scope: 'daily' })));
+    b.append(el('div', { class: 'gh' }, `${dn} only`));
+    if (!(T.days[key] || []).length) b.append(el('div', { class: 'empty' }, `Nothing planned for ${dn} yet.`));
+    (T.days[key] || []).forEach((i) => b.append(row({ ...i, scope: key })));
+    // add form: choose where the new item goes
+    let scope = 'day';
+    const inp = el('input', { class: 'field', placeholder: 'Add something to finish', maxlength: '120', autocomplete: 'off', 'aria-label': 'Add to timetable' });
+    const chips = el('div', { class: 'ttday' });
+    const SC = [['day', `${dn} only`], ['daily', 'Every day'], ['weekdays', 'Weekdays'], ['weekends', 'Weekends']];
+    const paint = () => chips.replaceChildren(...SC.map(([k, l]) => el('button', { type: 'button', class: 'chip' + (scope === k ? ' on' : ''), onclick: () => { scope = k; paint(); } }, l)));
+    paint();
+    b.append(el('div', { class: 'gh' }, 'Add'));
+    b.append(el('form', { class: 'add', onsubmit: (e) => {
+      e.preventDefault(); const v = inp.value.trim(); if (!v) return;
+      if (scope === 'daily') T.daily.push({ id: uid(), text: v });
+      else { const targets = scope === 'day' ? [key] : scope === 'weekdays' ? ['mon', 'tue', 'wed', 'thu', 'fri'] : ['sat', 'sun']; targets.forEach((d) => (T.days[d] || (T.days[d] = [])).push({ id: uid(), text: v })); }
+      save(); render();
+    } }, inp, el('button', { class: 'btn pri', type: 'submit' }, 'Add')), chips);
+    return isToday ? `${all.length - nDone} left` : '';
   },
   projects() {
     const b = $('wBody');
-    if (!PR) { b.append(el('div', { class: 'empty' }, 'Reading project folders…')); return ''; }
+    if (!PR || !TR) { b.append(el('div', { class: 'empty' }, 'Reading project folders and the Triage Board…')); return ''; }
+    const trFor = (name) => { const n = norm(name); return TR.projects.find((t) => norm(t.name) === n) || TR.projects.find((t) => n.length >= 4 && (norm(t.name).startsWith(n) || n.startsWith(norm(t.name)))) || null; };
+    const used = new Set(), pend = pendingTicks();
+    b.append(el('div', { class: 'card' }, el('div', { class: 'sub' }, `Your projects (from the status board and each project's own notes) together with the Triage Board copy saved ${TR.snapshot ? new Date(TR.snapshot).toLocaleString('en-GB') : 'never'}. Ticks save here at once; the board itself only changes when you run the sync in Claude, which shows you the changes first.`),
+      el('div', { class: 'add', style: 'margin-top:8px' }, btn(`Sync ${pend} tick${pend === 1 ? '' : 's'} to board…`, () => window.hub.openClaude({ prompt: 'triage' }), pend ? 'pri sm' : 'sm'), btn('Refresh board copy…', () => window.hub.openClaude({ prompt: 'triage' }), 'sm'))));
     const f = el('input', { class: 'field', placeholder: 'Filter projects', 'aria-label': 'Filter projects' }); f.value = pFilter;
     f.oninput = () => { pFilter = f.value; const pos = f.selectionStart; renderView(); const nf = $('wBody').querySelector('input'); if (nf) { nf.focus(); nf.setSelectionRange(pos, pos); } };
-    b.append(f);
-    PR.filter((p) => norm(p.name + p.next).includes(norm(pFilter))).forEach((p) => {
-      const key = 'p' + p.name;
-      b.append(el('div', { class: 'card' },
-        el('div', { class: 'who', style: 'display:flex;justify-content:space-between;gap:8px' }, el('h3', {}, p.name), el('span', { class: 'sub' }, p.last)),
-        el('div', { class: 'sub clamp' }, p.next),
-        el('div', { class: 'add', style: 'margin-top:6px' }, btn(open.has(key) ? 'Hide update' : 'Latest update & to-do', () => { open.has(key) ? open.delete(key) : open.add(key); renderView(); }, 'sm')),
-        open.has(key) ? projectDetail(p) : ''));
+    b.append(el('div', { class: 'add' }, [['all', 'All'], ['needs', 'Needs you']].map(([k, l]) => el('button', { class: 'chip' + (pView === k ? ' on' : ''), onclick: () => { pView = k; renderView(); } }, l)), f));
+    const tick = (key, snap) => el('button', { class: 'chk', 'aria-label': 'Toggle done', onclick: () => { S.triageDone[key] = !isTicked(key, snap); save(); render(); } }, '✓');
+    if (TR.backlog.length) {
+      b.append(el('div', { class: 'gh' }, 'Backlog'));
+      TR.backlog.filter((x) => norm(x.text).includes(norm(pFilter))).forEach((x) => { const k = 'backlog/' + x.id; b.append(el('div', { class: 'row' + (isTicked(k, x.done) ? ' done' : '') }, tick(k, x.done), el('div', { class: 't' }, x.text))); });
+    }
+    b.append(el('div', { class: 'gh' }, 'Projects'));
+    const card = (name, last, next, tag, t, p) => {
+      const key = 'p' + name, k = t ? 'projects/' + t.id : null, ticked = t && isTicked(k, t.category === 'done');
+      return el('div', { class: 'card' + (ticked ? ' done' : '') },
+        el('div', { style: 'display:flex;gap:10px;align-items:flex-start' }, t ? tick(k, t.category === 'done') : '',
+          el('div', { style: 'flex:1;min-width:0' }, el('div', { style: 'display:flex;justify-content:space-between;gap:8px' }, el('h3', {}, name), el('span', { class: 'sub' }, last || '')),
+            tag || (t && t.needsYou) ? el('div', { class: 'add', style: 'margin-bottom:4px' }, tag ? el('span', { class: 'pchip' }, tag) : '', t && t.needsYou ? el('span', { class: 'pchip', style: 'color:var(--acc)' }, 'needs you') : '') : '',
+            el('div', { class: 'sub clamp' }, next),
+            p ? el('div', { class: 'add', style: 'margin-top:6px' }, btn(open.has(key) ? 'Hide update' : 'Latest update & to-do', () => { open.has(key) ? open.delete(key) : open.add(key); renderView(); }, 'sm')) : '',
+            p && open.has(key) ? projectDetail(p) : '')));
+    };
+    PR.forEach((p) => {
+      const t = trFor(p.name); if (t) used.add(t.id);
+      if (pView === 'needs' && !(t && t.needsYou && !isTicked('projects/' + t.id, t.category === 'done'))) return;
+      if (!norm(p.name + p.next + (t ? t.next : '')).includes(norm(pFilter))) return;
+      b.append(card(p.name, p.last, (t && t.next) || p.next, t && t.tag, t, p));
     });
+    const rest = TR.projects.filter((t) => !used.has(t.id) && (pView !== 'needs' || (t.needsYou && !isTicked('projects/' + t.id, t.category === 'done'))) && norm(t.name + t.next).includes(norm(pFilter)));
+    if (rest.length) { b.append(el('div', { class: 'gh' }, 'Also on the Triage Board')); rest.forEach((t) => b.append(card(t.name, t.last, t.next || t.summary, t.tag, t, null))); }
     return `${PR.length} projects`;
   },
   digest() {
@@ -326,7 +373,7 @@ const VIEWS = {
     return '';
   },
 };
-const TITLES = { tasks: 'Tasks', focus: 'Focus session', goals: 'Goals', triage: 'Triage Board', projects: 'Projects', digest: 'Daily digest', habits: 'Habits', launch: 'Launch', settings: 'Settings' };
+const TITLES = { tasks: 'Tasks', focus: 'Focus session', goals: 'Goals', timetable: 'Timetable', projects: 'Projects & Triage', digest: 'Daily digest', habits: 'Habits', launch: 'Launch', settings: 'Settings' };
 function normUrl(u) {
   u = u.trim(); if (!u) return null;
   if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = 'https://' + u;

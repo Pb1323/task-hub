@@ -44,3 +44,7 @@ Claude buttons open Windows Terminal (`wt.exe`) running `claude` (in a project f
 - The Digest page also shows "Coming up": the 5 most relevant events in the next 14 days from `Downloads\event-radar\data\events.json` (read-only; score minus 0.25 per day away; skips skip/applied/attended and age-blocked for both).
 - Reminders stay on screen 10 s (then count as snoozed 5 min). Hover labels are one overlay element per window (`tips.js`), centred, no background block.
 - Env `TASKHUB_DIGEST_NOW=1` runs the digest update 5 s after launch (used for testing).
+
+## Timetable + merged Projects page (2026-10-17)
+- Sidebar nav is now: Tasks, Focus, Goals, **Timetable** (replaces Triage), **Projects & Triage**, Digest, Habits, Launch. The Triage page is gone: its backlog + tickable projects live on the Projects page, matched to each project's card by name (`projects()` in `src/renderer/app.js`; ticks still go to `state.triageDone`, synced to the board only through the Claude prompt).
+- Timetable (`state.timetable = { daily: [...non-negotiables], days: { mon..sun: [...] }, done: { 'YYYY-MM-DD': [ids] } }`, validated in `lib.clean`): every-day non-negotiables + per-weekday items; ticks apply to today only and reset by date; add to "this day / every day / weekdays / weekends"; double-click an item to edit. Two seed non-negotiables ("Plan the day", "Evening review") are there to delete or keep.

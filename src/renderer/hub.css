@@ -101,3 +101,6 @@ html[data-role=tab] .panel,html[data-role=tab] .work,html[data-role=side] .taskb
 .set input[type=number]{width:62px;flex:none}
 
 .rem .gh{font-size:11px}
+
+.gi[data-n=calendar] svg{color:var(--c-a)}
+.ttday{display:flex;gap:6px;flex-wrap:wrap}.ttday .chip.today::after{content:' •'}

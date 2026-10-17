@@ -18,6 +18,12 @@ function clean(s, currentSettings) {
   }
   if (Array.isArray(s.session)) out.session = s.session.filter((t) => t && typeof t === 'object').slice(0, 100).map((t) => ({ id: str(t.id, 24), text: str(t.text, 140), done: !!t.done }));
   if (s.remind && typeof s.remind === 'object') { out.remind = {}; for (const k of ['water', 'walk', 'stretch', 'eyes']) { const r = s.remind[k] || {}; out.remind[k] = { last: num(r.last, 0, 8.64e15, 0), done: num(r.done, 0, 8.64e15, 0) }; } }
+  if (s.timetable && typeof s.timetable === 'object') {
+    const tt = s.timetable, items = (a) => (Array.isArray(a) ? a : []).filter((t) => t && typeof t === 'object' && str(t.text, 120).trim()).slice(0, 60).map((t) => ({ id: str(t.id, 24), text: str(t.text, 120).trim() }));
+    out.timetable = { daily: items(tt.daily), days: {}, done: {} };
+    for (const d of ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']) out.timetable.days[d] = items((tt.days || {})[d]);
+    Object.keys(tt.done || {}).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort().slice(-30).forEach((k) => { out.timetable.done[k] = (Array.isArray(tt.done[k]) ? tt.done[k] : []).slice(0, 120).map((x) => str(x, 24)); });
+  }
   if (s.triageDone && typeof s.triageDone === 'object') { out.triageDone = {}; Object.entries(s.triageDone).slice(0, 500).forEach(([k, v]) => { out.triageDone[str(k, 80)] = !!v; }); }
   if (s.habits && typeof s.habits === 'object') {
     out.habits = { date: str(s.habits.date, 10), water: num(s.habits.water, 0, 999, 0), walk: num(s.habits.walk, 0, 999, 0), stretch: num(s.habits.stretch, 0, 999, 0), focus: num(s.habits.focus, 0, 999, 0) };

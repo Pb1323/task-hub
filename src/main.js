@@ -45,6 +45,7 @@ const DEFAULTS = () => ({
   tasks: [],
   session: [],
   triageDone: {},
+  timetable: { daily: [{ id: 'nn1', text: 'Plan the day (10 min)' }, { id: 'nn2', text: 'Evening review: tick off, plan tomorrow' }], days: { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] }, done: {} },
   hist: {},
   remind: {},
   links: [
@@ -96,6 +97,8 @@ function loadState() {
   if (!Array.isArray(state.links)) state.links = d.links;
   if (!state.triageDone || typeof state.triageDone !== 'object') state.triageDone = {};
   if (!state.hist || typeof state.hist !== 'object') state.hist = {};
+  if (!state.timetable || typeof state.timetable !== 'object') state.timetable = d.timetable;
+  state.timetable.daily = state.timetable.daily || []; state.timetable.days = { ...d.timetable.days, ...state.timetable.days }; state.timetable.done = state.timetable.done || {};
   if (!state.remind || typeof state.remind !== 'object') state.remind = {};
   state.links.forEach((l) => { if (l.color === '#24292f') l.color = '#57606a'; });
   state.habits = rollHabits(state.habits);
