@@ -107,3 +107,4 @@ html[data-role=tab] .panel,html[data-role=tab] .work,html[data-role=side] .taskb
 .nv[data-tip]::after{display:none}
 .panel .phd [data-tip]::after{left:auto;right:0;transform:none}
 .taskbar [data-tip]::after{left:auto;right:-4px;transform:none}
+.rem .gh{font-size:11px}

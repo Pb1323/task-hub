@@ -275,7 +275,8 @@ const VIEWS = {
       rg.append(el('div', { class: 'hring', title: `Log one ${label.toLowerCase()}`, onclick: () => { S.habits[k] += 1; save(); render(); } }, el('div', { class: 'rg big' }, svg, el('b', {}, ic)), `${label} ${n}/${goal}`));
     });
     b.append(el('div', { class: 'card' }, rg, el('div', { class: 'sub', id: 'nextNudge', style: 'margin-top:10px' })));
-    b.append(el('div', { class: 'card' }, el('h3', {}, 'Reminders'), el('div', { class: 'sub' }, `Water every ${S.settings.nudges.water} min, walk every ${S.settings.nudges.walk}, stretch every ${S.settings.nudges.stretch}. Eye rest ${S.settings.eyesOn ? `every ${S.settings.eyesEvery} min for 10 seconds` : 'is off'}. Change these in Settings. Time while you're away from the PC isn't counted.`)));
+    b.append(el('div', { class: 'card' }, el('h3', {}, 'Reminder schedule'), el('div', { id: 'remTable', class: 'rem' }, el('div', { class: 'sub' }, 'Loading…')),
+      el('div', { class: 'sub', style: 'margin-top:8px' }, 'Time while you are away from the PC (5 min idle or locked) is not counted. Intervals and the eye-rest switch are in Settings.')));
     refreshNudge();
     return '';
   },
@@ -350,12 +351,30 @@ function render() {
   tickTimer();
 }
 
+const hhmm = (ts) => new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+const rel = (ms) => { const m = Math.round(Math.abs(ms) / 60000); return m < 1 ? 'under a minute' : m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`; };
 async function refreshNudge() {
-  const n = document.getElementById('nextNudge'); if (!S || !n) return;
+  if (!S || ROLE === 'tab') return;
   const st = await window.hub.nudgeStatus();
-  const mins = Math.max(0, Math.round((st.at - Date.now()) / 60000)), eyes = Math.max(0, Math.round((st.eyesAt - Date.now()) / 60000));
-  const name = { water: 'water', walk: 'a walk', stretch: 'a stretch' }[st.kind];
-  n.textContent = S.settings.nudgesOn ? `Next reminder: ${name} in ${mins} min${S.settings.eyesOn ? ` · eye rest in ${eyes} min` : ''}` : 'Health reminders are off';
+  const n = document.getElementById('nextNudge');
+  if (n) {
+    if (!S.settings.nudgesOn) n.textContent = 'Health reminders are off';
+    else { const k = ['water', 'walk', 'stretch'].sort((x, y) => st.next[x] - st.next[y])[0]; n.textContent = `Next reminder: ${{ water: 'water', walk: 'a walk', stretch: 'a stretch' }[k]} in ${rel(st.next[k] - Date.now())}${S.settings.eyesOn ? ` · eye rest in ${rel(st.next.eyes - Date.now())}` : ''}`; }
+  }
+  const t = document.getElementById('remTable');
+  if (!t) return;
+  const rows = [['water', 'Water', S.settings.nudges.water, true], ['walk', 'Walk', S.settings.nudges.walk, true], ['stretch', 'Stretch', S.settings.nudges.stretch, true], ['eyes', 'Eye rest', S.settings.eyesEvery, false]];
+  const grid = 'display:grid;grid-template-columns:1.1fr 1.4fr 1.4fr .8fr;gap:8px;align-items:center;padding:7px 2px;border-top:1px solid var(--track)';
+  t.replaceChildren(el('div', { class: 'gh', style: grid.replace('border-top:1px solid var(--track)', '') + ';margin:0' }, el('span', {}, 'Reminder'), el('span', {}, 'Last'), el('span', {}, 'Next'), el('span', {}, 'Today')),
+    ...rows.map(([k, label, every, counted]) => {
+      const off = (k === 'eyes' ? !S.settings.eyesOn : !S.settings.nudgesOn), last = st.last[k], nx = st.next[k];
+      const today = counted ? `${S.habits[k]}/${S.settings.goals[k]}` : '–';
+      return el('div', { style: grid },
+        el('span', {}, el('b', {}, label), el('div', { class: 'sub' }, `every ${every} min`)),
+        el('span', {}, last ? `${hhmm(last)}` : 'not yet', last ? el('div', { class: 'sub' }, `${rel(Date.now() - last)} ago`) : ''),
+        el('span', {}, off ? 'off' : hhmm(nx), off ? '' : el('div', { class: 'sub' }, st.pending === k ? 'waiting for you' : `in ${rel(nx - Date.now())}`)),
+        el('span', {}, today));
+    }));
 }
 
 async function loadGoals() { G = await window.hub.goals(); render(); }
@@ -399,7 +418,7 @@ function applyTheme() { const dark = window.matchMedia('(prefers-color-scheme: d
   setInterval(tickTimer, 1000);
   if (ROLE !== 'tab') {
     loadAll();
-    setInterval(refreshNudge, 15000);
+    setInterval(refreshNudge, 30000);
     setInterval(() => { loadGoals(); loadTriage(); }, 60000);
     setInterval(loadDigest, 10 * 60000);
   }

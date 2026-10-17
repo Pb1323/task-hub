@@ -8,6 +8,11 @@ const { spawn } = require('child_process');
 const L = require('./lib');
 const { today, clean, safeUrl, rollHabits, pickDue } = L;
 
+// Efficiency: this UI is simple, so skip the GPU process (also cures transparent-window flicker on Windows) and let all
+// windows share one renderer process. TASKHUB_GPU=1 turns the GPU back on if it ever looks wrong.
+if (!process.env.TASKHUB_GPU) { app.disableHardwareAcceleration(); app.commandLine.appendSwitch('in-process-gpu'); }
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=64');
+for (const f of (process.env.TASKHUB_FLAGS || '').split(';').filter(Boolean)) { const [k, v] = f.split('='); app.commandLine.appendSwitch(k, v); } // test only: try Chromium switches
 // TASKHUB_DATA_DIR = throwaway profile for tests (separate data, no single-instance lock, no autostart).
 const TEST = !!process.env.TASKHUB_DATA_DIR;
 if (TEST) app.setPath('userData', process.env.TASKHUB_DATA_DIR);
@@ -31,9 +36,9 @@ const FEEDS = [
 ];
 
 const KINDS = {
-  water: { icon: '\u{1F4A7}', title: 'Time for water', body: 'Drink a glass, then back to it.' },
-  walk: { icon: '\u{1F6B6}', title: 'Get up and walk', body: 'Two minutes away from the screen.' },
-  stretch: { icon: '\u{1F9D8}', title: 'Stretch', body: 'Neck, shoulders and wrists.' },
+  water: { icon: 'water', title: 'Time for water', body: 'Drink a glass, then back to it.' },
+  walk: { icon: 'walk', title: 'Get up and walk', body: 'Two minutes away from the screen.' },
+  stretch: { icon: 'stretch', title: 'Stretch', body: 'Neck, shoulders and wrists.' },
 };
 
 const DEFAULTS = () => ({
@@ -41,6 +46,7 @@ const DEFAULTS = () => ({
   session: [],
   triageDone: {},
   hist: {},
+  remind: {},
   links: [
     { name: 'Claude', url: 'https://claude.ai', color: '#d97757', glyph: '✦' },
     { name: 'Gmail', url: 'https://mail.google.com', color: '#ea4335', glyph: '✉' },
@@ -90,6 +96,7 @@ function loadState() {
   if (!Array.isArray(state.links)) state.links = d.links;
   if (!state.triageDone || typeof state.triageDone !== 'object') state.triageDone = {};
   if (!state.hist || typeof state.hist !== 'object') state.hist = {};
+  if (!state.remind || typeof state.remind !== 'object') state.remind = {};
   state.links.forEach((l) => { if (l.color === '#24292f') l.color = '#57606a'; });
   state.habits = rollHabits(state.habits);
 }
@@ -147,22 +154,45 @@ function createWin(role) {
   w.setAlwaysOnTop(true, 'screen-saver');
   w.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   w.webContents.on('will-navigate', (e) => e.preventDefault());
-  w.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: { role } });
+  w.loadFile(path.join(__dirname, 'renderer', role === 'tab' ? 'tab.html' : 'index.html'), { query: { role } });
   return w;
+}
+const reap = {};
+// side and big are created only when needed (each costs ~100 MB) and closed again after 90 s hidden. The pill warms the sidebar on hover.
+function ensure(role) {
+  clearTimeout(reap[role]);
+  if (alive(wins[role])) return wins[role].__ready;
+  const w = createWin(role);
+  wins[role] = w;
+  w.setBounds(boundsFor(role));
+  w.__ready = new Promise((res) => w.once('ready-to-show', () => res(w)));
+  w.on('closed', () => { if (wins[role] === w) delete wins[role]; });
+  return w.__ready;
+}
+function scheduleReap(role) {
+  if (role === 'tab') return;
+  clearTimeout(reap[role]);
+  reap[role] = setTimeout(() => { const w = wins[role]; if (alive(w) && !w.isVisible()) w.close(); }, 90000);
 }
 function fit(w, r) { // while the window is hidden: make sure it really is where it should be (windows moved between screens of different scaling can land off by a lot)
   const b = boundsFor(r), c = w.getBounds();
   if (Math.abs(c.x - b.x) > 2 || Math.abs(c.y - b.y) > 2 || Math.abs(c.width - b.width) > 2 || Math.abs(c.height - b.height) > 2) { w.setBounds(b); const d = w.getBounds(); if (Math.abs(d.width - b.width) > 2 || Math.abs(d.x - b.x) > 2) w.setBounds(b); }
 }
 function showRole(r) { const w = wins[r]; if (!alive(w) || w.isVisible()) return; fit(w, r); if (r === 'tab') w.showInactive(); else w.show(); }
-function setUiMode(m) {
+let modeSeq = 0;
+async function setUiMode(m) {
   if (!ROLES.includes(m)) return;
+  const seq = ++modeSeq;
   uiMode = m; allHidden = false;
   const want = { tab: m === 'tab', side: m !== 'tab', big: m === 'big' };
-  ROLES.forEach((r) => { if (want[r]) showRole(r); });          // show the new layout first, then hide what is no longer needed
-  ROLES.forEach((r) => { if (!want[r] && alive(wins[r])) wins[r].hide(); });
+  await Promise.all(ROLES.filter((r) => want[r]).map(ensure));   // windows that are not built yet load first, then everything appears together
+  if (seq !== modeSeq) return;                                     // a newer request replaced this one
+  ROLES.forEach((r) => { if (want[r]) showRole(r); });             // show the new layout first, then hide what is no longer needed
+  ROLES.forEach((r) => { if (!want[r] && alive(wins[r])) { wins[r].hide(); scheduleReap(r); } });
   broadcast('ui:ctx', ctx());
-  if (m === 'big') { const w = wins.big; if (alive(w)) w.webContents.send('ui:show'); }
+  if (m === 'big' && alive(wins.big)) wins.big.webContents.send('ui:show');
+  if (m === 'side') ensure('big');                                  // warm the workspace in the background (hidden)
+  if (m === 'side') scheduleReap('big');
 }
 function gotoView(k) {
   if (uiMode === 'big' && curView === k) { setUiMode('side'); return; } // press the same icon again to close
@@ -274,7 +304,7 @@ function showBanner(payload, ttl = 25000) {
   if (process.env.TASKHUB_SHOT) console.log('BANNER', payload.kind || payload.title);
   if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close();
   const wa = screen.getPrimaryDisplay().workArea;
-  const w = 400, h = 92;
+  const w = 500, h = 104;
   bannerWin = new BrowserWindow({
     x: wa.x + Math.round((wa.width - w) / 2), y: wa.y + 14, width: w, height: h,
     frame: false, transparent: true, resizable: false, skipTaskbar: true, alwaysOnTop: true, hasShadow: false, show: false, focusable: false,
@@ -299,10 +329,12 @@ const MIN = process.env.TASKHUB_FAST ? 1000 : 60000;
 function resetNext(kind) { next[kind] = Date.now() + state.settings.nudges[kind] * MIN; }
 function resetEyes() { nextEyes = Date.now() + state.settings.eyesEvery * MIN; }
 function initNudges() { Object.keys(KINDS).forEach(resetNext); resetEyes(); }
+const stamp = (kind, field) => { const r = state.remind[kind] || (state.remind[kind] = { last: 0, done: 0 }); r[field] = Date.now(); saveSoon(); };
 function answer(kind, action, closeBanner = true) {
   if (pending !== kind) return;
   pending = null;
   if (action === 'done') {
+    stamp(kind, 'done');
     state.habits[kind] += 1;
     resetNext(kind);
     saveSoon(); push();
@@ -319,13 +351,13 @@ setInterval(() => {
   if (idle) { Object.keys(next).forEach((k) => { next[k] += 5000; }); nextEyes += 5000; return; } // don't count idle/locked time
   const bannerOpen = bannerWin && !bannerWin.isDestroyed();
   if (state.settings.eyesOn && !pending && !bannerOpen && Date.now() >= nextEyes) {
-    resetEyes();
-    showBanner({ icon: '\u{1F440}', title: 'Rest your eyes', body: 'Look at something 20 feet away for 10 seconds.', actions: false }, 10000);
+    resetEyes(); stamp('eyes', 'last'); stamp('eyes', 'done');
+    showBanner({ icon: 'eyes', title: 'Rest your eyes', body: 'Look at something 20 feet away.', actions: false, countdown: 10 }, 10000);
     return;
   }
   if (!state.settings.nudgesOn || pending || bannerOpen) return;
   const due = pickDue(next, Date.now());
-  if (due) { pending = due; showBanner({ kind: due, ...KINDS[due], actions: true }); }
+  if (due) { pending = due; stamp(due, 'last'); showBanner({ kind: due, ...KINDS[due], actions: true, countdown: 25 }); }
 }, 5000);
 
 // ---------- goals, triage, projects, digest, news (all read-only except the GOALS.md tick) ----------
@@ -443,6 +475,7 @@ ipcMain.on('state:set', (_e, s) => {
 ipcMain.on('ui:setMode', (_e, mode_) => setUiMode(mode_));
 ipcMain.on('ui:goto', (_e, k) => { if (typeof k === 'string' && /^[a-z]{3,10}$/.test(k)) gotoView(k); });
 ipcMain.on('ui:hide', () => hideAll());
+ipcMain.on('ui:warm', (_e, r) => { if (r === 'side' || r === 'big') ensure(r); });
 ipcMain.handle('ui:ctx', () => ctx());
 const lastOpen = {};
 const once = (key) => { const n = Date.now(); if (n - (lastOpen[key] || 0) < 900) return false; lastOpen[key] = n; return true; };
@@ -458,12 +491,14 @@ ipcMain.on('open:folder', (_e, o) => {
 ipcMain.handle('locations:get', () => LOCATIONS().map(([n]) => n));
 ipcMain.on('app:autoLaunch', (_e, on) => { setAutoLaunch(on); push(); });
 ipcMain.on('app:quit', () => app.quit());
-ipcMain.on('notify', (_e, p) => showBanner({ icon: String(p.icon || '✅'), title: String(p.title || ''), body: String(p.body || ''), actions: false }));
+ipcMain.on('notify', (_e, p) => showBanner({ icon: String(p.icon || 'check'), title: String(p.title || ''), body: String(p.body || ''), actions: false }));
 ipcMain.on('banner:action', (_e, kind, action) => { if (Object.hasOwn(KINDS, kind)) answer(kind, action); else if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close(); });
-ipcMain.handle('nudge:status', () => {
-  const k = Object.keys(KINDS).sort((a, b) => next[a] - next[b])[0];
-  return { kind: k, at: next[k], pending, eyesAt: nextEyes };
-});
+ipcMain.handle('nudge:status', () => ({
+  next: { water: next.water, walk: next.walk, stretch: next.stretch, eyes: nextEyes },
+  last: Object.fromEntries(['water', 'walk', 'stretch', 'eyes'].map((k) => [k, (state.remind[k] || {}).last || 0])),
+  done: Object.fromEntries(['water', 'walk', 'stretch', 'eyes'].map((k) => [k, (state.remind[k] || {}).done || 0])),
+  pending, on: state.settings.nudgesOn, eyesOn: state.settings.eyesOn,
+}));
 ipcMain.handle('goals:get', () => goalsGet());
 ipcMain.handle('goals:toggle', (_e, line, raw, done) => { const r = goalsToggle(line, raw, done); broadcast('data:changed'); return r; });
 ipcMain.handle('triage:get', () => triageGet());
@@ -477,7 +512,7 @@ setInterval(() => {
   if (!f || !f.endsAt || Date.now() < f.endsAt) return;
   f.endsAt = null; f.pausedLeft = null; state.habits.focus = (state.habits.focus || 0) + 1;
   const left = state.session.filter((t) => !t.done).length;
-  showBanner({ icon: '✅', title: 'Focus block done', body: left ? `${left} session ${left === 1 ? 'task' : 'tasks'} still open.` : (f.goal || 'Nice work. Take a short break.'), actions: false });
+  showBanner({ icon: 'check', title: 'Focus block done', body: left ? `${left} session ${left === 1 ? 'task' : 'tasks'} still open.` : (f.goal || 'Nice work. Take a short break.'), actions: false });
   saveSoon(); push();
 }, 1000);
 
@@ -488,14 +523,11 @@ app.whenReady().then(() => {
   writePrompts();
   if (!TEST && !state.settings.autoLaunchInit) { setAutoLaunch(true); state.settings.autoLaunchInit = true; saveSoon(); }
   initNudges();
-  ROLES.forEach((r) => { wins[r] = createWin(r); });
-  placeAll();
   createTray();
   // show the first layout once every window has finished loading, so nothing ever appears half-drawn
   const start = process.env.TASKHUB_MODE || 'tab';
   if (process.env.TASKHUB_VIEW) curView = process.env.TASKHUB_VIEW;
-  let ready = 0;
-  ROLES.forEach((r) => wins[r].webContents.once('did-finish-load', () => { if (++ready === ROLES.length) setTimeout(() => { setUiMode(start); testHook(); }, 150); }));
+  setUiMode(start).then(() => setTimeout(testHook, 150));
   if (process.env.TASKHUB_TEST_BANNER) setTimeout(() => { pending = 'water'; showBanner({ kind: 'water', ...KINDS.water, actions: true }); }, 3000);
   globalShortcut.register('Control+Alt+H', toggleVisible);
   globalShortcut.register('Control+Alt+M', nextDisplay);
@@ -515,8 +547,9 @@ function testHook() {
       await new Promise((r) => setTimeout(r, Number(process.env.TASKHUB_EVAL_WAIT) || 800));
     }
     if (process.env.TASKHUB_CHECK) { try { console.log('CHECK', JSON.stringify(await wins[process.env.TASKHUB_CHECK_WIN || 'big'].webContents.executeJavaScript(process.env.TASKHUB_CHECK))); } catch (e) { console.error('check failed', e.message); } }
-    console.log('STATE', JSON.stringify({ mode: uiMode, view: curView, vis: ROLES.map((r) => [r, wins[r].isVisible(), wins[r].getBounds()]) }));
-    const img = await wins[process.env.TASKHUB_SHOT_WIN || (uiMode === 'big' ? 'big' : uiMode === 'tab' ? 'tab' : 'side')].webContents.capturePage();
+    console.log('STATE', JSON.stringify({ mode: uiMode, view: curView, vis: ROLES.map((r) => [r, alive(wins[r]) && wins[r].isVisible(), alive(wins[r]) ? wins[r].getBounds() : null]) }));
+    const target = process.env.TASKHUB_SHOT_WIN === 'banner' ? bannerWin : wins[process.env.TASKHUB_SHOT_WIN || (uiMode === 'big' ? 'big' : uiMode === 'tab' ? 'tab' : 'side')];
+    const img = await target.webContents.capturePage();
     fs.writeFileSync(process.env.TASKHUB_SHOT, img.toPNG());
     app.exit(0);
   }, Number(process.env.TASKHUB_SHOT_WAIT) || 1500);

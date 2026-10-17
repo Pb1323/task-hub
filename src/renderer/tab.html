@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<title>task-hub</title>
+<link rel="stylesheet" href="tab.css">
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="g-check-circle" viewBox="0 0 24 24"><path d="M7.8 12.1 10.6 14.9 16.5 8.9 M21 12a9 9 0 1 1-18 0 9 9 0 1 1 18 0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="g-clock" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 1 1 18 0M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="g-sparkle" viewBox="0 0 24 24"><path d="M12 2l2.8 7.2L22 12l-7.2 2.8L12 22l-2.8-7.2L2 12l7.2-2.8Z" fill="currentColor" fill-rule="evenodd"/></symbol></defs></svg>
+<div class="pill" id="pill">
+  <button class="b" id="tOpen" data-tip="Tasks" aria-label="Open Tasks"><svg aria-hidden="true"><use href="#g-check-circle"/></svg><span class="bd" id="tBadge"></span></button>
+  <button class="b c2" id="tFocus" data-tip="Focus" aria-label="Open Focus"><svg aria-hidden="true"><use href="#g-clock"/></svg><span class="tm" id="tTime"></span></button>
+  <button class="b c3" id="tClaude" data-tip="Claude" aria-label="Open Claude in terminal"><svg aria-hidden="true"><use href="#g-sparkle"/></svg></button>
+</div>
+<script src="tab.js"></script>
+</body></html>

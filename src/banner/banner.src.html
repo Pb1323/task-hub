@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'">
+<style>
+@font-face{font-family:'Outfit';font-weight:500;src:url(../renderer/fonts/outfit-500.woff) format('woff')}
+@font-face{font-family:'Outfit';font-weight:600;src:url(../renderer/fonts/outfit-600.woff) format('woff')}
+:root{--txt:#1C1C1E;--mut:#4A4A4F;--acc:#00785A;--track:rgba(28,28,30,.14);--bg:linear-gradient(145deg,rgba(248,252,251,.97),rgba(231,243,239,.95));--edge:rgba(235,255,248,.9);--sh:0 14px 36px rgba(40,60,70,.32);--tile:rgba(255,255,255,.7)}
+@media (prefers-color-scheme:dark){:root{--txt:#fff;--mut:#C7C7CC;--acc:#34E0AE;--track:rgba(255,255,255,.18);--bg:linear-gradient(145deg,rgba(44,52,58,.98),rgba(24,29,33,.97));--edge:rgba(190,255,235,.28);--sh:0 14px 36px rgba(0,0,0,.6);--tile:rgba(255,255,255,.08)}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:transparent;overflow:hidden;font-family:'Outfit',"Segoe UI",system-ui,sans-serif;color:var(--txt);user-select:none}
+.card{position:absolute;inset:8px 8px 14px;border-radius:26px;padding:14px 16px 16px;display:flex;align-items:center;gap:14px;background:var(--bg);box-shadow:inset 1px 1px 0 var(--edge),var(--sh);overflow:hidden}
+.ic{flex:none;width:52px;height:52px;border-radius:17px;display:grid;place-items:center;background:var(--tile);box-shadow:inset 1px 1px 0 var(--edge);color:var(--c,#00785A)}
+.ic svg{width:28px;height:28px}
+.tx{flex:1;min-width:0}.tx b{display:block;font:600 16px/20px 'Outfit',system-ui,sans-serif}.tx span{display:block;margin-top:2px;font:500 13px/17px 'Outfit',system-ui,sans-serif;color:var(--mut)}
+.btns{display:flex;gap:8px;align-items:center}
+button{font:600 13px 'Outfit',system-ui,sans-serif;border:0;border-radius:999px;padding:9px 15px;cursor:pointer;background:var(--acc);color:#fff;white-space:nowrap}
+:root{--onacc:#fff}@media (prefers-color-scheme:dark){button{color:#04281e}}
+button.g{background:var(--tile);color:var(--txt);box-shadow:inset 1px 1px 0 var(--edge)}
+button:hover{filter:brightness(1.07)}button:active{transform:scale(.97)}
+.cd{font:200 34px/1 'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+.bar{position:absolute;left:16px;right:16px;bottom:7px;height:3px;border-radius:3px;background:var(--track);overflow:hidden}.bar i{display:block;height:100%;width:100%;background:var(--acc);border-radius:3px}
+</style></head><body>
+<!--ICONS-->
+<div class="card"><div class="ic" id="ic"><svg aria-hidden="true"><use href="#g-check"/></svg></div><div class="tx"><b id="t"></b><span id="d"></span></div><div class="btns" id="a"></div><div class="bar"><i id="bar"></i></div></div>
+<script src="banner.js"></script>
+</body></html>

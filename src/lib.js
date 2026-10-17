@@ -17,6 +17,7 @@ function clean(s, currentSettings) {
       endsAt: f.endsAt == null ? null : num(f.endsAt, 0, 8.64e15, null), pausedLeft: f.pausedLeft == null ? null : num(f.pausedLeft, 0, 2.4e7, null) };
   }
   if (Array.isArray(s.session)) out.session = s.session.filter((t) => t && typeof t === 'object').slice(0, 100).map((t) => ({ id: str(t.id, 24), text: str(t.text, 140), done: !!t.done }));
+  if (s.remind && typeof s.remind === 'object') { out.remind = {}; for (const k of ['water', 'walk', 'stretch', 'eyes']) { const r = s.remind[k] || {}; out.remind[k] = { last: num(r.last, 0, 8.64e15, 0), done: num(r.done, 0, 8.64e15, 0) }; } }
   if (s.triageDone && typeof s.triageDone === 'object') { out.triageDone = {}; Object.entries(s.triageDone).slice(0, 500).forEach(([k, v]) => { out.triageDone[str(k, 80)] = !!v; }); }
   if (s.habits && typeof s.habits === 'object') {
     out.habits = { date: str(s.habits.date, 10), water: num(s.habits.water, 0, 999, 0), walk: num(s.habits.walk, 0, 999, 0), stretch: num(s.habits.stretch, 0, 999, 0), focus: num(s.habits.focus, 0, 999, 0) };

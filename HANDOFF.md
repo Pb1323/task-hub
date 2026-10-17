@@ -33,3 +33,8 @@ Claude buttons open Windows Terminal (`wt.exe`) running `claude` (in a project f
 1. Owner uses it for a day and lists what feels off (look, wording, sizes).
 2. Make the digest fully automatic (Cowork routine writes the JSON, or a scheduled local task).
 3. Proper installer (electron-builder on D:), then the far-future browser right-click export (`docs/next-features.md`).
+
+## Efficiency + reminders (2026-10-17)
+- Resting cost: ~310 MB, 3 processes (was ~735 MB, 6). The GPU process is off (`disableHardwareAcceleration` + `in-process-gpu`; set `TASKHUB_GPU=1` to bring it back if rendering ever looks wrong). The pill is its own tiny page (`tab.src.html` -> `tab.html`); the sidebar and the workspace windows are created on demand (the pill warms the sidebar on hover) and closed after 90 s hidden. `tools/build.js` also builds `tab.html` and `src/banner/banner.html` (inlines only the icons they use). Test switches: `TASKHUB_FLAGS="a;b=c"` adds Chromium switches; `powershell` memory test lived in the session scratchpad only.
+- Reminders: water 30 / walk 50 / stretch 75 min and eye rest every 10 min for 10 s are unchanged in `src/main.js`. Each reminder now records when it last fired and when it was answered (`state.remind`), and the Habits page shows Last / Next / Today for all four (`nudge:status`).
+- Notifications use a new glass card (`src/banner/`): drawn icon, Snooze 5 min / Done, a time-left bar, a countdown for eye rest.

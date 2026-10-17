@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('hub', {
   onDataChanged: (fn) => ipcRenderer.on('data:changed', () => fn()),
   setMode: (m) => ipcRenderer.send('ui:setMode', m),
   goto: (k) => ipcRenderer.send('ui:goto', k),
+  warm: (r) => ipcRenderer.send('ui:warm', r),
   hideWindow: () => ipcRenderer.send('ui:hide'),
   openLink: (url) => ipcRenderer.send('open:link', url),
   openClaude: (o) => ipcRenderer.send('open:claude', o || {}),

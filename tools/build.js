@@ -14,4 +14,10 @@ const extra = [
 sprite = sprite.replace('</defs></svg>', extra + '</defs></svg>');
 const html = fs.readFileSync(path.join(dir, 'index.src.html'), 'utf8').replace('<!--SPRITE-->', sprite);
 fs.writeFileSync(path.join(dir, 'index.html'), html);
+// the pill page and the notification banner each carry only the few icons they use
+const pick = (ids) => ids.map((id) => { const a = sprite.indexOf('<symbol id="' + id + '"'); if (a < 0) throw new Error('missing ' + id); return sprite.slice(a, sprite.indexOf('</symbol>', a) + 9); }).join('');
+const wrap = (inner) => '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' + inner + '</defs></svg>';
+fs.writeFileSync(path.join(dir, 'tab.html'), fs.readFileSync(path.join(dir, 'tab.src.html'), 'utf8').replace('<!--ICONS-->', wrap(pick(['g-check-circle', 'g-clock', 'g-sparkle']))));
+const bd = path.join(__dirname, '..', 'src', 'banner');
+fs.writeFileSync(path.join(bd, 'banner.html'), fs.readFileSync(path.join(bd, 'banner.src.html'), 'utf8').replace('<!--ICONS-->', wrap(pick(['g-water-drop', 'g-walking-figure', 'g-stretching-figure', 'g-eye', 'g-check']))));
 console.log('index.html written', html.length, 'bytes; extra symbols:', sprite.includes('g-expand'));
