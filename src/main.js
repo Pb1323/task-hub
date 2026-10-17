@@ -433,12 +433,16 @@ ipcMain.on('state:set', (_e, s) => {
   if (JSON.stringify([state.settings.nudges, state.settings.eyesEvery]) !== prev) initNudges();
   saveSoon();
 });
-ipcMain.handle('ui:mode', async (_e, m) => { // resolves after the resize has settled, so the page can stay hidden while the window moves
-  if (!['tab', 'side', 'big'].includes(m)) return false;
-  curMode = m; applyBounds();
-  await new Promise((r) => setTimeout(r, 140));
+let opTimer = null;
+ipcMain.handle('ui:mode', async (_e, mode_) => { // the whole window goes invisible while it moves/resizes, so Windows can't show a stale or stretched frame
+  if (!['tab', 'side', 'big'].includes(mode_)) return false;
+  if (win && !win.isDestroyed()) win.setOpacity(0);
+  clearTimeout(opTimer); opTimer = setTimeout(() => { if (win && !win.isDestroyed()) win.setOpacity(1); }, 1500); // safety net
+  curMode = mode_; applyBounds();
+  await new Promise((r) => setTimeout(r, 180));
   return true;
 });
+ipcMain.on('ui:shown', () => { clearTimeout(opTimer); if (win && !win.isDestroyed()) win.setOpacity(1); });
 ipcMain.on('ui:hide', () => { if (win) win.hide(); });
 const lastOpen = {};
 const once = (key) => { const n = Date.now(); if (n - (lastOpen[key] || 0) < 900) return false; lastOpen[key] = n; return true; };

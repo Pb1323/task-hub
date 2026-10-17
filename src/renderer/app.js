@@ -52,7 +52,8 @@ async function setMode(m) {
   hubEl.dataset.mode = m;
   hubEl.classList.toggle('closed', m === 'tab');
   render();
-  requestAnimationFrame(() => { if (token === modeToken) hubEl.classList.remove('swapping'); });
+  // let the new layout paint for two frames before the window becomes visible again
+  requestAnimationFrame(() => requestAnimationFrame(() => { if (token === modeToken) { hubEl.classList.remove('swapping'); window.hub.shown(); } }));
 }
 let lastView = null;
 function busy() { const a = document.activeElement; return a && a.tagName === 'INPUT' && a.type !== 'checkbox' && a.value.trim() !== ''; }
