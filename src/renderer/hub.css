@@ -100,11 +100,4 @@ html[data-role=tab] .panel,html[data-role=tab] .work,html[data-role=side] .taskb
 .set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--track);font:400 14px system-ui}
 .set input[type=number]{width:62px;flex:none}
 
-/* hover labels: 1-2 words under the icon */
-[data-tip]{position:relative}
-[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translate(-50%,0);padding:3px 9px;border-radius:9px;white-space:nowrap;pointer-events:none;z-index:60;opacity:0;font:500 11px/14px system-ui;color:var(--txt);background:var(--g-bg);box-shadow:inset 1px 1px 0 var(--g-edge),0 6px 16px rgba(0,0,0,.28)}
-[data-tip]:hover::after{opacity:1}
-.nv[data-tip]::after{display:none}
-.panel .phd [data-tip]::after{left:auto;right:0;transform:none}
-.taskbar [data-tip]::after{left:auto;right:-4px;transform:none}
 .rem .gh{font-size:11px}

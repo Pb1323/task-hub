@@ -3,7 +3,7 @@
 @media (prefers-color-scheme:dark){:root{--acc:#34E0AE;--c1:#4BE3B3;--c2:#6CC4F0;--c3:#8CF2D2;--txt:#fff;--bg:linear-gradient(145deg,rgba(40,48,54,.97),rgba(22,27,31,.96));--tile:linear-gradient(150deg,rgba(110,120,128,.55),rgba(40,46,52,.5));--edge:rgba(190,255,235,.3);--sh:0 12px 30px rgba(0,0,0,.55)}}
 *{box-sizing:border-box;margin:0}
 html,body{height:100%;background:transparent;overflow:hidden;user-select:none;font:500 11px/14px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;color:var(--txt)}
-.pill{position:absolute;right:22px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:24px;background:var(--bg);box-shadow:inset 1px 1px 0 var(--edge),var(--sh)}
+.pill{position:absolute;right:22px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:16px;padding:8px;border-radius:24px;background:var(--bg);box-shadow:inset 1px 1px 0 var(--edge),var(--sh)}
 .b{position:relative;width:40px;height:40px;border:0;border-radius:14px;cursor:pointer;display:grid;place-items:center;background:var(--tile);box-shadow:inset 1px 1px 0 var(--edge);color:var(--c1);padding:0}
 .b.c2{color:var(--c2)}.b.c3{color:var(--c3)}
 .b svg{width:24px;height:24px}
@@ -12,5 +12,3 @@ html,body{height:100%;background:transparent;overflow:hidden;user-select:none;fo
 .bd{position:absolute;right:-3px;top:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;display:grid;place-items:center;font:600 10px system-ui;background:var(--acc);color:#fff;pointer-events:none}
 .bd:empty,.tm:empty{display:none}
 .tm{position:absolute;left:0;right:0;bottom:-12px;text-align:center;font:600 10px system-ui;font-variant-numeric:tabular-nums;pointer-events:none}
-.b[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);right:-4px;padding:3px 9px;border-radius:9px;white-space:nowrap;pointer-events:none;z-index:9;opacity:0;background:var(--bg);box-shadow:inset 1px 1px 0 var(--edge),0 6px 16px rgba(0,0,0,.28)}
-.b[data-tip]:hover::after{opacity:1}

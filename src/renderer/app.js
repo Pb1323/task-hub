@@ -243,7 +243,19 @@ const VIEWS = {
     const b = $('wBody');
     if (!DG) { b.append(el('div', { class: 'empty' }, 'Loading digest…')); return ''; }
     const stale = !DG.inspo || DG.inspo.date !== DG.today || !DG.digest || DG.digest.date !== DG.today;
-    if (stale) b.append(el('div', { class: 'card' }, el('div', { class: 'sub' }, `Today's digest isn't loaded yet (digest: ${DG.digest ? DG.digest.date : 'none'}, inspiration: ${DG.inspo ? DG.inspo.date : 'none'}). Run the update: it opens Claude in a terminal, reads your latest Daily Digest email draft and finds today's new people. Live news below is always current.`), el('div', { class: 'add', style: 'margin-top:8px' }, btn('Update digest in Claude…', () => window.hub.openClaude({ prompt: 'digest' }), 'pri sm'))));
+    const au = DG.auto || {};
+    const status = au.running ? `Updating in the background (${au.running === 'email' ? 'reading your email digest' : "finding today's people"})…`
+      : au.last ? `Last automatic update ${new Date(au.last.at).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })}: ${au.last.ok ? 'worked' : au.last.msg}`
+      : au.on === false ? 'Automatic update is off (Settings).' : 'Updates itself once a day, after 07:00.';
+    b.append(el('div', { class: 'card' }, el('div', { class: 'sub' }, (stale ? `Today's digest isn't loaded yet (digest ${DG.digest ? DG.digest.date : 'none'}, inspiration ${DG.inspo ? DG.inspo.date : 'none'}). ` : '') + status),
+      el('div', { class: 'add', style: 'margin-top:8px' }, btn(au.running ? 'Working…' : 'Update now', () => { if (!au.running) { window.hub.runDigest(); setTimeout(loadDigest, 800); } }, 'pri sm'), btn('Open in Claude…', () => window.hub.openClaude({ prompt: 'digest' }), 'sm'))));
+    if (DG.events && DG.events.items.length) {
+      const mark = (v) => (v === 'ok' ? '✓' : v === 'no' ? '✗' : '?');
+      b.append(el('div', { class: 'gh' }, `Coming up · from event-radar (${DG.events.items.length} of ${DG.events.total} soon)`));
+      b.append(el('div', { class: 'card' }, DG.events.items.map((x) => el('div', { class: 'row' },
+        el('div', { class: 'pchip', style: 'min-width:64px;text-align:center' }, x.days === 0 ? 'today' : x.days === 1 ? 'tomorrow' : `in ${x.days} days`),
+        el('div', { class: 't' }, hasUrl(x.url) ? link(x.url, x.title, 'lnk') : x.title, el('div', { class: 'sub' }, `${x.where} · ${x.type}${x.prize ? ' · ' + x.prize : ''} · can enter: Pranav ${mark(x.pranav)}, Srinivas ${mark(x.srinivas)}`))))));
+    }
     if (DG.inspo) {
       b.append(el('div', { class: 'gh' }, `Inspiration · ${DG.inspo.date}`));
       b.append(el('div', { class: 'add' }, [['all', 'All'], ['inspiration', 'People'], ['niche', 'My niche'], ['ugc', 'UGC']].map(([k, l]) => el('button', { class: 'chip' + (dLane === k ? ' on' : ''), onclick: () => { dLane = k; renderView(); } }, l))));
@@ -301,6 +313,7 @@ const VIEWS = {
       row('Health reminders', chk(S.settings.nudgesOn, (v) => { S.settings.nudgesOn = v; save(); render(); })),
       row('Water / walk / stretch every (min)', el('span', { class: 'add' }, num(S.settings.nudges.water, 5, 240, (v) => { S.settings.nudges.water = v; }), num(S.settings.nudges.walk, 5, 240, (v) => { S.settings.nudges.walk = v; }), num(S.settings.nudges.stretch, 5, 240, (v) => { S.settings.nudges.stretch = v; }))),
       row('Eye rest (10 s)', el('span', { class: 'add' }, chk(S.settings.eyesOn, (v) => { S.settings.eyesOn = v; save(); render(); }), num(S.settings.eyesEvery, 5, 120, (v) => { S.settings.eyesEvery = v; }))),
+      row('Update the digest by itself each morning (a short background Claude run)', chk(S.settings.digestAuto !== false, (v) => { S.settings.digestAuto = v; save(); render(); })),
       row('Chrome profile folder (if you use several)', prof));
     b.append(c);
     const lc = el('div', { class: 'card' }, el('h3', {}, 'Quick-launch links'));
@@ -387,7 +400,7 @@ function loadAll() { loadGoals(); loadTriage(); loadProjects(); loadDigest(); }
 window.hub.onPush((s) => { const hold = ROLE === 'big' && busy(); S = s; if (!hold) render(); }); // never re-render under someone who is typing
 window.hub.onCtx((c) => { ctx = c; ctxAt = Date.now(); view = c.view; render(); });
 window.hub.onShow(() => { loadGoals(); loadTriage(); loadProjects(); loadDigest(); });
-window.hub.onDataChanged(() => loadGoals());
+window.hub.onDataChanged(() => { loadGoals(); loadDigest(); });
 // a double-click on the pill opens the sidebar in the very spot you clicked: ignore clicks for a moment after a window appears
 ['click', 'dblclick', 'mousedown'].forEach((t) => document.addEventListener(t, (e) => { if (Date.now() - ctxAt < 350) { e.stopPropagation(); e.preventDefault(); } }, true));
 
