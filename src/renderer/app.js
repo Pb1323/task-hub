@@ -40,20 +40,27 @@ const hasUrl = (u) => u && /^https?:/.test(u);
 
 // ---------- modes ----------
 const RANK = { tab: 0, side: 1, big: 2 };
-let resizeTimer = null;
-// Opening: grow the window first, then let the content animate in. Closing: animate out first, then shrink the window.
+let resizeTimer = null, applyTimer = null;
+// Opening: grow the window, build the content while it is still hidden, then start the transition (so the heavy work never
+// lands in the middle of an animation). Closing: animate out first, then shrink the window.
 function setMode(m) {
   const prev = mode;
+  if (m === prev) return;
   mode = m;
-  clearTimeout(resizeTimer);
+  clearTimeout(resizeTimer); clearTimeout(applyTimer);
   const apply = () => {
     hubEl.dataset.mode = m;
     hubEl.classList.toggle('closed', m === 'tab');
-    if (m === 'big') { lastView = null; renderView(); }
-    render();
+    if (m === 'big') { const wb = $('wBody'); wb.classList.remove('swap'); void wb.offsetWidth; wb.classList.add('swap'); setTimeout(() => wb.classList.remove('swap'), 600); }
   };
-  if (RANK[m] >= RANK[prev]) { window.hub.setMode(m); requestAnimationFrame(() => requestAnimationFrame(apply)); }
-  else { apply(); resizeTimer = setTimeout(() => window.hub.setMode(m), 340); }
+  if (RANK[m] > RANK[prev]) {
+    window.hub.setMode(m);
+    lastView = null; render();
+    applyTimer = setTimeout(apply, 90);
+  } else {
+    apply(); render();
+    resizeTimer = setTimeout(() => window.hub.setMode(m), 300);
+  }
 }
 let lastView = null;
 function busy() { const a = document.activeElement; return a && a.tagName === 'INPUT' && a.type !== 'checkbox' && a.value.trim() !== ''; }
@@ -105,7 +112,11 @@ function renderNav() {
   NAV.forEach(([k, label, ic]) => nav.append(el('button', { class: 'nv' + (mode === 'big' && view === k ? ' active' : ''), 'data-tip': label, onclick: () => go(k) }, icon(ic), el('span', { class: 'lb' }, label), el('em', { class: 'lb' }, String(navCount(k))))));
   $('nvSettings').classList.toggle('active', mode === 'big' && view === 'settings');
 }
-function go(k) { view = k; if (mode !== 'big') setMode('big'); else { renderView(); render(); } }
+function go(k) {
+  if (mode === 'big' && view === k) { setMode('side'); return; } // press the same icon again to close
+  view = k;
+  if (mode !== 'big') setMode('big'); else { render(); }
+}
 
 function renderPanel() {
   const open_ = S.tasks.filter((t) => !t.done), done = S.tasks.filter((t) => t.done).length;

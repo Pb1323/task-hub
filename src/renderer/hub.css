@@ -122,3 +122,14 @@ input,textarea{user-select:text;-webkit-user-select:text}
 .panel .phd [data-tip]::after{left:auto;right:0;transform:translate(0,-3px)}.panel .phd [data-tip]:hover::after{transform:none}
 .panel.rail .phd [data-tip]::after{left:50%;right:auto;transform:translate(-50%,-3px)}.panel.rail .phd [data-tip]:hover::after{transform:translate(-50%,0)}
 .taskbar [data-tip]::after{left:auto;right:-4px;transform:translate(0,-3px)}.taskbar [data-tip]:hover::after{transform:none}
+
+/* performance: this window is transparent, so blur has nothing to blur and only costs GPU. Animate transform/opacity only. */
+.taskbar,.panel,.gi,.work,.pick,.card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.gb.on .gi{animation:none!important}.gb.on .gi::after{display:none!important}
+.rg.mini .rv{animation:rvin 700ms both!important}
+.scene.closed .panel{filter:none!important}
+.panel{transition:width 220ms cubic-bezier(.2,.9,.25,1),transform 260ms cubic-bezier(.2,.9,.25,1),opacity 200ms ease-out!important;will-change:transform,opacity}
+.work{filter:none!important;will-change:transform,opacity;transition:opacity 220ms ease-out,transform 280ms cubic-bezier(.2,.9,.25,1),visibility 0s linear 290ms!important}
+#hub[data-mode=big] .work{transition-delay:60ms,60ms,0s!important}
+.taskbar{will-change:transform,opacity}
+.panel .lb,.panel .tl,.claudeBtn,.nv{white-space:nowrap}

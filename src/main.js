@@ -130,9 +130,16 @@ function bounds(mode = curMode) {
   const w = mode === 'side' ? 340 : Math.min(MAX_W, wa.width - 2 * MARGIN);
   return { x: wa.x + wa.width - w - MARGIN, y: wa.y + MARGIN, width: w, height: full };
 }
-function applyBounds() { // set twice: Electron mis-scales the first call when the target screen has a different DPI
+function applyBounds() { // one resize; only repeat it if the OS landed somewhere else (mixed-DPI screens can mis-scale the first call)
   if (!win || win.isDestroyed()) return;
-  const b = bounds(); win.setBounds(b); win.setBounds(b);
+  const b = bounds(), c = win.getBounds();
+  if (c.x === b.x && c.y === b.y && c.width === b.width && c.height === b.height) return;
+  win.setBounds(b);
+  setTimeout(() => {
+    if (!win || win.isDestroyed()) return;
+    const d = win.getBounds();
+    if (Math.abs(d.x - b.x) > 2 || Math.abs(d.y - b.y) > 2 || Math.abs(d.width - b.width) > 2 || Math.abs(d.height - b.height) > 2) win.setBounds(b);
+  }, 80);
 }
 function moveToDisplay(d) { state.settings.displayId = d.id; saveSoon(); applyBounds(); }
 function nextDisplay() {
@@ -159,7 +166,7 @@ function createWindow() {
   if (process.env.TASKHUB_SHOT) { // test only: screenshot the window then quit
     win.webContents.once('did-finish-load', () => setTimeout(async () => {
       if (process.env.TASKHUB_EVAL) { // test only: run a snippet in the page (e.g. click a button), then let it settle
-        try { await win.webContents.executeJavaScript(process.env.TASKHUB_EVAL); } catch (e) { console.error('eval failed', e.message); }
+        try { const r = await win.webContents.executeJavaScript(process.env.TASKHUB_EVAL); if (r !== undefined) console.log('EVAL', JSON.stringify(r)); } catch (e) { console.error('eval failed', e.message); }
         await new Promise((r) => setTimeout(r, Number(process.env.TASKHUB_EVAL_WAIT) || 1500));
       }
       console.log('BOUNDS', JSON.stringify({ win: win.getBounds(), mode: curMode, displays: screen.getAllDisplays().map((d) => ({ id: d.id, wa: d.workArea, scale: d.scaleFactor, primary: d.id === screen.getPrimaryDisplay().id })) }));
@@ -258,6 +265,7 @@ const LOCATIONS = () => [
 
 // ---------- banners (health nudges, eye rest, focus done) ----------
 function showBanner(payload, ttl = 25000) {
+  if (process.env.TASKHUB_SHOT) console.log('BANNER', payload.kind || payload.title);
   if (bannerWin && !bannerWin.isDestroyed()) bannerWin.close();
   const wa = screen.getPrimaryDisplay().workArea;
   const w = 400, h = 92;
@@ -427,9 +435,11 @@ ipcMain.on('state:set', (_e, s) => {
 });
 ipcMain.on('ui:mode', (_e, m) => { if (['tab', 'side', 'big'].includes(m)) { curMode = m; applyBounds(); } });
 ipcMain.on('ui:hide', () => { if (win) win.hide(); });
-ipcMain.on('open:link', (_e, url) => openUrl(url));
-ipcMain.on('open:claude', (_e, o) => openClaude(o && typeof o === 'object' ? o : {}));
-ipcMain.on('open:terminal', () => openTerminal());
+const lastOpen = {};
+const once = (key) => { const n = Date.now(); if (n - (lastOpen[key] || 0) < 900) return false; lastOpen[key] = n; return true; };
+ipcMain.on('open:link', (_e, url) => { if (once('l' + url)) openUrl(url); });
+ipcMain.on('open:claude', (_e, o) => { if (once('c')) openClaude(o && typeof o === 'object' ? o : {}); });
+ipcMain.on('open:terminal', () => { if (once('t')) openTerminal(); });
 ipcMain.on('open:folder', (_e, o) => {
   if (!o || typeof o !== 'object') return;
   if (typeof o.project === 'string' && o.project && !/[\\/]/.test(o.project)) { const p = path.join(DL, o.project); if (fs.existsSync(p)) shell.openPath(p); return; }
