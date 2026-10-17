@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('hub', {
   triage: () => ipcRenderer.invoke('triage:get'),
   projects: () => ipcRenderer.invoke('projects:get'),
   digest: () => ipcRenderer.invoke('digest:get'),
+  plan: () => ipcRenderer.invoke('plan:get'),
   runDigest: () => ipcRenderer.invoke('digest:run'),
   refreshNews: () => ipcRenderer.invoke('news:refresh'),
 });

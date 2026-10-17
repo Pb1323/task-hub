@@ -45,6 +45,7 @@ const DEFAULTS = () => ({
   tasks: [],
   session: [],
   triageDone: {},
+  plan: { start: '', done: {} },
   timetable: { daily: [{ id: 'nn1', text: 'Plan the day (10 min)' }, { id: 'nn2', text: 'Evening review: tick off, plan tomorrow' }], days: { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] }, done: {} },
   hist: {},
   remind: {},
@@ -97,6 +98,8 @@ function loadState() {
   if (!Array.isArray(state.links)) state.links = d.links;
   if (!state.triageDone || typeof state.triageDone !== 'object') state.triageDone = {};
   if (!state.hist || typeof state.hist !== 'object') state.hist = {};
+  if (!state.plan || typeof state.plan !== 'object') state.plan = d.plan;
+  state.plan.done = state.plan.done || {};
   if (!state.timetable || typeof state.timetable !== 'object') state.timetable = d.timetable;
   state.timetable.daily = state.timetable.daily || []; state.timetable.days = { ...d.timetable.days, ...state.timetable.days }; state.timetable.done = state.timetable.done || {};
   if (!state.remind || typeof state.remind !== 'object') state.remind = {};
@@ -635,6 +638,7 @@ ipcMain.handle('goals:toggle', (_e, line, raw, done) => { const r = goalsToggle(
 ipcMain.handle('triage:get', () => triageGet());
 ipcMain.handle('projects:get', () => projectsGet());
 ipcMain.handle('digest:get', () => digestGet());
+ipcMain.handle('plan:get', () => { try { return JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'revision-plan.json'), 'utf8')); } catch { return null; } });
 ipcMain.handle('digest:run', () => { runDigestUpdate(true); return true; });
 ipcMain.handle('news:refresh', () => newsRefresh());
 

@@ -24,6 +24,10 @@ function clean(s, currentSettings) {
     for (const d of ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']) out.timetable.days[d] = items((tt.days || {})[d]);
     Object.keys(tt.done || {}).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort().slice(-30).forEach((k) => { out.timetable.done[k] = (Array.isArray(tt.done[k]) ? tt.done[k] : []).slice(0, 120).map((x) => str(x, 24)); });
   }
+  if (s.plan && typeof s.plan === 'object') {
+    out.plan = { start: /^\d{4}-\d{2}-\d{2}$/.test(String(s.plan.start)) ? String(s.plan.start) : '', done: {} };
+    Object.keys(s.plan.done || {}).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort().slice(-70).forEach((k) => { out.plan.done[k] = (Array.isArray(s.plan.done[k]) ? s.plan.done[k] : []).slice(0, 12).map((x) => num(x, 0, 11, 0)); });
+  }
   if (s.triageDone && typeof s.triageDone === 'object') { out.triageDone = {}; Object.entries(s.triageDone).slice(0, 500).forEach(([k, v]) => { out.triageDone[str(k, 80)] = !!v; }); }
   if (s.habits && typeof s.habits === 'object') {
     out.habits = { date: str(s.habits.date, 10), water: num(s.habits.water, 0, 999, 0), walk: num(s.habits.walk, 0, 999, 0), stretch: num(s.habits.stretch, 0, 999, 0), focus: num(s.habits.focus, 0, 999, 0) };

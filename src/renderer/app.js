@@ -7,7 +7,7 @@ const ROLE = Q.get('role') || 'side';   // which window this is: tab | side | bi
 let ctx = { mode: 'tab', view: 'tasks' }; // set by the main process
 let ctxAt = 0;
 let view = 'tasks';
-let G = null, TR = null, PR = null, DG = null;   // goals, triage, projects, digest caches
+let G = null, TR = null, PR = null, DG = null, PL = null;   // goals, triage, projects, digest caches
 let gTab = 'short', dLane = 'all', pFilter = '', pView = 'all';
 const open = new Set();       // expanded details (keys)
 
@@ -33,7 +33,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = (n) => String(n).padStart(2, '0');
 const fmt = (ms) => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`; };
 const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-const save = () => window.hub.setState({ tasks: S.tasks, session: S.session, links: S.links, focus: S.focus, settings: S.settings, habits: S.habits, triageDone: S.triageDone, timetable: S.timetable });
+const save = () => window.hub.setState({ tasks: S.tasks, session: S.session, links: S.links, focus: S.focus, settings: S.settings, habits: S.habits, triageDone: S.triageDone, timetable: S.timetable, plan: S.plan });
 const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 const link = (url, label, cls = 'lnk') => el('button', { class: cls, onclick: () => window.hub.openLink(url), title: url }, label);
 const btn = (label, fn, cls = '') => el('button', { class: 'btn ' + cls, onclick: fn }, label);
@@ -161,10 +161,73 @@ function projectDetail(p) {
 // ---------- timetable ----------
 const DAYS = [['mon', 'Mon', 'Monday'], ['tue', 'Tue', 'Tuesday'], ['wed', 'Wed', 'Wednesday'], ['thu', 'Thu', 'Thursday'], ['fri', 'Fri', 'Friday'], ['sat', 'Sat', 'Saturday'], ['sun', 'Sun', 'Sunday']];
 const dayKey = (d = new Date()) => DAYS[(d.getDay() + 6) % 7][0];
-let ttDay = null;
+let ttDay = null, ttTab = 'plan', plWeek = null, plDay = null;
 const ttItems = (key) => [...S.timetable.daily.map((i) => ({ ...i, scope: 'daily' })), ...(S.timetable.days[key] || []).map((i) => ({ ...i, scope: key }))];
 const ttDoneToday = () => S.timetable.done[todayStr()] || [];
-function ttRemaining() { if (!S || !S.timetable) return 0; const d = ttDoneToday(); return ttItems(dayKey()).filter((i) => !d.includes(i.id)).length; }
+function ttRemaining() { if (!S || !S.timetable) return 0; const d = ttDoneToday(); return ttItems(dayKey()).filter((i) => !d.includes(i.id)).length + planLeft(); }
+
+
+// ---------- revision plan (8 weeks, Monday start) ----------
+const SUBJ = [['German', '#E0932B'], ['English', '#7C6CE0'], ['Biology', '#00A878'], ['Chemistry', '#2E9BD6'], ['Physics', '#4C7BE0'], ['Maths', '#E05C7C'], ['Geography', '#2FA39B'], ['Economics', '#B8860B'], ['D&T', '#C8603F']];
+const subjColor = (n) => (SUBJ.find(([k]) => n.startsWith(k)) || [0, '#6B7C85'])[1];
+const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseYmd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const midnight = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const nextMonday = () => { const d = midnight(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return d; };
+const fmtDay = (d) => d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+function planPos() { // where today sits in the plan: { diff, week (0-7), day (0-6) } or null if not started
+  if (!S || !S.plan || !S.plan.start) return null;
+  const diff = Math.round((midnight() - parseYmd(S.plan.start)) / 86400000);
+  return { diff, week: Math.floor(diff / 7), day: ((diff % 7) + 7) % 7 };
+}
+function planBlocks(week, day) { return PL && PL.weeks[week] && PL.weeks[week].days[day] ? PL.weeks[week].days[day].blocks : []; }
+function planLeft() { const p = planPos(); if (!PL || !p || p.diff < 0 || p.week > 7) return 0; const done = S.plan.done[todayStr()] || []; return planBlocks(p.week, p.day).filter((_b, i) => !done.includes(i)).length; }
+
+function ttPlan(b) {
+  if (!PL) { b.append(el('div', { class: 'empty' }, 'Loading the plan…')); return ''; }
+  const pos = planPos();
+  const setStart = (d) => { S.plan.start = ymd(d); S.plan.done = S.plan.done || {}; plWeek = null; plDay = null; save(); render(); };
+  if (!pos) {
+    const nm = nextMonday(), dow = midnight().getDay();
+    const inp = el('input', { type: 'date', class: 'field', style: 'max-width:180px' });
+    b.append(el('div', { class: 'card' }, el('h3', {}, PL.title), el('div', { class: 'sub' }, PL.note),
+      el('div', { class: 'sub', style: 'margin-top:8px' }, 'The plan runs Monday to Sunday for 8 weeks. Pick the Monday that Week 1 starts on (you can shift it later if the mock date moves).'),
+      el('div', { class: 'add', style: 'margin-top:10px;flex-wrap:wrap' }, dow === 1 ? btn('Start today', () => setStart(midnight()), 'pri') : '', btn(`Start next Monday (${fmtDay(nm)})`, () => setStart(nm), dow === 1 ? '' : 'pri'), inp, btn('Use this date', () => { if (!inp.value) return; const d = parseYmd(inp.value); const back = (d.getDay() + 6) % 7; d.setDate(d.getDate() - back); setStart(d); }, 'sm'))));
+    return '';
+  }
+  const startD = parseYmd(S.plan.start), todayWeek = pos.week, todayDay = pos.day;
+  if (pos.diff < 0) b.append(el('div', { class: 'card' }, el('div', { class: 'sub' }, `The plan starts on ${fmtDay(startD)} (in ${-pos.diff} day${pos.diff === -1 ? '' : 's'}). You can look ahead below.`)));
+  else if (pos.week > 7) b.append(el('div', { class: 'card' }, el('div', { class: 'sub' }, `The 8 weeks ended on ${fmtDay(new Date(startD.getTime() + 55 * 86400000))}. Restart or shift the start below if the mocks have moved.`)));
+  const wk = plWeek != null ? plWeek : Math.min(7, Math.max(0, todayWeek)), dy = plDay != null ? plDay : (todayWeek === wk && pos.diff >= 0 ? todayDay : 0);
+  b.append(el('div', { class: 'ttday' }, PL.weeks.map((w, i) => el('button', { class: 'chip' + (i === wk ? ' on' : '') + (i === todayWeek && pos.diff >= 0 ? ' today' : ''), title: w.title, onclick: () => { plWeek = i; plDay = null; renderView(); } }, 'Week ' + w.n))));
+  b.append(el('div', { class: 'ttday' }, PL.weeks[wk].days.map((d, i) => { const date = new Date(startD.getTime() + (wk * 7 + i) * 86400000); return el('button', { class: 'chip' + (i === dy ? ' on' : '') + (ymd(date) === todayStr() ? ' today' : ''), onclick: () => { plWeek = wk; plDay = i; renderView(); } }, d.name.slice(0, 3)); })));
+  const date = new Date(startD.getTime() + (wk * 7 + dy) * 86400000), isToday = ymd(date) === todayStr();
+  // dates are built from whole days; re-snap to local midnight so DST changes can't shift the day
+  date.setHours(0, 0, 0, 0);
+  const dayObj = PL.weeks[wk].days[dy], blocks = dayObj.blocks, done = S.plan.done[ymd(date)] || [];
+  const total = blocks.reduce((n, x) => n + x.mins, 0), doneN = isToday ? blocks.filter((_x, i) => done.includes(i)).length : 0;
+  b.append(el('div', { class: 'sub' }, `Week ${PL.weeks[wk].n}: ${PL.weeks[wk].title}`));
+  b.append(el('div', { class: 'gh' }, `${dayObj.label} · ${fmtDay(date)}${isToday ? ' · today' : ''}`));
+  b.append(el('div', { class: 'sub' }, `${blocks.length} blocks, about ${total} min${isToday ? ` · ${doneN} done` : ''}${isToday ? '' : ' · you can tick things off on the day itself'}`));
+  blocks.forEach((x, i) => {
+    const ticked = isToday && done.includes(i), nea = x.subject.includes('NEA');
+    b.append(el('div', { class: 'row' + (ticked ? ' done' : '') },
+      isToday ? el('button', { class: 'chk', 'aria-label': 'Toggle done', onclick: () => { const k = ymd(date); const arr = S.plan.done[k] || (S.plan.done[k] = []); const j = arr.indexOf(i); if (j >= 0) arr.splice(j, 1); else arr.push(i); save(); render(); } }, '✓') : el('div', { style: 'width:24px;flex:none' }),
+      el('div', { class: 't' },
+        el('div', { style: 'display:flex;gap:8px;align-items:center;margin-bottom:2px' }, el('span', { class: 'pchip', style: `background:${subjColor(x.subject)};color:#fff` }, x.subject), el('span', { class: 'sub' }, x.mins + ' min')),
+        x.text,
+        nea ? el('div', { class: 'add', style: 'margin-top:6px' }, btn('Open NEA folder', () => window.hub.openFolder({ project: 'product-dev-coursework' }), 'sm'), btn('Claude in NEA folder', () => window.hub.openClaude({ project: 'product-dev-coursework' }), 'sm'), btn('Mechanisms research', () => window.hub.openFolder({ project: 'backseat-buddy-mechanisms' }), 'sm')) : '')));
+  });
+  // targets, method, links, start date
+  const fold = (key, title, body) => el('div', { class: 'card' }, el('div', { style: 'display:flex;justify-content:space-between;cursor:pointer', onclick: () => { open.has(key) ? open.delete(key) : open.add(key); renderView(); } }, el('h3', {}, title), el('span', { class: 'sub' }, open.has(key) ? '▾' : '▸')), open.has(key) ? body : '');
+  b.append(el('div', { class: 'gh' }, 'Plan notes'));
+  b.append(fold('pl-targets', 'Daily targets (non-negotiables)', el('ul', {}, PL.targets.map((t) => el('li', {}, t)))));
+  b.append(fold('pl-method', 'How to log and mark', el('ul', {}, PL.method.map((t) => el('li', {}, t)))));
+  b.append(fold('pl-links', 'Official specifications', el('div', { class: 'ins' }, PL.links.map(([n, u]) => link(u, n)))));
+  const inp2 = el('input', { type: 'date', class: 'field', style: 'max-width:180px' });
+  b.append(fold('pl-start', `Start date: Week 1 begins ${fmtDay(startD)}`, el('div', { class: 'add', style: 'flex-wrap:wrap' }, inp2, btn('Move start (snaps to a Monday)', () => { if (!inp2.value) return; const d = parseYmd(inp2.value); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); S.plan.start = ymd(d); plWeek = plDay = null; save(); render(); }, 'sm'), btn('Reset plan', () => { S.plan.start = ''; S.plan.done = {}; plWeek = plDay = null; save(); render(); }, 'sm'))));
+  return isToday ? `${blocks.length - doneN} left today` : '';
+}
 
 // ---------- views ----------
 const VIEWS = {
@@ -214,7 +277,10 @@ const VIEWS = {
     return `${items.filter((i) => !i.done).length} open`;
   },
   timetable() {
-    const b = $('wBody'), today = dayKey(), key = ttDay || today, isToday = key === today, T = S.timetable;
+    const b = $('wBody');
+    b.append(el('div', { class: 'ttday' }, [['plan', 'Revision plan'], ['mine', 'My list']].map(([k, l]) => el('button', { class: 'chip' + (ttTab === k ? ' on' : ''), onclick: () => { ttTab = k; renderView(); } }, l))));
+    if (ttTab === 'plan') return ttPlan(b);
+    const today = dayKey(), key = ttDay || today, isToday = key === today, T = S.timetable;
     ttDay = key;
     b.append(el('div', { class: 'ttday' }, DAYS.map(([k, short]) => el('button', { class: 'chip' + (k === key ? ' on' : '') + (k === today ? ' today' : ''), onclick: () => { ttDay = k; renderView(); } }, short))));
     const dn = DAYS.find((d) => d[0] === key)[2];
@@ -437,11 +503,12 @@ async function refreshNudge() {
     }));
 }
 
+async function loadPlan() { PL = await window.hub.plan(); render(); }
 async function loadGoals() { G = await window.hub.goals(); render(); }
 async function loadTriage() { TR = await window.hub.triage(); render(); }
 async function loadProjects() { PR = await window.hub.projects(); render(); }
 async function loadDigest() { DG = await window.hub.digest(); render(); }
-function loadAll() { loadGoals(); loadTriage(); loadProjects(); loadDigest(); }
+function loadAll() { loadGoals(); loadTriage(); loadProjects(); loadDigest(); loadPlan(); }
 
 // ---------- events ----------
 window.hub.onPush((s) => { const hold = ROLE === 'big' && busy(); S = s; if (!hold) render(); }); // never re-render under someone who is typing
