@@ -9,7 +9,7 @@ const str = (v, n) => String(v == null ? '' : v).slice(0, n);
 const num = (v, lo, hi, d) => { v = Number(v); return Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; };
 function clean(s, currentSettings) {
   const out = {};
-  if (Array.isArray(s.tasks)) out.tasks = s.tasks.filter((t) => t && typeof t === 'object').slice(0, 500).map((t) => ({ id: str(t.id, 24), text: str(t.text, 140), done: !!t.done }));
+  if (Array.isArray(s.tasks)) out.tasks = s.tasks.filter((t) => t && typeof t === 'object').slice(0, 500).map((t) => ({ id: str(t.id, 24), text: str(t.text, 140), done: !!t.done, when: ['today', 'week', 'later'].includes(t.when) ? t.when : 'week' }));
   if (Array.isArray(s.links)) out.links = s.links.filter((l) => l && typeof l === 'object').slice(0, 24).map((l) => ({ name: str(l.name, 24), url: str(l.url, 300), color: str(l.color, 9), glyph: str(l.glyph, 4) }));
   if (s.focus && typeof s.focus === 'object') {
     const f = s.focus;
@@ -35,7 +35,7 @@ function clean(s, currentSettings) {
   if (s.settings && typeof s.settings === 'object') {
     const t = s.settings, n = t.nudges || {}, g = t.goals || {};
     out.settings = { ...currentSettings, name: str(t.name, 24).trim() || currentSettings.name, pinned: !!t.pinned, nudgesOn: !!t.nudgesOn,
-      nudges: { water: num(n.water, 5, 240, 30), walk: num(n.walk, 5, 240, 50), stretch: num(n.stretch, 5, 240, 75) },
+      nudges: { water: num(n.water, 5, 240, 25), walk: num(n.walk, 5, 240, 50), stretch: num(n.stretch, 5, 240, 20) },
       goals: { water: num(g.water, 1, 99, 8), walk: num(g.walk, 1, 99, 6), stretch: num(g.stretch, 1, 99, 4) },
       eyesOn: t.eyesOn !== false, digestAuto: t.digestAuto !== false, focusAlarm: t.focusAlarm !== false, eyesEvery: num(t.eyesEvery, 5, 120, 10), chromeProfile: str(t.chromeProfile, 40).replace(/[^A-Za-z0-9 _-]/g, ''), mode: ['tab', 'side', 'big'].includes(t.mode) ? t.mode : 'tab' };
   }

@@ -61,7 +61,7 @@ const DEFAULTS = () => ({
     name: 'Srinivas',
     pinned: false,
     nudgesOn: true,
-    nudges: { water: 30, walk: 50, stretch: 75 },
+    nudges: { water: 25, walk: 50, stretch: 20 },
     goals: { water: 8, walk: 6, stretch: 4 },
     eyesOn: true, eyesEvery: 10, chromeProfile: '', mode: 'tab',
     autoLaunchInit: false,

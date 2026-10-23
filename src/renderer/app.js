@@ -123,10 +123,18 @@ function taskRow(t, list, opts = {}) {
   row.append(el('button', { class: 'chk', 'aria-label': 'Toggle done', onclick: () => { t.done = !t.done; if (t.done && focused) S.focus.taskId = null; save(); render(); } }, '✓'),
     el('div', { class: 't', title: 'Double-click to edit', ondblclick: (ev) => editText(ev.currentTarget, t) }, t.text),
     el('div', { class: 'a' },
+      opts.when && !t.done ? [['▲', 'Move up', -1], ['▼', 'Move down', 1]].map(([g, ti, d]) => el('button', { title: ti, onclick: () => moveTask(t, d) }, g)) : '',
+      opts.when && !t.done ? WHEN.filter(([k]) => k !== (t.when || 'week')).map(([k, l]) => el('button', { title: 'Move to ' + l, style: 'width:auto;padding:0 6px;font-size:11px', onclick: () => { t.when = k; save(); render(); } }, l)) : '',
       opts.toSession && !t.done ? el('button', { title: 'Add to focus session', onclick: () => { if (!S.session.some((x) => x.text === t.text && !x.done)) S.session.push({ id: uid(), text: t.text, done: false }); save(); render(); } }, '＋') : '',
       opts.focusable && !t.done ? el('button', { title: 'Focus on this', onclick: () => { S.focus.taskId = focused ? null : t.id; if (!focused) S.focus.goal = t.text; save(); render(); } }, focused ? '◉' : '◎') : '',
       el('button', { title: 'Delete', onclick: () => { const i = list.indexOf(t); if (i >= 0) list.splice(i, 1); if (focused) S.focus.taskId = null; save(); render(); } }, '✕')));
   return row;
+}
+const WHEN = [['today', 'Today'], ['week', 'This week'], ['later', 'Later']];
+function moveTask(t, d) {   // swap with the nearest open task in the same section
+  const w = t.when || 'week', i = S.tasks.indexOf(t);
+  for (let j = i + d; j >= 0 && j < S.tasks.length; j += d) { const o = S.tasks[j]; if (!o.done && (o.when || 'week') === w) { S.tasks[i] = o; S.tasks[j] = t; break; } }
+  save(); render();
 }
 function editText(node, t) {
   const inp = el('input', { class: 'field', maxlength: '140', 'aria-label': 'Edit' }); inp.value = t.text;
@@ -140,6 +148,30 @@ function addForm(placeholder, fn) {
   const inp = el('input', { class: 'field', placeholder, maxlength: '140', autocomplete: 'off', 'aria-label': placeholder });
   const f = el('form', { class: 'add', onsubmit: (e) => { e.preventDefault(); const v = inp.value.trim(); if (v) { fn(v); inp.value = ''; } } }, inp, el('button', { class: 'btn pri', type: 'submit' }, 'Add'));
   return f;
+}
+const cutT = (t, n) => (t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t);
+// Every open item from GOALS.md, plus the next step of active projects the goals don't mention, plus open Triage backlog.
+// Finished / parked / wound-down / stale projects are left out.
+const FINISHED = /^(done|wrapped|parked|superseded|being wound down|live.*nothing|retired)/i, NO_NEXT = /^(none|nothing|n\/a|leave|revisit if)/i;
+function collated() {
+  const out = { goals: [], projects: [], backlog: [] };
+  if (!G || !G.ok || !PR || !TR) return out;
+  const seen = new Set(), covered = new Set();
+  G.items.filter((i) => !i.done).forEach((it) => {
+    const key = norm(it.text).slice(0, 60); if (seen.has(key)) return; seen.add(key);   // same line listed under Today and This month
+    const p = projFor(it.project); if (p) covered.add(p.name);
+    out.goals.push({ ...it, proj: it.project });
+  });
+  out.goals.sort((a, b) => (!a.proj - !b.proj) || a.proj.localeCompare(b.proj) || a.line - b.line);   // named projects first, loose items last
+  const cutoff = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+  PR.forEach((p) => {
+    if (covered.has(p.name) || out.goals.some((g) => norm(g.text).includes(norm(p.name.replace(/^↳\s*/, ''))) && norm(p.name).length > 5)) return;
+    if (FINISHED.test(p.stage) || /superseded by|stale/i.test(p.stage) || NO_NEXT.test(p.next) || /wrapped up|nothing further/i.test(p.next)) return;
+    if (!/^\d{4}-\d{2}-\d{2}/.test(p.last) || p.last.slice(0, 10) < cutoff) return;    // untouched for a month: not a live task
+    out.projects.push(p);
+  });
+  out.backlog = TR.backlog.filter((x) => !isTicked('backlog/' + x.id, x.done));
+  return out;
 }
 const projFor = (name) => { if (!PR || !name) return null; const n = norm(name); return PR.find((p) => norm(p.name) === n) || PR.find((p) => n.length >= 4 && (norm(p.name).startsWith(n) || n.startsWith(norm(p.name)))) || null; };
 function projectDetail(p) {
@@ -229,10 +261,39 @@ function ttPlan(b) {
 const VIEWS = {
   tasks() {
     const open_ = S.tasks.filter((t) => !t.done);
-    const b = $('wBody'); b.append(addForm('Add a task', (v) => { S.tasks.unshift({ id: uid(), text: v, done: false }); save(); render(); }));
+    const b = $('wBody'); b.append(addForm('Add a task (goes into Today)', (v) => { S.tasks.unshift({ id: uid(), text: v, done: false, when: 'today' }); save(); render(); }));
     if (!S.tasks.length) b.append(el('div', { class: 'empty' }, 'Nothing yet. Add your first task above.'));
-    [...open_, ...S.tasks.filter((t) => t.done)].forEach((t) => b.append(taskRow(t, S.tasks, { focusable: true, toSession: true })));
-    return `${open_.length} to do`;
+    WHEN.forEach(([k, l]) => {
+      const list = open_.filter((t) => (t.when || 'week') === k);
+      b.append(el('div', { class: 'gh' }, `${l} · ${list.length}`));
+      if (!list.length) b.append(el('div', { class: 'empty' }, 'Nothing here.'));
+      list.forEach((t) => b.append(taskRow(t, S.tasks, { focusable: true, toSession: true, when: true })));
+    });
+    const doneT = S.tasks.filter((t) => t.done);
+    if (doneT.length) { b.append(el('div', { class: 'gh' }, `Done · ${doneT.length}`)); doneT.forEach((t) => b.append(taskRow(t, S.tasks))); }
+    const C = collated();
+    const nC = C.goals.length + C.projects.length + C.backlog.length;
+    b.append(el('div', { class: 'gh' }, `Collated from your goals, projects and board · ${nC} open`));
+    if (!G || !PR || !TR) b.append(el('div', { class: 'empty' }, 'Reading GOALS.md, your projects and the Triage Board…'));
+    else if (!nC) b.append(el('div', { class: 'empty' }, 'Nothing open in your goals or projects.'));
+    const addMine = (text) => el('button', { title: 'Copy to my tasks', onclick: () => { if (!S.tasks.some((x) => x.text === text && !x.done)) S.tasks.unshift({ id: uid(), text, done: false, when: 'week' }); save(); render(); } }, '＋');
+    let proj = null;
+    C.goals.forEach((it) => {
+      if (it.proj !== proj) { proj = it.proj; b.append(el('div', { class: 'sub', style: 'margin:8px 0 2px' }, proj || 'General')); }
+      b.append(el('div', { class: 'row' },
+        el('button', { class: 'chk', 'aria-label': 'Toggle done', onclick: async () => { G = await window.hub.toggleGoal(it.line, it.raw, true); render(); } }, '✓'),
+        el('div', { class: 't' }, it.text), el('div', { class: 'a' }, addMine(it.text))));
+    });
+    if (C.backlog.length) {
+      b.append(el('div', { class: 'sub', style: 'margin:8px 0 2px' }, 'Triage Board backlog'));
+      C.backlog.forEach((x) => { const k = 'backlog/' + x.id; b.append(el('div', { class: 'row' }, el('button', { class: 'chk', 'aria-label': 'Toggle done', onclick: () => { S.triageDone[k] = true; save(); render(); } }, '✓'), el('div', { class: 't' }, x.text), el('div', { class: 'a' }, addMine(x.text)))); });
+    }
+    if (C.projects.length) {
+      b.append(el('div', { class: 'sub', style: 'margin:8px 0 2px' }, 'Next step on other active projects (not in your goals list)'));
+      C.projects.forEach((p) => b.append(el('div', { class: 'row' }, el('div', { style: 'width:24px;flex:none' }),
+        el('div', { class: 't' }, el('b', {}, p.name + ': '), cutT(p.next, 220)), el('div', { class: 'a' }, addMine(`${p.name}: ${cutT(p.next, 100)}`), el('button', { title: 'Open in Projects', onclick: () => go('projects') }, '→')))));
+    }
+    return `${open_.length} to do · ${nC} collated`;
   },
   focus() {
     const b = $('wBody'), f = S.focus;
@@ -242,6 +303,11 @@ const VIEWS = {
     const goal = el('input', { class: 'field', placeholder: 'Goal for this block, e.g. finish the Biology pack', maxlength: '120', 'aria-label': 'Goal' }); goal.value = f.goal;
     goal.oninput = (e) => { f.goal = e.target.value; save(); };
     const seg = el('div', { class: 'seg' }, [15, 25, 45, 60, 90].map((m) => el('button', { class: 'chip' + (f.minutes === m ? ' on' : ''), onclick: () => { f.minutes = m; f.pausedLeft = null; if (f.endsAt) f.endsAt = Date.now() + m * 60000; save(); render(); } }, m + ' min')));
+    const setMin = (m) => { f.minutes = m; f.pausedLeft = null; if (f.endsAt) f.endsAt = Date.now() + m * 60000; save(); render(); };
+    const mins = el('input', { class: 'field', type: 'number', min: '1', max: '240', step: '1', value: String(f.minutes), style: 'width:80px', 'aria-label': 'Minutes' });
+    mins.onchange = () => { const m = Math.round(Number(mins.value)); if (m >= 1 && m <= 240) setMin(m); else mins.value = String(f.minutes); };
+    mins.onkeydown = (e) => { if (e.key === 'Enter') mins.onchange(); };
+    seg.append(mins, el('span', { class: 'sub' }, 'min (1-240)'));
     b.append(el('div', { class: 'card' }, el('div', { class: 'timeRow' }, ring, el('div', { style: 'flex:1;display:flex;flex-direction:column;gap:10px' }, goal, seg,
       el('div', { class: 'add' }, btn(f.endsAt ? 'Pause' : f.pausedLeft != null ? 'Resume' : 'Start', startPause, 'pri'), btn('Reset', resetTimer)), el('div', { class: 'sub', id: 'nextNudge' })))));
     const sess = S.session, doneN = sess.filter((t) => t.done).length;

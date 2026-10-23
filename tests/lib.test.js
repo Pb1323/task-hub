@@ -46,7 +46,7 @@ test('clean() clamps focus and reminder numbers', () => {
   assert.strictEqual(out.focus.minutes, 240);
   assert.strictEqual(out.focus.endsAt, null);
   assert.strictEqual(out.focus.pausedLeft, 0);
-  assert.deepStrictEqual(out.settings.nudges, { water: 5, walk: 240, stretch: 75 });
+  assert.deepStrictEqual(out.settings.nudges, { water: 5, walk: 240, stretch: 20 });
   assert.strictEqual(out.settings.goals.water, 1);
   assert.strictEqual(out.settings.pinned, true);
   assert.strictEqual(out.settings.nudgesOn, false);
