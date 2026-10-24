@@ -56,3 +56,8 @@ Claude buttons open Windows Terminal (`wt.exe`) running `claude` (in a project f
 
 ## Focus-end alarm (2026-10-17)
 - When a focus block ends, main shows the banner at the top with a chime pattern (WebAudio in the banner window, utoplayPolicy: no-user-gesture-required) that repeats for 30 s or until **Stop**; **Repeat N min** starts another block of the same length. Setting: Settings > Focus-end alarm (settings.focusAlarm). Test: TASKHUB_TEST_FOCUS=1 shows it 2.5 s after launch; TASKHUB_SHOT_WIN=banner evaluates/captures inside the banner window.
+
+## Keep-alive watchdog (2026-10-24)
+- Bug: the app kept running (process alive since 22 Oct) but nothing was on screen, so it looked like it had closed. X only collapses to the edge pill (`setMode('tab')`); it never quits. Likely causes: Windows drops the topmost level after sleep/lock/full-screen apps, or a window's renderer crashed.
+- Fix: `keepAlive()` in `src/main.js` runs every 10 s (skipped while hidden via Ctrl+Alt+H/tray, and in tests): rebuilds missing windows, re-shows hidden ones, re-fits and re-asserts `screen-saver` topmost. `render-process-gone` closes the dead window so the watchdog rebuilds it.
+- Unverified live: recovery after real sleep/lock/full-screen (the 14 tests do not cover it). Screenshots via CopyFromScreen can miss the transparent topmost windows; use `TASKHUB_SHOT` STATE output instead. Open: starts as the pill at login, not the sidebar (owner not yet asked to change).

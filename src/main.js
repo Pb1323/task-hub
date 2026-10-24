@@ -173,7 +173,30 @@ function ensure(role) {
   w.setBounds(boundsFor(role));
   w.__ready = new Promise((res) => w.once('ready-to-show', () => res(w)));
   w.on('closed', () => { if (wins[role] === w) delete wins[role]; });
+  w.webContents.on('render-process-gone', () => { if (alive(w)) w.close(); }); // the watchdog below rebuilds it
   return w.__ready;
+}
+// The hub should always be on screen unless the user hides it (Ctrl+Alt+H / tray) or ends the process.
+// Every 10 s: rebuild a crashed window, re-show one that went hidden, and re-assert the topmost level
+// (Windows drops it after sleep, lock screen and some full-screen apps).
+let watching = false;
+async function keepAlive() {
+  if (watching || allHidden || TEST) return;
+  watching = true;
+  try {
+    const mode = uiMode;
+    await ensure('tab');
+    if (mode !== 'tab') await ensure('side');
+    const want = { tab: mode === 'tab', side: mode !== 'tab', big: mode === 'big' };
+    ROLES.forEach((r) => {
+      const w = wins[r];
+      if (!want[r] || !alive(w)) return;
+      if (!w.isVisible()) showRole(r); else fit(w, r);
+      w.setAlwaysOnTop(true, 'screen-saver');
+      if (r === 'tab') w.moveTop();
+    });
+  } catch (e) { console.error('keepAlive failed', e.message); }
+  watching = false;
 }
 function scheduleReap(role) {
   if (role === 'tab') return;
@@ -678,6 +701,7 @@ app.whenReady().then(() => {
   if (process.env.TASKHUB_TEST_FOCUS) setTimeout(focusDoneBanner, 2500);
   if (process.env.TASKHUB_TEST_BANNER) setTimeout(() => { pending = 'water'; showBanner({ kind: 'water', ...KINDS.water, actions: true }); }, 3000);
   if (process.env.TASKHUB_DIGEST_NOW) setTimeout(() => runDigestUpdate(true), 5000); // run the daily digest update right away (used once to check it end to end)
+  setInterval(keepAlive, 10000);
   globalShortcut.register('Control+Alt+H', toggleVisible);
   globalShortcut.register('Control+Alt+M', nextDisplay);
   powerMonitor.on('resume', () => { initNudges(); pending = null; setTimeout(placeAll, 1500); }); // no backlog of reminders after sleep; re-fit once screens settle
