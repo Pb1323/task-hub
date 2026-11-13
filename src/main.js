@@ -63,7 +63,7 @@ const DEFAULTS = () => ({
     nudgesOn: true,
     nudges: { water: 25, walk: 50, stretch: 20 },
     goals: { water: 8, walk: 6, stretch: 4 },
-    eyesOn: true, eyesEvery: 10, chromeProfile: '', mode: 'tab',
+    eyesOn: true, eyesEvery: 10, reviseOn: true, reviseEvery: 5, chromeProfile: '', mode: 'tab',
     autoLaunchInit: false,
   },
 });
@@ -357,7 +357,9 @@ let pending = null;
 const MIN = process.env.TASKHUB_FAST ? 1000 : 60000;
 function resetNext(kind) { next[kind] = Date.now() + state.settings.nudges[kind] * MIN; }
 function resetEyes() { nextEyes = Date.now() + state.settings.eyesEvery * MIN; }
-function initNudges() { Object.keys(KINDS).forEach(resetNext); resetEyes(); }
+let nextRevise = 0;
+function resetRevise() { nextRevise = Date.now() + (state.settings.reviseEvery || 5) * MIN; }
+function initNudges() { Object.keys(KINDS).forEach(resetNext); resetEyes(); resetRevise(); }
 const stamp = (kind, field) => { const r = state.remind[kind] || (state.remind[kind] = { last: 0, done: 0 }); r[field] = Date.now(); saveSoon(); };
 function answer(kind, action, closeBanner = true) {
   if (pending !== kind) return;
@@ -377,8 +379,13 @@ setInterval(() => {
   const rolled = rollHabits(state.habits);
   if (rolled !== state.habits) { state.habits = rolled; saveSoon(); push(); }
   const idle = powerMonitor.getSystemIdleTime() > IDLE_PAUSE_S;
-  if (idle) { Object.keys(next).forEach((k) => { next[k] += 5000; }); nextEyes += 5000; return; } // don't count idle/locked time
+  if (idle) { Object.keys(next).forEach((k) => { next[k] += 5000; }); nextEyes += 5000; nextRevise += 5000; return; } // don't count idle/locked time
   const bannerOpen = bannerWin && !bannerWin.isDestroyed();
+  if (state.settings.reviseOn !== false && !pending && !bannerOpen && Date.now() >= nextRevise) {
+    resetRevise();
+    showBanner({ icon: 'clock', title: 'Revise', body: 'Back to it. What is the next block?', actions: false, countdown: 8 }, 8000);
+    return;
+  }
   if (state.settings.eyesOn && !pending && !bannerOpen && Date.now() >= nextEyes) {
     resetEyes(); stamp('eyes', 'last'); stamp('eyes', 'done');
     showBanner({ icon: 'eyes', title: 'Rest your eyes', body: 'Look at something 20 feet away.', actions: false, countdown: 10 }, 10000);
@@ -660,9 +667,9 @@ async function newsRefresh() {
 ipcMain.handle('state:get', () => view());
 ipcMain.on('state:set', (_e, s) => {
   if (!s || typeof s !== 'object') return;
-  const prev = JSON.stringify([state.settings.nudges, state.settings.eyesEvery]);
+  const prev = JSON.stringify([state.settings.nudges, state.settings.eyesEvery, state.settings.reviseEvery]);
   state = { ...state, ...clean(s, state.settings) };
-  if (JSON.stringify([state.settings.nudges, state.settings.eyesEvery]) !== prev) initNudges();
+  if (JSON.stringify([state.settings.nudges, state.settings.eyesEvery, state.settings.reviseEvery]) !== prev) initNudges();
   saveSoon();
   push(_e.sender); // keep the other windows in step
 });

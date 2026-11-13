@@ -1,19 +1,16 @@
 {
- "title": "GCSE mocks: 8-week daily revision plan",
- "note": "Specification-led, daily retrieval, exam questions, heavier weekends. The mock date is not confirmed: treat Week 8 as the final week before mocks and shift the start if needed. If your school has not taught a section, label it NOT TAUGHT and ask whether the mock assesses it; do not silently skip it. For the OCR Literature modern text, 19th-century novel and poetry cluster use the exact texts your school teaches.",
+ "title": "GCSE mocks: 3-week sprint (12 Nov to 2 Dec 2026)",
+ "note": "Mocks assumed to start about Thu 3 Dec 2026 (not confirmed: shift the Monday start if needed). Weeks start Monday 9 Nov; the first 3 days are empty. Weekdays 5h, weekends 8h. Romeo and Juliet is not in the mocks, so it is excluded. German vocab = 750 new words by 26 Nov from the 1,790 master. Poetry = 15 poems x 3 quotes (Airtable). Geography = 19 case studies. Required practicals = 28 (Bio/Chem/Phys). Weak topics: Bio 4.6-4.7, Chem 4.9-4.10, Phys 4.7-4.8 (assumed). A day counts as done when the retrieval at the end hits about 80% closed-book.",
  "targets": [
-  "German (6 days/week): 30 new official-list items a day until the list is covered; review 40-60 older items. Test German to English and English to German. On a hard day do 15 new + the full review rather than skip.",
-  "English Literature (4-5 days/week): 2-3 quotations a day, each with speaker, situation, method, interpretation and theme/context. About 25 reliable Romeo and Juliet quotations by the end of Week 4, then maintain. Same daily target for the other texts once confirmed.",
-  "Science: 10-15 facts/key terms per session and 5 equations where relevant. Every set needs at least one application or practical/data question.",
-  "Geography: 8-12 facts/process steps per session; 3-5 precise case-study facts per case-study session (location, causes, effects, responses, evidence).",
-  "Economics: 8-12 definitions/relationships per session; two causal chains and one balanced judgement each week.",
-  "Maths: 15-25 mixed questions a week and an error log. D&T: 8-12 technical terms per theory session; every NEA session must produce a tangible artefact/evidence item.",
-  "Time guide: school nights 60-100 minutes, Saturday 2.5-3 hours, Sunday 2-2.5 hours. Do not trade sleep for extra revision. If something clashes keep German retrieval (15-20 min), one English block and the week's priority topic: move, do not erase."
+  "Daily: 30 min German vocab before school (50 new words until 26 Nov, then 100 review). 30 min closed-book retrieval at the end of each day.",
+  "Counts to hit: 45 poem quotes by day 5; 12 J&H anchors by day 7; 19 geography cases by day 14; 750 German words by day 15; 28 required practicals by day 11.",
+  "Checkpoints: day 7 (18 Nov), day 15 (26 Nov), day 21 (2 Dec).",
+  "No all-nighters. Sleep 8 hours. Phone away during blocks."
  ],
  "method": [
-  "Mark every question with the official mark scheme, only after the attempt. For every lost mark write the missing fact or reasoning in an error log, then redo the question closed-book after 2-3 days and again after 7 days.",
-  "Log: date | board/spec point | paper series/year | component | question number | marks available | marks earned | lost-mark reason | retest date.",
-  "Use an older paper for practice and save a recent full paper for timed rehearsal. For a 6-marker use enough distinct, linked points; for evaluation include a justified conclusion."
+  "Close the notes and produce the answer. Mark every attempt with the official mark scheme; log every lost mark (paper | question | marks lost | why).",
+  "Retest missed items after 2 days and again after 7 days.",
+  "From day 16: timed sections only, marked strictly; the error log decides the repair blocks on days 19-20."
  ],
  "links": [
   [
@@ -64,162 +61,154 @@
  "weeks": [
   {
    "n": 1,
-   "title": "Diagnose, establish retrieval routines, begin core content",
+   "title": "Load it in (12-18 Nov)",
    "days": [
     {
      "name": "Monday",
-     "label": "Monday",
-     "blocks": [
-      {
-       "subject": "English Literature",
-       "mins": 45,
-       "text": "OCR J352 Shakespeare: Romeo and Juliet plot map; Act/scene turning points; Romeo, Juliet, Nurse, Mercutio, Tybalt, Friar Lawrence, Capulets/Montagues. Memorise 3 quotations. Practice: one extract-based response plan + one 8–10 mark analytical paragraph; assess methods, not plot retelling."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "AQA 8662 §3.1 Theme 1 People and lifestyle: identity, relationships and personal world. 30 vocabulary items; 10-minute closed-book two-way test."
-      },
-      {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.1 Cell biology: eukaryotic/prokaryotic cells, organelles, specialised cells. Draw and label cell diagrams from memory; 8 questions incl. one compare question."
-      }
-     ]
+     "label": "Monday (before the sprint)",
+     "blocks": []
     },
     {
      "name": "Tuesday",
-     "label": "Tuesday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.1.1.1 Natural hazards: hazard definition, types, hazard risk factors; distinguish hazard, risk, vulnerability and exposure. Create 10-term retrieval sheet. Practice 3 short questions and one 4-mark explanation."
-      },
-      {
-       "subject": "D&T NEA",
-       "mins": 50,
-       "text": "AQA 8552 NEA: audit project status against assessment objectives; list missing evidence, next prototype/test, and deadlines. Produce one tangible item: annotated photo, test plan, specification revision or iteration record."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Theme 1 vocabulary + present-tense verb recall. 30 new words, 40 old words; write 6 original sentences."
-      }
-     ]
+     "label": "Tuesday (before the sprint)",
+     "blocks": []
     },
     {
      "name": "Wednesday",
-     "label": "Wednesday",
-     "blocks": [
-      {
-       "subject": "English Language",
-       "mins": 45,
-       "text": "OCR J351 Paper 1: non-fiction reading—retrieve information, infer, select concise evidence. Practise one information-retrieval question and one inference question from an OCR Paper 1; then mark."
-      },
-      {
-       "subject": "Chemistry",
-       "mins": 35,
-       "text": "AQA 8462 §4.1 Atomic structure and periodic table: proton/neutron/electron, relative charge/mass, atomic number, mass number, isotopes, electronic structure, periodic table development. 8 questions incl. isotope/electron calculations."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Theme 1 vocabulary + pronunciation/dictation: learn 30 words, dictate 8 short phrases, correct spelling."
-      }
-     ]
+     "label": "Wednesday (before the sprint)",
+     "blocks": []
     },
     {
      "name": "Thursday",
-     "label": "Thursday",
+     "label": "Thu (day 1, half day)",
      "blocks": [
       {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.1.1.2 Tectonic hazards: structure of Earth, plate boundaries, causes of earthquakes/volcanoes, primary/secondary effects, immediate/long-term responses. Build one tectonic hazard case-study sheet; 6 exam questions."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Poetry (Conflict cluster) poems 1-3: Papa-T, Envy, Boat Stealing. 3 quotes each + mnemonic (Airtable OCR GCSE Poetry base). Done = 9 quotes recalled."
       },
       {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.1 Introduction to economics: scarcity, choice, opportunity cost, factors of production, specialisation/division of labour, economic agents and resource allocation. Learn 10 definitions; answer 5 short questions + one 4-mark chain."
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Hazards theory: tectonic, weather, climate change. Flashcards (~100 cards) + one 6-mark from memory."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 1 retrieval: 30 new items; 10-minute vocab test; write a 50–70 word response about yourself/relationships."
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 50). Test yesterday's 50 first."
       }
      ]
     },
     {
      "name": "Friday",
-     "label": "Friday",
+     "label": "Fri (day 2)",
      "blocks": [
       {
-       "subject": "Maths",
-       "mins": 35,
-       "text": "Edexcel 1MA1 Higher: number—fractions, percentages, ratio, standard form, indices, bounds/estimation as relevant. 15 mixed questions, at least 4 multi-step; log errors."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 100). Test yesterday's 50 first."
       },
       {
-       "subject": "Physics",
-       "mins": 35,
-       "text": "AQA 8463 §4.1 Energy: stores, pathways/transfers, conservation, efficiency, power, energy resources. Recall equations and units; 8 questions incl. efficiency calculation and Sankey diagram."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Poems 4-6: Sennacherib, Slant of Light, Songs for the People. 3 quotes each + mnemonic. Done = 18 quotes."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 1 cumulative review: 30 new items; 20 old items; 5 translated sentences using two tenses."
+       "mins": 90,
+       "text": "Grammar: word order, subordinate clauses, two-verb rule (3 modules, do the 10 drills each)."
+      },
+      {
+       "subject": "Biology",
+       "mins": 60,
+       "text": "Required practicals x4 (Bio): method, variables, risks, results table, conclusion, from memory."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Saturday",
-     "label": "Saturday — longer block (2.5–3h)",
+     "label": "Sat (day 3)",
      "blocks": [
       {
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 150). Test yesterday's 50 first."
+      },
+      {
        "subject": "English Literature",
-       "mins": 60,
-       "text": "Romeo and Juliet: themes—love, conflict, fate, family, youth, authority; track how each changes across the play. Learn 4 quotations. Practice one full extract-based response or a timed plan plus 2 analytical paragraphs. Use OCR J352 mark scheme."
+       "mins": 90,
+       "text": "Poems 7-9: We Lived Happily, Vergissmeinnicht, What Were They Like. Done = 27 quotes."
       },
       {
        "subject": "Geography",
-       "mins": 50,
-       "text": "AQA 8035 §3.1.1.3 Weather hazards and §3.1.1.4 Climate change: tropical storms, formation, impacts, responses, evidence/causes/effects of climate change. 8 questions incl. one 6-mark answer; add case-study figures."
+       "mins": 90,
+       "text": "Cases: London Olympic Park, London housing, Lagos. 5 precise facts each + the explain-the-link."
+      },
+      {
+       "subject": "Economics",
+       "mins": 90,
+       "text": "Scarcity, choice, opportunity cost; demand and supply + 4 diagrams drawn from memory. 10 definitions."
       },
       {
        "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.1 microscopy, magnification and cell transport: diffusion, osmosis, active transport. Practice magnification calculations and osmosis practical question; 10 questions."
+       "mins": 90,
+       "text": "Bio 4.6 Inheritance, variation and evolution (weak): Punnett squares, meiosis, natural selection, selective breeding. 10 questions."
       },
       {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 new items + weekly cumulative test of 100 items; record accuracy."
+       "subject": "English Language",
+       "mins": 90,
+       "text": "Diagnostic: one OCR J351 Paper 1 timed. Mark it; note the weakest question type."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Sunday",
-     "label": "Sunday — longer block (2–2.5h)",
+     "label": "Sun (day 4)",
      "blocks": [
       {
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 200). Test yesterday's 50 first."
+      },
+      {
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Poems 10-12: Lament, Colonization in Reverse, Flag. Done = 36 quotes."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Cases: Epping Forest, Amazon (roads/access, deforestation). 5 facts each."
+      },
+      {
+       "subject": "German",
+       "mins": 90,
+       "text": "Grammar: perfect/future/simple past, modals (3 modules + drills)."
+      },
+      {
        "subject": "Chemistry",
-       "mins": 40,
-       "text": "AQA 8462 §4.2 Bonding, structure and properties: ionic, covalent, metallic bonding; dot-and-cross diagrams; giant ionic/lattice, simple molecular, giant covalent, metals; link structure to properties. 10 questions incl. 6-mark explanation."
+       "mins": 90,
+       "text": "Required practicals x4 (Chem): method, variables, risks, results, conclusion, from memory."
       },
       {
        "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.1 retrieval test: definitions, opportunity cost and specialisation. Answer one data-based question and one developed chain; add two chains and a judgement to notes."
+       "mins": 90,
+       "text": "Markets and money: functions of money, interest rates, competition. 8 definitions + one 6-mark."
       },
       {
-       "subject": "Maths",
+       "subject": "Retrieval",
        "mins": 30,
-       "text": "15 mixed Higher number/algebra questions timed; mark and redo errors."
-      },
-      {
-       "subject": "Weekly review",
-       "mins": 20,
-       "text": "Test all German words from the week, 10 science facts, 8 Geography facts and all English quotes. Schedule failed items for +2 and +7 days."
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     }
@@ -227,162 +216,242 @@
   },
   {
    "n": 2,
-   "title": "Bonding, markets, ecosystems, non-fiction analysis",
+   "title": "Retrieve and apply (19-25 Nov)",
    "days": [
     {
      "name": "Monday",
-     "label": "Monday",
+     "label": "Mon (day 5)",
      "blocks": [
       {
-       "subject": "English Literature",
-       "mins": 45,
-       "text": "Romeo and Juliet: character comparison—Juliet vs Romeo; Nurse vs Friar; Tybalt vs Benvolio. Learn 3 quotations. Practice one thesis + two analytical paragraphs with embedded context."
-      },
-      {
        "subject": "German",
-       "mins": 20,
-       "text": "AQA 8662 §3.1 Theme 2 Popular culture: free-time activities and media. 30 new words; review 40–60; write 6 sentences using opinions/reasons."
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 250). Test yesterday's 50 first."
       },
       {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.2 Organisation: digestive system, enzymes, active sites, factors affecting enzymes. 10 questions including enzyme practical variables/results."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Poems 13-15: Thirteen, Honour Killing, Partition. Done = all 45 quotes learned once."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Living world + landscapes theory: rainforest, hot desert, the 2 UK landscapes you were taught (name them). ~100 flashcards."
+      },
+      {
+       "subject": "Chemistry",
+       "mins": 60,
+       "text": "Chem 4.9 Atmosphere (weak): evolution, greenhouse gases, climate, pollutants. 8 questions."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Tuesday",
-     "label": "Tuesday",
+     "label": "Tue (day 6)",
      "blocks": [
       {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.1.2.1 Ecosystems: components, food chains/webs, nutrient cycle, interdependence, small-scale UK ecosystem. Draw cycles/food webs; 6 questions."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 300). Test yesterday's 50 first."
       },
       {
-       "subject": "D&T NEA",
-       "mins": 50,
-       "text": "Create/finish one iteration: define success criteria, test against specification, record results with photos, identify failure and next change. Ensure evidence shows analysis, not just a finished product."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Jekyll & Hyde anchor quotes 1-6 (Airtable J&H base): quote, AO1 point, 1 language + 1 structure point, 1 context point, mnemonic."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Cases: Alaska, India (TNC), The Gambia (tourism). 5 facts each."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 2 vocabulary: 30 new items; past/present/future sentence transformations."
+       "mins": 60,
+       "text": "Grammar: cases, prepositions, adjective endings (3 modules + drills)."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Wednesday",
-     "label": "Wednesday",
+     "label": "Wed (day 7) - CHECKPOINT 1",
      "blocks": [
       {
-       "subject": "English Language",
-       "mins": 45,
-       "text": "OCR J351 Paper 1: language and structure analysis of non-fiction. Annotate 8–10 evidence choices; write one developed analysis response. Include word/phrase, method, inference, effect and writer's purpose."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 350). Test yesterday's 50 first."
+      },
+      {
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Jekyll & Hyde anchor quotes 7-12. Checkpoint 1: 45 poem quotes, 12 anchors, 350 words."
+      },
+      {
+       "subject": "Economics",
+       "mins": 90,
+       "text": "Government objectives and policy: growth, inflation, unemployment, fiscal/monetary/supply-side, trade-offs. 10 definitions + one 6-mark."
       },
       {
        "subject": "Chemistry",
-       "mins": 35,
-       "text": "AQA 8462 §4.2 bonding: properties of ionic/covalent/metallic structures; polymers, graphite, graphene, diamond and fullerenes where required. 10 questions, including conductivity and melting-point explanations."
+       "mins": 60,
+       "text": "Chem 4.10 Using resources (weak) + practicals x4 (Chem/Phys) from memory."
       },
       {
-       "subject": "German",
-       "mins": 20,
-       "text": "Theme 2 vocabulary; 8-item dictation; correct umlauts, word order and spelling."
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Thursday",
-     "label": "Thursday",
+     "label": "Thu (day 8)",
      "blocks": [
       {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.1.2.2 Tropical rainforests: climate, adaptations, causes/effects of deforestation and sustainable management. Learn 5 precise case-study facts; 6 questions including 6-mark evaluation."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.2 Role of markets and money: demand, supply, determinants, equilibrium, shifts vs movements, price mechanism. Draw and label 4 diagrams from memory; 5 exam questions."
-      },
-      {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 2 vocab + 60–80 word writing task with opinion, reason, time reference and connective."
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 400). Test yesterday's 50 first."
+      },
+      {
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Poetry: 3 comparison pairings (Airtable Comparisons table) + the unseen-poem method. Write 3 comparative thesis sentences."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Cases: Dorset (Swanage/Old Harry), River Tees (High Force), Lyme Regis. 5 facts each."
+      },
+      {
+       "subject": "Physics",
+       "mins": 60,
+       "text": "Phys 4.7 Magnetism and electromagnetism (weak): fields, motor effect, generators, transformers. 8 questions."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Friday",
-     "label": "Friday",
+     "label": "Fri (day 9)",
      "blocks": [
       {
-       "subject": "Maths",
-       "mins": 35,
-       "text": "Edexcel 1MA1 algebra: expand/factorise, rearrange formulae, linear/quadratic equations, inequalities, sequences and graphs. 18 questions; include at least 3 Higher multi-step."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 450). Test yesterday's 50 first."
       },
       {
-       "subject": "Physics",
-       "mins": 35,
-       "text": "AQA 8463 §4.2 Electricity: current, charge, potential difference, resistance, circuit symbols, series/parallel. 8 questions incl. circuit calculations and graph interpretation."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Jekyll & Hyde character quotes: Utterson, Lanyon, Enfield, Poole (about 12). Mnemonics + one analysis each."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 2 cumulative vocab test; 30 new words, 40 review; speak for 60 seconds about free time."
+       "mins": 90,
+       "text": "Higher grammar: conditionals/hypotheticals, relative clauses, seit + present, passive (4 modules + drills)."
+      },
+      {
+       "subject": "Economics",
+       "mins": 60,
+       "text": "International trade: imports/exports, exchange rates, globalisation, trade barriers. 10 definitions + 5 questions."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Saturday",
-     "label": "Saturday — longer block (2.5–3h)",
+     "label": "Sat (day 10)",
      "blocks": [
       {
-       "subject": "English Language",
-       "mins": 60,
-       "text": "OCR J351 Paper 1 non-fiction: complete a substantial timed reading section (use one real past paper). Mark every question; write one improved answer for the lowest-scoring item. Record exact paper/year/question."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 500). Test yesterday's 50 first."
+      },
+      {
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Poetry timed part (b) from a real past paper. Mark with the AO criteria."
       },
       {
        "subject": "Geography",
-       "mins": 50,
-       "text": "AQA 8035 §3.1.2.3 Hot deserts: climate, adaptations, opportunities/challenges, desertification and management. 8 questions; one 6/9-mark response depending on paper style."
+       "mins": 90,
+       "text": "Cases: Sunderland, rural growth vs decline, North Sea energy + Kenyan solar. 5 facts each."
       },
       {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.2 blood, heart, vessels, circulation and plant transport. Draw heart/circulation from memory; 10 questions."
+       "subject": "Physics",
+       "mins": 90,
+       "text": "Phys 4.8 Space (weak): solar system, star life cycle, red-shift, Big Bang. 8 questions + practicals x4 (Phys)."
+      },
+      {
+       "subject": "Economics",
+       "mins": 90,
+       "text": "Diagrams and data-response questions (2 sets). Mark with the OCR scheme."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "30 new items; review weekly 100-item test; redo all missed words."
+       "mins": 90,
+       "text": "Reading: one section from the mock Reading paper (Higher). Mark and log errors."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Sunday",
-     "label": "Sunday — longer block (2–2.5h)",
+     "label": "Sun (day 11)",
      "blocks": [
       {
-       "subject": "Chemistry",
-       "mins": 45,
-       "text": "AQA 8462 §4.3 Quantitative chemistry: conservation of mass, balancing equations, relative formula mass, masses from equations, concentration, percentage yield/atom economy where in taught Higher content. 10 questions incl. 4 calculations."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.2 markets: market equilibrium changes, competition, role of money/financial markets. One 6-mark response and one data interpretation; explain each diagram in words."
-      },
-      {
-       "subject": "Maths",
+       "subject": "German",
        "mins": 30,
-       "text": "20 mixed questions: algebra, ratio and number; mark, classify errors and redo."
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 550). Test yesterday's 50 first."
       },
       {
-       "subject": "Weekly review",
-       "mins": 20,
-       "text": "Recall 6 R&J quotes, 15 German words randomly, one Geography case study and science calculations."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Jekyll & Hyde: Jekyll and Hyde quotes (about 12) + the 8 themes with a quote trail each."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Hazards cases: Nepal vs Chile earthquakes, Typhoon Haiyan. 5 facts each + compare/contrast."
+      },
+      {
+       "subject": "German",
+       "mins": 90,
+       "text": "Listening: one section from the mock Listening paper (Higher) with transcript check."
+      },
+      {
+       "subject": "English Language",
+       "mins": 90,
+       "text": "OCR J351 Paper 2 timed (creative writing or analysis). Mark and rewrite the weakest answer."
+      },
+      {
+       "subject": "Biology",
+       "mins": 90,
+       "text": "Bio 4.7 Ecology (weak) + redo every Bio question missed so far."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     }
@@ -390,162 +459,242 @@
   },
   {
    "n": 3,
-   "title": "Coasts/rivers, chemical changes, language Paper 2",
+   "title": "Retrieve + timed papers begin (26 Nov-2 Dec)",
    "days": [
     {
      "name": "Monday",
-     "label": "Monday",
+     "label": "Mon (day 12)",
      "blocks": [
       {
-       "subject": "English Literature",
-       "mins": 45,
-       "text": "Romeo and Juliet: dramatic methods—soliloquy, aside, foreshadowing, contrast, imagery, dramatic irony, stage directions. Learn 3 quotes; write one extract analysis."
-      },
-      {
        "subject": "German",
-       "mins": 20,
-       "text": "AQA 8662 §3.1 Theme 3 Communication and the world around us: travel/tourism and local area. 30 new words; 6 sentences with past and future."
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 600). Test yesterday's 50 first."
       },
       {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.3 Infection and response: pathogens, transmission, defence systems, vaccination, antibiotics and resistance. 10 questions including data/antibiotic resistance."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Poetry timed part (a): one anthology poem vs an unseen. Mark it."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Urban, changing economic world and resources theory (~100 flashcards) + one 6-mark."
+      },
+      {
+       "subject": "Economics",
+       "mins": 60,
+       "text": "Timed data-response set. Tag errors: knowledge / application / analysis / evaluation."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Tuesday",
-     "label": "Tuesday",
+     "label": "Tue (day 13)",
      "blocks": [
       {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.1.3 Physical landscapes in the UK: UK relief, geology, weather/climate; then §3.1.3.2 Coasts—weathering, erosion, transport, deposition, landforms. Draw processes/landforms; 6 questions."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 650). Test yesterday's 50 first."
       },
       {
-       "subject": "D&T NEA",
-       "mins": 50,
-       "text": "Complete a targeted prototype/test session. Record measurable test criteria, results table, user feedback where available, and design changes justified by evidence."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Jekyll & Hyde timed extract essay from the practice questions. Mark against the OCR guide."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 3 travel/local area vocab; 30 new items; 8 translation sentences."
+       "mins": 90,
+       "text": "Writing: two 90-word tasks with the model-answer pattern, then self-mark against the grid."
+      },
+      {
+       "subject": "Chemistry",
+       "mins": 60,
+       "text": "Chem mixed paper section (Higher calculations + required practicals)."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Wednesday",
-     "label": "Wednesday",
+     "label": "Wed (day 14)",
      "blocks": [
       {
-       "subject": "English Language",
-       "mins": 45,
-       "text": "OCR J351 Paper 2: unseen literary prose—retrieve information, infer character/setting, analyse language. Complete one question from a real Paper 2 and one developed paragraph."
-      },
-      {
-       "subject": "Chemistry",
-       "mins": 35,
-       "text": "AQA 8462 §4.4 Chemical changes: reactivity series, displacement, extraction, oxidation/reduction, acids, bases, pH, neutralisation and salts. 10 questions including ionic equations where required."
-      },
-      {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 3 vocab; dictation 8 phrases and reading aloud 1 short passage; self-check pronunciation and endings."
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 700). Test yesterday's 50 first."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Cases: Boscastle flash flood, Beast from the East, UK storm. After this all 19 cases are done. Then closed-book recall of hazards cases."
+      },
+      {
+       "subject": "Economics",
+       "mins": 90,
+       "text": "6-mark answers with a justified judgement (3 of them). Self-mark."
+      },
+      {
+       "subject": "Physics",
+       "mins": 60,
+       "text": "Physics mixed Paper 1 section: equations, graphs, practical question."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Thursday",
-     "label": "Thursday",
+     "label": "Thu (day 15) - CHECKPOINT 2",
      "blocks": [
       {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.1.3.2 Coasts: longshore drift, cliffs/wave-cut platforms, beaches, spits, bars, coastal management hard/soft engineering. 8 questions including compare/evaluate management."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: 50 new words from the 1,790-word master (cumulative target 750). Test yesterday's 50 first."
       },
       {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.2 money and financial markets: functions of money, saving/borrowing, interest rates and financial institutions. 8 definitions + 5 exam questions; two cause-effect chains."
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Closed-book recall of all 45 poem quotes with mnemonics, then a (b) paragraph from memory. Checkpoint 2: 750 words, 45 quotes recalled."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 3: 30 new words; 60–80 word response about a journey/holiday using opinions, reasons and three time references."
+       "mins": 90,
+       "text": "Writing: one 150-word task + English-to-German translation. Self-mark."
+      },
+      {
+       "subject": "D&T",
+       "mins": 60,
+       "text": "Written theory: the hardest-33 pack. Mark and fix."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Friday",
-     "label": "Friday",
+     "label": "Fri (day 16)",
      "blocks": [
       {
-       "subject": "Maths",
-       "mins": 35,
-       "text": "Edexcel 1MA1 ratio/proportion: direct/inverse proportion, rates, compound measures, best buys, percentage change, repeated change. 18 questions incl. 4 Higher multi-step."
-      },
-      {
-       "subject": "Physics",
-       "mins": 35,
-       "text": "AQA 8463 §4.2 Electricity: resistance, I–V characteristics, LDR/thermistor, power, energy transfer, mains safety. 10 questions including equation rearrangement."
-      },
-      {
        "subject": "German",
-       "mins": 20,
-       "text": "Theme 3 vocab retrieval; 30 new items + 40 review; speak 60–90 seconds about travel."
+       "mins": 30,
+       "text": "Vocab: review 100 random words plus all the weak ones. No new words."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Paper 1 timed (hazards, living world, landscapes). Mark strictly."
+      },
+      {
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Jekyll & Hyde full timed essay. Mark."
+      },
+      {
+       "subject": "Maths",
+       "mins": 60,
+       "text": "Timed Edexcel Higher paper section. Error log + redo."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Saturday",
-     "label": "Saturday — longer block (2.5–3h)",
+     "label": "Sat (day 17)",
      "blocks": [
       {
-       "subject": "English Literature",
-       "mins": 60,
-       "text": "Romeo and Juliet timed response: choose a real OCR J352 Shakespeare question. Spend 5 minutes planning, write timed answer, then mark against the official mark scheme/assessment objectives. Learn 4 quotations and retest Week 1–3 quotes."
-      },
-      {
-       "subject": "Geography",
-       "mins": 50,
-       "text": "AQA 8035 §3.1.3.3 Rivers: drainage basin, erosion, transportation, deposition, long profile, landforms and flood management. Draw cross-sections/process diagrams; 8 questions."
-      },
-      {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.3 monoclonal antibodies/plant disease/defences as specified; required practical links. 10 questions incl. one 6-marker."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: review 100 random words plus all the weak ones. No new words."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "30 new items; 100-item cumulative test."
+       "mins": 90,
+       "text": "Reading: full Higher paper, timed. Mark."
+      },
+      {
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Poetry (a) + (b) timed together. Mark."
+      },
+      {
+       "subject": "Biology",
+       "mins": 90,
+       "text": "Bio timed paper section."
+      },
+      {
+       "subject": "Economics",
+       "mins": 90,
+       "text": "Timed paper section. Mark with the OCR scheme."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Paper 2 timed (urban, economic world, resources). Mark."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Sunday",
-     "label": "Sunday — longer block (2–2.5h)",
+     "label": "Sun (day 18)",
      "blocks": [
       {
-       "subject": "Chemistry",
-       "mins": 45,
-       "text": "AQA 8462 §4.4 electrolysis and chemical changes: molten/aqueous electrolysis, electrode products, half-equations as required, metal extraction. 8 questions including diagram and explanation."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.2 applied markets: demand/supply shift, equilibrium and impacts on consumers/producers. One diagram question, one data-response question and one 6-mark explanation."
-      },
-      {
-       "subject": "Maths",
+       "subject": "German",
        "mins": 30,
-       "text": "20 timed mixed questions on ratio, algebra and graphs."
+       "text": "Vocab: review 100 random words plus all the weak ones. No new words."
       },
       {
-       "subject": "Weekly review",
-       "mins": 20,
-       "text": "Test all current R&J quotes; German vocabulary; write a 6-mark Geography answer from memory."
+       "subject": "German",
+       "mins": 90,
+       "text": "Listening: full Higher paper, timed. Mark."
+      },
+      {
+       "subject": "Geography",
+       "mins": 90,
+       "text": "Paper 3: fieldwork + issue evaluation timed. Mark."
+      },
+      {
+       "subject": "Chemistry",
+       "mins": 90,
+       "text": "Chem + Phys timed sections (alternate). Mark every lost mark."
+      },
+      {
+       "subject": "English Language",
+       "mins": 90,
+       "text": "OCR J351 Paper 1 timed. Compare with the day-3 diagnostic."
+      },
+      {
+       "subject": "English Literature",
+       "mins": 90,
+       "text": "Jekyll & Hyde quote retrieval + D&T theory fixes (30 min)."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     }
@@ -553,816 +702,115 @@
   },
   {
    "n": 4,
-   "title": "Finish major first-pass topics; consolidate OCR Literature modules",
+   "title": "Mocks (assumed start 3 Dec)",
    "days": [
     {
      "name": "Monday",
-     "label": "Monday",
+     "label": "Mon (day 19)",
      "blocks": [
       {
-       "subject": "English Literature",
-       "mins": 45,
-       "text": "OCR J352 modern prose/drama set text (use school text): map plot, character arcs, 4 major themes and writer's purpose. Learn 3 quotations. Practise one extract-based response linked to an unseen extract."
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: review 100 random words plus all the weak ones. No new words."
       },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "AQA 8662 Theme 1 revisit: relationships, health/lifestyle, education/work. 30 new/repaired items; grammar drill on present, perfect, future and modal verbs."
+       "mins": 90,
+       "text": "Writing: timed 90 + 150-word tasks. Mark."
       },
       {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.4 Bioenergetics: photosynthesis, limiting factors, rate graphs, respiration, exercise and metabolism. 10 questions incl. required practical."
+       "subject": "Repair",
+       "mins": 90,
+       "text": "Repair the biggest-loss topics from the error log (top 5 gaps)."
+      },
+      {
+       "subject": "Economics",
+       "mins": 60,
+       "text": "Retrieval of definitions + 2 causal chains + D&T quick recall."
+      },
+      {
+       "subject": "Retrieval",
+       "mins": 30,
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Tuesday",
-     "label": "Tuesday",
+     "label": "Tue (day 20)",
      "blocks": [
+      {
+       "subject": "German",
+       "mins": 30,
+       "text": "Vocab: review 100 random words plus all the weak ones. No new words."
+      },
+      {
+       "subject": "Repair",
+       "mins": 90,
+       "text": "Repair the next 5 biggest gaps from the error log."
+      },
       {
        "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.2.1 Urban issues and challenges: urbanisation, migration, megacities, opportunities/challenges, urban change and sustainability. Create case study sheet; 6 questions."
+       "mins": 90,
+       "text": "Closed-book recall of all 19 cases (5 facts each)."
       },
-      {
-       "subject": "D&T NEA",
-       "mins": 50,
-       "text": "Review NEA against assessment criteria: investigation, design specification, development, making, testing/evaluation. Identify the weakest assessed section and produce evidence for it."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Theme 1 vocabulary repair; 30 new items; 8 translation sentences focused on subordinate clauses/word order."
-      }
-     ]
-    },
-    {
-     "name": "Wednesday",
-     "label": "Wednesday",
-     "blocks": [
-      {
-       "subject": "English Language",
-       "mins": 45,
-       "text": "OCR J351 Paper 2: language and structure analysis of unseen literary prose. Complete one analysis question, annotate structural shifts, then answer a question on effect/reader response using evidence."
-      },
-      {
-       "subject": "Chemistry",
-       "mins": 35,
-       "text": "AQA 8462 §4.5 Energy changes: exothermic/endothermic, reaction profiles, activation energy, bond energies and energy transfer. 8 questions incl. energy-profile diagrams and calculations."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Theme 2 retrieval; 30 new words; 8-item dictation and a 60–80 word response."
-      }
-     ]
-    },
-    {
-     "name": "Thursday",
-     "label": "Thursday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.2.1 urban case study: location, causes of growth, social/economic/environmental opportunities and challenges, management strategies. Memorise 5 precise facts; 6 exam questions."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.3 Economic objectives and role of government: growth, inflation/price stability, unemployment, balance of payments as specified, fiscal/monetary/supply-side policy and trade-offs. 10 definitions + 5 questions."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Theme 3 vocab retrieval; 30 new/repaired items; translate 8 sentences."
-      }
-     ]
-    },
-    {
-     "name": "Friday",
-     "label": "Friday",
-     "blocks": [
-      {
-       "subject": "Maths",
-       "mins": 35,
-       "text": "Edexcel 1MA1 geometry: angle rules, polygons, constructions/loci, transformations, congruence/similarity and bearings. 18 questions; include diagram reasoning."
-      },
-      {
-       "subject": "Physics",
-       "mins": 35,
-       "text": "AQA 8463 §4.3 Particle model: density, state changes, internal energy, specific heat capacity, latent heat and gas pressure as required. 10 questions incl. calculations."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Mixed-theme vocabulary test; 30 new items; write 90 words with opinions, reasons, past and future."
-      }
-     ]
-    },
-    {
-     "name": "Saturday",
-     "label": "Saturday — longer block (2.5–3h)",
-     "blocks": [
       {
        "subject": "English Literature",
        "mins": 60,
-       "text": "OCR J352 19th-century novel (use school text): historical/social context, narrative voice, character, setting and themes. Learn 3 quotations; practise an extract-based question and a discursive plan."
+       "text": "Quote recall: poems + Jekyll & Hyde anchors. Maths error-log redo if time."
       },
       {
-       "subject": "Geography",
-       "mins": 50,
-       "text": "AQA 8035 §3.2.2 Changing economic world: development measures, causes/consequences of uneven development, strategies, economic change and a named country case study. 8 questions incl. 6/9-marker."
-      },
-      {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 mixed Paper 1 retrieval: §4.1–4.4. Complete 15 mixed questions, including required practical/data and one 6-marker."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 new items; 120-item cumulative test; rewrite all missed words in example sentences."
-      }
-     ]
-    },
-    {
-     "name": "Sunday",
-     "label": "Sunday — longer block (2–2.5h)",
-     "blocks": [
-      {
-       "subject": "Chemistry",
-       "mins": 45,
-       "text": "AQA 8462 §4.6 Rate and extent of chemical change: collision theory, concentration, pressure, temperature, surface area, catalysts, rate graphs, reversible reactions and equilibrium. 10 questions incl. graph interpretation."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.3 government objectives/policies: apply policy to inflation, growth and unemployment; explain winners/losers and unintended consequences. One 6-mark and one extended evaluation response."
-      },
-      {
-       "subject": "Maths",
+       "subject": "Retrieval",
        "mins": 30,
-       "text": "20 timed mixed questions covering geometry, number, algebra and ratio."
-      },
-      {
-       "subject": "Weekly review",
-       "mins": 20,
-       "text": "By end Week 4: target 25 reliable R&J quotations; test them without prompts. Mark all subjects secure/uncertain/not learned."
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "n": 5,
-   "title": "Second half of specification; poetry and full-course breadth",
-   "days": [
-    {
-     "name": "Monday",
-     "label": "Monday",
-     "blocks": [
-      {
-       "subject": "English Literature",
-       "mins": 45,
-       "text": "OCR J352 poetry cluster (use school cluster): compare one anthology poem with a thematically linked unseen poem. Learn 3 quotes from one poem; identify voice, imagery, structure, tone and shifts. Practise one comparison paragraph."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "AQA 8662 Theme 1–3 vocabulary: 30 items from weakest theme; review 50; practise reading aloud and dictation."
-      },
-      {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.5 Homeostasis and response: nervous system, reflex arc, brain/eye, endocrine system and hormonal control. 10 questions incl. reflex-arc diagram."
-      }
-     ]
-    },
-    {
-     "name": "Tuesday",
-     "label": "Tuesday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.2.3 Resource management: global resource demand, food/water/energy security, resource distribution, sustainable management and UK resource provision. 8 questions."
-      },
-      {
-       "subject": "D&T NEA",
-       "mins": 50,
-       "text": "Make/test/evaluate: complete one high-value iteration and capture evidence; quantify performance against specification; annotate what changed and why."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 vocabulary items; practise perfect and future tense with time phrases; translate 8 sentences."
+       "text": "Closed-book retrieval of yesterday's and 3-days-ago content. Log every miss; retest after 2 days and again after 7."
       }
      ]
     },
     {
      "name": "Wednesday",
-     "label": "Wednesday",
+     "label": "Wed (day 21) - light day",
      "blocks": [
-      {
-       "subject": "English Language",
-       "mins": 45,
-       "text": "OCR J351 Paper 2 creative writing: plan for audience, purpose and form; structure paragraphs; use varied sentences, imagery, punctuation and accurate spelling. Write one timed piece; proofread and correct."
-      },
-      {
-       "subject": "Chemistry",
-       "mins": 35,
-       "text": "AQA 8462 §4.7 Organic chemistry: crude oil, hydrocarbons, alkanes/alkenes, cracking, polymerisation, alcohols/carboxylic acids as specified. 10 questions incl. displayed/structural formulae."
-      },
       {
        "subject": "German",
-       "mins": 20,
-       "text": "30 new/repaired words; 8-item dictation; write 80–90 words on popular culture."
-      }
-     ]
-    },
-    {
-     "name": "Thursday",
-     "label": "Thursday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.3.1 Issue evaluation: practise extracting evidence from resource booklet, identifying stakeholders, weighing options, using data and reaching justified decisions. Use a past Paper 3 issue evaluation."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.4 International trade/global economy: imports/exports, specialisation, globalisation, exchange rates, trade barriers, costs/benefits and interdependence. 10 definitions + 5 questions."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Theme 2/3 retrieval; 30 items; speak 90 seconds about technology, media or environment."
-      }
-     ]
-    },
-    {
-     "name": "Friday",
-     "label": "Friday",
-     "blocks": [
-      {
-       "subject": "Maths",
-       "mins": 35,
-       "text": "Edexcel 1MA1 probability/statistics: probability rules, tree diagrams, conditional probability, sampling, averages, spread, histograms/cumulative frequency/box plots as specified. 18 questions."
-      },
-      {
-       "subject": "Physics",
-       "mins": 35,
-       "text": "AQA 8463 §4.4 Atomic structure: atoms/isotopes, nuclear radiation, properties/penetration, half-life, contamination/irradiation, nuclear equations and uses/risks. 10 questions."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 vocabulary items; mixed-theme translation; correct word order and adjective endings."
-      }
-     ]
-    },
-    {
-     "name": "Saturday",
-     "label": "Saturday — longer block (2.5–3h)",
-     "blocks": [
-      {
-       "subject": "English Literature",
-       "mins": 60,
-       "text": "OCR J352 poetry: compare a named cluster poem with unseen poem; answer one question on another anthology poem. Learn 4 quotations; write a timed comparison and mark it."
-      },
-      {
-       "subject": "Geography",
-       "mins": 50,
-       "text": "AQA 8035 §3.3.2 Fieldwork and §3.4 Skills: enquiry question, hypotheses, sampling, methods, risk assessment, data presentation, analysis, conclusions, evaluation, OS maps, scale, direction, grid references, graphs and statistics. Practise 8 questions."
-      },
-      {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.5 blood glucose, thermoregulation, kidney/osmoregulation, menstrual cycle, contraception, fertility and plant hormones as required. 10 questions incl. hormonal-control explanation."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 new items; weekly vocabulary test; repair all missed items."
-      }
-     ]
-    },
-    {
-     "name": "Sunday",
-     "label": "Sunday — longer block (2–2.5h)",
-     "blocks": [
-      {
-       "subject": "Chemistry",
-       "mins": 45,
-       "text": "AQA 8462 §4.8 Chemical analysis: pure substances/formulations, chromatography, gas tests, flame tests, ion tests and instrumental methods where specified. 10 questions incl. Rf calculation and practical interpretation."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 §2.4 trade/global economy: exchange rate diagrams/impacts as required, comparative advantages and evaluation of trade restrictions. One data response and one extended judgement."
-      },
-      {
-       "subject": "Maths",
        "mins": 30,
-       "text": "20 timed mixed questions including probability/statistics and algebra."
+       "text": "Vocab: 100 random words."
       },
-      {
-       "subject": "Weekly review",
-       "mins": 20,
-       "text": "Test 25 R&J quotes, current poetry quotes, German vocab, 12 science facts and 8 Geography case-study facts."
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "n": 6,
-   "title": "Finish specification pass and close gaps",
-   "days": [
-    {
-     "name": "Monday",
-     "label": "Monday",
-     "blocks": [
       {
        "subject": "English Literature",
-       "mins": 45,
-       "text": "OCR J352: revisit weakest of modern text/19th-century novel/poetry/Shakespeare. Practise one unseen-linked extract question; quote test 20 random quotations."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "AQA 8662 official vocabulary: 30 items from weakest theme; review 60; practise dictation and reading aloud."
-      },
-      {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.6 Inheritance, variation and evolution: DNA, genes/chromosomes, sexual/asexual reproduction, meiosis, mutations, genetic crosses, inherited disorders, variation, natural selection and selective breeding. 10 questions."
-      }
-     ]
-    },
-    {
-     "name": "Tuesday",
-     "label": "Tuesday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 §3.1–3.2 case-study audit: every required named case study/example. For each, recall location, causes, impacts, responses and 5 precise facts. Complete one 6/9-marker."
-      },
-      {
-       "subject": "D&T NEA",
-       "mins": 50,
-       "text": "Audit all NEA assessment criteria and evidence. Complete the single weakest evidence item; include annotations, test results, user needs and justification."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 vocabulary items; write a 90-word response using at least three time references and opinions/reasons."
-      }
-     ]
-    },
-    {
-     "name": "Wednesday",
-     "label": "Wednesday",
-     "blocks": [
-      {
-       "subject": "English Language",
-       "mins": 45,
-       "text": "OCR J351 timed Paper 1 reading/writing section. Use real past paper; record marks by question and classify errors: misread, evidence, analysis, comparison, structure or timing."
-      },
-      {
-       "subject": "Chemistry",
-       "mins": 35,
-       "text": "AQA 8462 §4.9 Chemistry of the atmosphere: evolution of atmosphere, greenhouse gases, climate change evidence/impacts, carbon footprint, pollutants and reducing impacts. 8 questions incl. evaluate."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 words + 8-item dictation; practise subordinate clauses and word order."
-      }
-     ]
-    },
-    {
-     "name": "Thursday",
-     "label": "Thursday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "AQA 8035 Paper 3 fieldwork/skills repair: revisit Tillingbourne/Leatherhead fieldwork if these are your actual taught investigations; check aim, site selection, sampling, methods, results, presentation, conclusion and limitations. 8 questions."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "OCR J205 synoptic practice: connect scarcity/markets with government objectives and international trade. Complete one data-response set and one developed 6/8-mark answer; mark AO/application/reasoning."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Mixed-theme vocabulary; 30 items; 10-minute reading task and correction."
-      }
-     ]
-    },
-    {
-     "name": "Friday",
-     "label": "Friday",
-     "blocks": [
-      {
-       "subject": "Maths",
-       "mins": 35,
-       "text": "Edexcel 1MA1 Higher mixed weak-topic set based on error log. 20 questions timed; include at least 5 grade 7–9 style multi-step questions."
-      },
-      {
-       "subject": "Physics",
-       "mins": 35,
-       "text": "AQA 8463 §4.5 Forces: scalars/vectors, distance/displacement, speed/velocity, acceleration, distance-time/velocity-time graphs, Newton's laws, stopping distance, momentum where required, work done, springs and pressure. 12 questions incl. graphs/calculations."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 words; 100-item cumulative test; redo every missed item."
-      }
-     ]
-    },
-    {
-     "name": "Saturday",
-     "label": "Saturday — longer block (2.5–3h)",
-     "blocks": [
-      {
-       "subject": "English Literature",
-       "mins": 60,
-       "text": "Timed OCR J352 response on a weak module. Choose an actual past-paper question and use the correct mark scheme. Then write a better introduction and one improved paragraph. Quote test 25."
-      },
-      {
-       "subject": "Geography",
-       "mins": 50,
-       "text": "Full mixed practice: 2 physical, 2 human, 1 fieldwork/skills and 1 issue-evaluation question from real AQA papers. Mark and update case-study sheet."
-      },
-      {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "AQA 8461 §4.6 genetic crosses, evolution and selective breeding; 12 mixed questions including Punnett squares, probability and explanation."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 words + speaking rehearsal; record or speak a 90-second answer, then correct grammar."
-      }
-     ]
-    },
-    {
-     "name": "Sunday",
-     "label": "Sunday — longer block (2–2.5h)",
-     "blocks": [
-      {
-       "subject": "Chemistry",
-       "mins": 45,
-       "text": "AQA 8462 §4.10 Using resources and §4.11 Key ideas: finite/renewable resources, potable water, wastewater, life-cycle assessments, recycling, corrosion/alloys/ceramics/composites and required Higher content. 10 questions."
-      },
-      {
-       "subject": "Economics",
-       "mins": 35,
-       "text": "Complete one timed OCR J205 component section or equivalent 40–45 marks. Mark with the official mark scheme; identify the three biggest knowledge/application/evaluation gaps."
-      },
-      {
-       "subject": "Maths",
        "mins": 30,
-       "text": "Timed mixed paper section; correct and redo errors."
-      },
-      {
-       "subject": "Weekly review",
-       "mins": 20,
-       "text": "Specification audit across all subjects: every point labelled secure/uncertain/not learned; schedule remaining gaps for Weeks 7–8."
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "n": 7,
-   "title": "Exam execution, timed practice and marking",
-   "days": [
-    {
-     "name": "Monday",
-     "label": "Monday",
-     "blocks": [
-      {
-       "subject": "English Literature",
-       "mins": 50,
-       "text": "Complete a timed Shakespeare response from OCR J352, using a real past paper. Mark against the official scheme. Then learn/retrieve 10 quotations and improve one paragraph."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 weak vocabulary items + 60 review; 10-minute listening task with transcript check."
-      },
-      {
-       "subject": "Biology",
-       "mins": 35,
-       "text": "Timed AQA Biology Paper 1 section (Topics 4.1–4.4): mixed multiple choice, structured, practical/data and 6-mark questions. Mark and repair."
-      }
-     ]
-    },
-    {
-     "name": "Tuesday",
-     "label": "Tuesday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 50,
-       "text": "Timed AQA Paper 1 section: natural hazards, living world, physical landscapes. Include one extended answer and case-study evidence. Mark strictly."
-      },
-      {
-       "subject": "D&T NEA",
-       "mins": 45,
-       "text": "NEA deadline check and final priority evidence. Do not redesign everything: finish essential testing, evaluation and presentation gaps."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 weak words; dictation + reading aloud; correct pronunciation/spelling."
-      }
-     ]
-    },
-    {
-     "name": "Wednesday",
-     "label": "Wednesday",
-     "blocks": [
-      {
-       "subject": "English Language",
-       "mins": 50,
-       "text": "Timed OCR J351 Paper 1 section from a real past paper. Record marks and timing per question; rewrite the weakest response."
-      },
-      {
-       "subject": "Chemistry",
-       "mins": 35,
-       "text": "Timed AQA Chemistry Paper 1 section (§4.1–4.5). Include bonding explanation, quantitative calculation, chemical changes and energy changes. Mark every lost mark."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 words; 10-minute reading task and a 60–90 word writing task."
-      }
-     ]
-    },
-    {
-     "name": "Thursday",
-     "label": "Thursday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 50,
-       "text": "Timed AQA Paper 2 section: urban issues, changing economic world, resource management. Include one case-study 6/9-marker and one data question."
-      },
-      {
-       "subject": "Economics",
-       "mins": 40,
-       "text": "Timed OCR J205/01 or /02 section. Mark with the official mark scheme and tag errors as knowledge, application, analysis or evaluation."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 weak words; practise speaking answers to 4 likely theme questions."
-      }
-     ]
-    },
-    {
-     "name": "Friday",
-     "label": "Friday",
-     "blocks": [
-      {
-       "subject": "Maths",
-       "mins": 45,
-       "text": "Timed Edexcel 1MA1 Higher paper section, mixed topics. Mark; classify each error; redo without notes."
-      },
-      {
-       "subject": "Physics",
-       "mins": 40,
-       "text": "Timed AQA Physics Paper 1 or Paper 2 section, alternating based on weakest paper. Include equations, graphs and practical/data questions."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 words; 100-item random cumulative test."
-      }
-     ]
-    },
-    {
-     "name": "Saturday",
-     "label": "Saturday — mock rehearsal (3h)",
-     "blocks": [
-      {
-       "subject": "English",
-       "mins": 75,
-       "text": "Complete one timed OCR English Language component or Literature section under realistic conditions. Do not pause to check notes. Mark afterwards or schedule marking immediately."
-      },
-      {
-       "subject": "Science",
-       "mins": 60,
-       "text": "Complete a 45–60 mark mixed AQA science section from the weakest science; include at least one required-practical question and one 6-marker."
-      },
-      {
-       "subject": "Geography",
-       "mins": 40,
-       "text": "Complete one timed 6/9-mark question plus a skills/data question; mark and rewrite the conclusion."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Vocabulary retrieval and dictation."
-      }
-     ]
-    },
-    {
-     "name": "Sunday",
-     "label": "Sunday — mock rehearsal (2.5h)",
-     "blocks": [
-      {
-       "subject": "Maths",
-       "mins": 50,
-       "text": "Timed Edexcel Higher paper or half-paper; mark and redo the three most expensive errors."
-      },
-      {
-       "subject": "Economics",
-       "mins": 40,
-       "text": "Timed extended/data response; check application and balanced judgement."
-      },
-      {
-       "subject": "English Literature",
-       "mins": 35,
-       "text": "Quote test across all known texts and poetry; write two timed paragraph plans."
-      },
-      {
-       "subject": "Weekly review",
-       "mins": 20,
-       "text": "Make a one-page list of the 10 highest-value gaps for Week 8; stop adding new resources."
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "n": 8,
-   "title": "Final repair and exam readiness",
-   "days": [
-    {
-     "name": "Monday",
-     "label": "Monday",
-     "blocks": [
-      {
-       "subject": "English Literature",
-       "mins": 45,
-       "text": "Repair weakest OCR J352 component. Recall 15 quotes without notes; produce one timed paragraph with method, interpretation and context."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 weakest vocabulary items + 60 review; listening task and dictation."
-      },
-      {
-       "subject": "Biology",
-       "mins": 30,
-       "text": "Redo only missed questions from Weeks 1–7. Recall equations/processes and one required practical; complete 8 targeted questions."
-      }
-     ]
-    },
-    {
-     "name": "Tuesday",
-     "label": "Tuesday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 45,
-       "text": "Closed-book case-study recall: location, causes, impacts, responses, precise figures; then 6 targeted questions from weakest unit."
-      },
-      {
-       "subject": "D&T NEA",
-       "mins": 40,
-       "text": "Final essential NEA tasks only: evidence completeness, testing results, evaluation and presentation. Avoid unnecessary redesign."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 weakest items; 8 translation sentences; speak one 90-second response."
-      }
-     ]
-    },
-    {
-     "name": "Wednesday",
-     "label": "Wednesday",
-     "blocks": [
-      {
-       "subject": "English Language",
-       "mins": 45,
-       "text": "One timed OCR J351 weak question type, not a whole paper if exhausted. Mark, rewrite and proofread. Review Paper 1 vs Paper 2 question demands."
+       "text": "Poem quote recall, nothing new."
       },
       {
        "subject": "Chemistry",
        "mins": 30,
-       "text": "Redo incorrect calculation/bonding/chemical-change questions; recall required practical methods and tests."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 weakest items; dictation and reading aloud; review spelling and word order."
-      }
-     ]
-    },
-    {
-     "name": "Thursday",
-     "label": "Thursday",
-     "blocks": [
-      {
-       "subject": "Geography",
-       "mins": 40,
-       "text": "Paper 3 skills: fieldwork methods, sampling, graphs, statistics, conclusions, evaluation, issue-evaluation evidence and justified decisions. 6 targeted questions."
-      },
-      {
-       "subject": "Economics",
-       "mins": 30,
-       "text": "Recall key definitions and causal chains; one data-response question and one concise balanced judgement."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "30 weakest items; short listening and reading practice."
-      }
-     ]
-    },
-    {
-     "name": "Friday",
-     "label": "Friday",
-     "blocks": [
-      {
-       "subject": "Maths",
-       "mins": 35,
-       "text": "15 questions from the error log, no new content. Review formulae/methods and redo prior mistakes."
-      },
-      {
-       "subject": "Physics",
-       "mins": 30,
-       "text": "Recall equations, units, graph rules and required practicals; complete 8 targeted questions."
-      },
-      {
-       "subject": "English",
-       "mins": 20,
-       "text": "Quick quote recall and one analytical paragraph; no marathon session."
-      }
-     ]
-    },
-    {
-     "name": "Saturday",
-     "label": "Saturday — final substantial review (2–2.5h)",
-     "blocks": [
-      {
-       "subject": "English",
-       "mins": 45,
-       "text": "Review OCR Language paper structures and Literature modules; recall quotes, methods and writing checklists. Do one targeted question, not a full paper if mocks start imminently."
-      },
-      {
-       "subject": "Geography",
-       "mins": 35,
-       "text": "Case-study facts + process diagrams + one extended answer plan."
-      },
-      {
-       "subject": "Science",
-       "mins": 40,
-       "text": "15 mixed questions across Biology, Chemistry and Physics, focusing on errors and required practicals."
-      },
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Cumulative vocabulary test; only repair high-frequency errors."
-      }
-     ]
-    },
-    {
-     "name": "Sunday",
-     "label": "Sunday — taper and organise (60–90m)",
-     "blocks": [
-      {
-       "subject": "German",
-       "mins": 20,
-       "text": "Light vocabulary recall, reading aloud and dictation; stop if accuracy collapses."
-      },
-      {
-       "subject": "English",
-       "mins": 20,
-       "text": "Recall core quotes and the structure of each OCR component."
-      },
-      {
-       "subject": "Maths/Science",
-       "mins": 20,
-       "text": "Formulae and error-log review only."
+       "text": "Equations, units, required-practical methods recall."
       },
       {
        "subject": "Organisation",
-       "mins": 10,
-       "text": "Pack equipment, check mock timetable, plan sleep and travel. No all-nighter; finish early."
+       "mins": 15,
+       "text": "Pack equipment, check the mock timetable, sleep early. No new content."
       }
      ]
+    },
+    {
+     "name": "Thursday",
+     "label": "Thursday (mocks, assumed)",
+     "blocks": []
+    },
+    {
+     "name": "Friday",
+     "label": "Friday (mocks, assumed)",
+     "blocks": []
+    },
+    {
+     "name": "Saturday",
+     "label": "Saturday (mocks, assumed)",
+     "blocks": []
+    },
+    {
+     "name": "Sunday",
+     "label": "Sunday (mocks, assumed)",
+     "blocks": []
     }
    ]
   }
