@@ -66,7 +66,7 @@ function tickTimer() {
 }
 
 // ---------- sidebar ----------
-const NAV = [['tasks', 'Tasks', 'check-circle'], ['focus', 'Focus', 'clock'], ['goals', 'Goals', 'target'], ['timetable', 'Timetable', 'calendar'], ['projects', 'Projects', 'code-branch'], ['digest', 'Digest', 'sparkle'], ['habits', 'Habits', 'water-drop'], ['launch', 'Launch', 'link']];
+const NAV = [['tasks', 'Tasks', 'check-circle'], ['focus', 'Focus', 'clock'], ['goals', 'Goals', 'target'], ['timetable', 'Timetable', 'calendar'], ['projects', 'Projects', 'code-branch'], ['digest', 'Digest', 'sparkle'], ['habits', 'Habits', 'water-drop'], ['chats', 'Chats', 'news'], ['launch', 'Launch', 'link']];
 function navCount(k) {
   switch (k) {
     case 'tasks': return S.tasks.filter((t) => !t.done).length || '';
@@ -414,6 +414,23 @@ const VIEWS = {
     if (rest.length) { b.append(el('div', { class: 'gh' }, 'Also on the Triage Board')); rest.forEach((t) => b.append(card(t.name, t.last, t.next || t.summary, t.tag, t, null))); }
     return `${PR.length} projects`;
   },
+  chats() {
+    const b = $('wBody');
+    if (!CH) { b.append(el('div', { class: 'empty' }, 'Loading chats…')); return ''; }
+    const q = norm(chatQ);
+    b.append(el('div', { class: 'card' }, el('div', { class: 'sub' }, `Indexed once and saved${CH.at ? ' (' + new Date(CH.at).toLocaleDateString('en-GB') + ')' : ''}; Refresh only re-reads new or changed chats. Titles are Claude's own chat titles.`),
+      el('div', { class: 'add', style: 'margin-top:8px' }, el('input', { class: 'inp', placeholder: 'Filter by topic or project…', value: chatQ, onchange: (e) => { chatQ = e.target.value; renderView(); } }),
+        btn('Refresh', async () => { CH = await window.hub.chats(true); renderView(); }, 'sm'), btn('New Claude chat', () => window.hub.openClaude({}), 'sm'))));
+    let last = '';
+    const rows = CH.items.filter((x) => !q || norm(x.title + x.project + x.first).includes(q)).slice(0, 150);
+    rows.forEach((x) => {
+      const day = new Date(x.mtime).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      if (day !== last) { last = day; b.append(el('div', { class: 'gh' }, day)); }
+      b.append(el('div', { class: 'card' }, el('div', { class: 'row' }, el('div', { class: 'pchip', style: 'min-width:64px;text-align:center' }, x.project), el('div', { class: 't' }, x.title, x.first && x.first !== x.title ? el('div', { class: 'sub' }, x.first) : ''), btn('Resume', () => window.hub.resumeChat(x.id), 'sm'))));
+    });
+    if (!rows.length) b.append(el('div', { class: 'empty' }, 'No chats match.'));
+    return `${CH.items.length} chats`;
+  },
   digest() {
     const b = $('wBody');
     if (!DG) { b.append(el('div', { class: 'empty' }, 'Loading digest…')); return ''; }
@@ -503,7 +520,7 @@ const VIEWS = {
     return '';
   },
 };
-const TITLES = { tasks: 'Tasks', focus: 'Focus session', goals: 'Goals', timetable: 'Timetable', projects: 'Projects & Triage', digest: 'Daily digest', habits: 'Habits', launch: 'Launch', settings: 'Settings' };
+const TITLES = { tasks: 'Tasks', focus: 'Focus session', goals: 'Goals', timetable: 'Timetable', projects: 'Projects & Triage', digest: 'Daily digest', habits: 'Habits', chats: 'Past Claude chats', launch: 'Launch', settings: 'Settings' };
 function normUrl(u) {
   u = u.trim(); if (!u) return null;
   if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = 'https://' + u;
@@ -522,6 +539,7 @@ function renderView() {
   const keep = $('wBody').scrollTop;
   const swapping = lastView !== view; lastView = view;
   $('wBody').replaceChildren();
+  if (view === 'chats' && !CH) loadChats();
   const sub = VIEWS[view]();
   $('wTitle').textContent = TITLES[view] || '';
   $('wDate').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) + (sub ? ' · ' + sub : '');
@@ -571,6 +589,8 @@ async function loadPlan() { PL = await window.hub.plan(); render(); }
 async function loadGoals() { G = await window.hub.goals(); render(); }
 async function loadTriage() { TR = await window.hub.triage(); render(); }
 async function loadProjects() { PR = await window.hub.projects(); render(); }
+let CH = null, chatQ = '';
+async function loadChats() { CH = await window.hub.chats(false); renderView(); }
 async function loadDigest() { DG = await window.hub.digest(); render(); }
 function loadAll() { loadGoals(); loadTriage(); loadProjects(); loadDigest(); loadPlan(); }
 
@@ -584,8 +604,8 @@ window.hub.onDataChanged(() => { loadGoals(); loadDigest(); });
 
 $('tOpen').onclick = () => window.hub.goto('tasks');
 $('tFocus').onclick = () => window.hub.goto('focus');
-$('tClaude').onclick = () => window.hub.openClaude({});
-$('bClaude').onclick = () => window.hub.openClaude({});
+$('tClaude').onclick = () => go('chats');
+$('bClaude').onclick = () => go('chats');
 $('bBig').onclick = () => setMode(ctx.mode === 'big' ? 'side' : 'big');
 $('bClose').onclick = () => setMode('tab');
 $('nvSettings').onclick = () => go('settings');

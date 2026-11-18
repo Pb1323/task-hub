@@ -682,6 +682,57 @@ const lastOpen = {};
 const once = (key) => { const n = Date.now(); if (n - (lastOpen[key] || 0) < 900) return false; lastOpen[key] = n; return true; };
 ipcMain.on('open:link', (_e, url) => { if (once('l' + url)) openUrl(url); });
 ipcMain.on('open:claude', (_e, o) => { if (once('c')) openClaude(o && typeof o === 'object' ? o : {}); });
+
+// ---------- past Claude chats (read-only index of ~/.claude/projects/*/*.jsonl; built once, cached, only changed files re-read) ----------
+const CHATS_DIR = path.join(HOME, '.claude', 'projects');
+const chatsFile = () => udir('chats.json');
+function chatsRead() { try { return JSON.parse(fs.readFileSync(chatsFile(), 'utf8')); } catch { return { at: 0, items: [] }; } }
+function chatInfo(f, st) {
+  const fd = fs.openSync(f, 'r');
+  try {
+    const rd = (pos, len) => { const b = Buffer.alloc(len); const n = fs.readSync(fd, b, 0, len, pos); return b.toString('utf8', 0, n); };
+    const head = rd(0, Math.min(st.size, 600000)), tail = st.size > 600000 ? rd(st.size - 200000, 200000) : head;
+    let title = '', first = '', cwd = '';
+    for (const ln of tail.split('\n').reverse()) { const m = ln.match(/^\{"type":"ai-title","aiTitle":"((?:[^"\\]|\\.)*)"/); if (m) { try { title = JSON.parse('"' + m[1] + '"'); } catch { title = m[1]; } break; } }
+    for (const ln of head.split('\n')) {
+      if (!cwd) { const c = ln.match(/"cwd":"((?:[^"\\]|\\.)*)"/); if (c) { try { cwd = JSON.parse('"' + c[1] + '"'); } catch { /* skip */ } } }
+      if (!first && ln.includes('"type":"user"') && ln.includes('"role":"user"')) {
+        try { const o = JSON.parse(ln); const c = o.message && o.message.content; const t = typeof c === 'string' ? c : Array.isArray(c) ? (c.find((x) => x.type === 'text') || {}).text : ''; if (t && !/^<(system|command|local)/.test(t.trim())) first = t.replace(/\s+/g, ' ').trim().slice(0, 220); } catch { /* skip */ }
+      }
+      if (first && cwd) break;
+    }
+    return { title, first, cwd };
+  } finally { fs.closeSync(fd); }
+}
+function chatsBuild(force) {
+  const old = chatsRead(), byId = new Map(old.items.map((x) => [x.id, x])), items = [];
+  let dirs = []; try { dirs = fs.readdirSync(CHATS_DIR); } catch { return old; }
+  for (const d of dirs) {
+    let files = []; try { files = fs.readdirSync(path.join(CHATS_DIR, d)).filter((x) => x.endsWith('.jsonl')); } catch { continue; }
+    for (const fn of files) {
+      const f = path.join(CHATS_DIR, d, fn), id = fn.slice(0, -6);
+      try {
+        const st = fs.statSync(f), prev = byId.get(id);
+        if (!force && prev && prev.size === st.size) { items.push(prev); continue; }
+        const i = chatInfo(f, st), project = i.cwd ? path.basename(i.cwd) : d;
+        if (!i.first && !i.title) continue; // empty / hook-only sessions
+        items.push({ id, size: st.size, mtime: st.mtimeMs, project, cwd: i.cwd, title: i.title || i.first.slice(0, 70), first: i.first });
+      } catch { /* skip unreadable */ }
+    }
+  }
+  items.sort((a, b) => b.mtime - a.mtime);
+  const v = { at: Date.now(), items };
+  try { fs.mkdirSync(udir(), { recursive: true }); fs.writeFileSync(chatsFile(), JSON.stringify(v)); } catch { /* ignore */ }
+  return v;
+}
+ipcMain.handle('chats:get', (_e, refresh) => { const c = chatsRead(); return (!c.at || refresh === true) ? chatsBuild(false) : c; });
+ipcMain.on('chats:resume', (_e, id) => {
+  if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/.test(id) || !once('r' + id)) return;
+  const c = chatsRead().items.find((x) => x.id === id); if (!c) return;
+  let cwd = DL; try { if (c.cwd && fs.statSync(c.cwd).isDirectory()) cwd = c.cwd; } catch { /* keep Downloads */ }
+  const cmd = `claude --resume ${id}`;
+  try { const wt = spawn('wt.exe', ['-d', cwd, 'powershell.exe', '-NoExit', '-Command', cmd], { detached: true, stdio: 'ignore' }); wt.on('error', () => legacyTerminal(cwd, cmd)); wt.unref(); } catch { legacyTerminal(cwd, cmd); }
+});
 ipcMain.on('open:terminal', () => { if (once('t')) openTerminal(); });
 ipcMain.on('open:folder', (_e, o) => {
   if (!o || typeof o !== 'object') return;

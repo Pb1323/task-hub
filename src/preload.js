@@ -27,6 +27,8 @@ contextBridge.exposeInMainWorld('hub', {
   toggleGoal: (line, raw, done) => ipcRenderer.invoke('goals:toggle', line, raw, done),
   triage: () => ipcRenderer.invoke('triage:get'),
   projects: () => ipcRenderer.invoke('projects:get'),
+  chats: (r) => ipcRenderer.invoke('chats:get', r === true),
+  resumeChat: (id) => ipcRenderer.send('chats:resume', id),
   digest: () => ipcRenderer.invoke('digest:get'),
   plan: () => ipcRenderer.invoke('plan:get'),
   runDigest: () => ipcRenderer.invoke('digest:run'),

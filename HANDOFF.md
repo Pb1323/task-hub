@@ -71,3 +71,6 @@ Claude buttons open Windows Terminal (`wt.exe`) running `claude` (in a project f
 - Earlier note (superseded): not yet confirmed: a full real run (test used a throwaway `TASKHUB_DATA_DIR` in `%LOCALAPPDATA%\Temp\th-digest-test` with `TASKHUB_DIGEST_NOW=1`); output quality/verification of the funding claims; whether 9 min per run is enough. Check `digest/auto.json` after the first live day.
 
 - **Verified 2026-11-12 22:20 (real data dir, `TASKHUB_DIGEST_NOW=1`):** AI briefing 12 items + Funding briefing 18 items written to `digest/2026-11-12.json` (8 sections, ~6 min total). 25/30 source URLs return 200; the other 5 are Cloudflare 403/520 bot blocks (not dead); Mercor $750M Series D at $20B spot-checked against its own post. The people step failed once ("too few verified items") but today's earlier `inspo` file stands; retries redo only missing parts. Remaining unverified: the next unattended morning run, and funding claims beyond the Mercor spot-check.
+
+## 2026-11-18
+Open-Claude buttons now open a **Chats** view: index of past Claude Code sessions (title, project, first prompt, Resume). Built once into userData/chats.json; Refresh re-reads only changed files; no polling. Tested the parser only, not clicked in the running app.
