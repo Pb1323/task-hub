@@ -79,3 +79,7 @@ Open-Claude buttons now open a **Chats** view: index of past Claude Code session
 - Claude (or any script) drops `[{ "text": "...", "project": "..." }]` into `%APPDATA%\task-hub\inbox\claude-tasks.json`. main.js watches the folder (`watchInbox`/`ingestInbox`), merges via `claudeInbox()` in `src/lib.js` (skips blanks and tasks already open; new tasks go to Today with `source:'claude'` + project tag), then renames the file to `.done`.
 - Tasks view shows a "From Claude" group with a project chip and a "Mine" button that converts one to a normal task. `clean()` only keeps `source/project` when source is 'claude'.
 - NOT live-tested in the running app (unit tests only): drop a file and confirm it appears without a restart.
+
+
+## 2026-11-21: Claude inbox -> "From Claude" tasks
+Claude (or any script) writes `%APPDATA%	ask-hub\inbox\claude-tasks.json` = `[{"text":"...","project":"..."}]`. `ingestInbox()` in src/main.js (fs.watch + on launch) merges via `claudeInbox()` in src/lib.js: tasks get `source:'claude'` + `project`, duplicates of open tasks skipped, file renamed `.done`. Tasks view shows a separate "From Claude" section with a project tag and a Mine button (moves it to the normal list). 16 tests pass; checked end to end in a throwaway profile (merge, dedupe, screenshot). NOT yet checked: the live app (needs a restart to load this code) and fs.watch firing while the app is already running.
