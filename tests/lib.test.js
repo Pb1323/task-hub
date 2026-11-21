@@ -76,3 +76,22 @@ test('pickDue() returns the reminder overdue the longest, or null', () => {
   assert.strictEqual(pickDue({ water: 5000, walk: 2000, stretch: 3000 }, 4000), 'walk');
   assert.strictEqual(pickDue({}, 1e12), null);
 });
+
+test('claudeInbox adds tagged tasks, skips duplicates, blanks and bad JSON', () => {
+  const { claudeInbox } = require('../src/lib');
+  let n = 0; const id = () => 'id' + (++n);
+  const existing = [{ id: 'x', text: 'Fix the thing', done: false }, { id: 'y', text: 'Old done', done: true }];
+  const raw = JSON.stringify([{ text: 'fix the thing!', project: 'a' }, { text: 'Old done', project: 'b' }, { text: '  ' }, 'plain string', { text: 'New one', project: 'understairs-storage' }, { text: 'New one' }]);
+  const out = claudeInbox(raw, existing, id);
+  assert.deepStrictEqual(out.map((t) => t.text), ['Old done', 'plain string', 'New one']);
+  assert.ok(out.every((t) => t.source === 'claude' && t.when === 'today' && t.done === false));
+  assert.strictEqual(out[2].project, 'understairs-storage');
+  assert.deepStrictEqual(claudeInbox('not json', [], id), []);
+  assert.deepStrictEqual(claudeInbox('{"a":1}', [], id), []);
+});
+
+test('clean keeps source/project only for Claude tasks', () => {
+  const out = clean({ tasks: [{ id: 'a', text: 't', source: 'claude', project: 'p' }, { id: 'b', text: 'u', source: 'evil', project: 'p' }] }, SETTINGS);
+  assert.strictEqual(out.tasks[0].source, 'claude'); assert.strictEqual(out.tasks[0].project, 'p');
+  assert.strictEqual('source' in out.tasks[1], false);
+});

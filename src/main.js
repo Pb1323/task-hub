@@ -107,6 +107,25 @@ function loadState() {
   state.habits = rollHabits(state.habits);
 }
 
+// Claude drops tasks into inbox/claude-tasks.json; merge them into the list (source 'claude'), then delete the file.
+const inboxFile = () => udir('inbox', 'claude-tasks.json');
+function ingestInbox() {
+  let raw; try { raw = fs.readFileSync(inboxFile(), 'utf8'); } catch { return; }
+  const add = L.claudeInbox(raw, state.tasks, () => Math.random().toString(36).slice(2, 10));
+  try { fs.renameSync(inboxFile(), inboxFile() + '.done'); } catch { try { fs.unlinkSync(inboxFile()); } catch { /* ignore */ } }
+  if (!add.length) return;
+  state.tasks = [...add, ...state.tasks];
+  saveSoon(); push();
+}
+let inboxTimer;
+function watchInbox() {
+  try {
+    fs.mkdirSync(udir('inbox'), { recursive: true });
+    fs.watch(udir('inbox'), () => { clearTimeout(inboxTimer); inboxTimer = setTimeout(ingestInbox, 400); });
+  } catch (e) { console.error('inbox watch failed', e.message); }
+  ingestInbox();
+}
+
 function saveSoon() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
@@ -785,6 +804,7 @@ app.whenReady().then(() => {
   if (!GOT_LOCK) return; // a second copy: the first one already runs
   if (process.env.TASKHUB_THEME) nativeTheme.themeSource = process.env.TASKHUB_THEME; // test only: light | dark
   loadState();
+  watchInbox();
   writePrompts();
   if (!TEST && !state.settings.autoLaunchInit) { setAutoLaunch(true); state.settings.autoLaunchInit = true; saveSoon(); }
   initNudges();

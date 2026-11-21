@@ -74,3 +74,8 @@ Claude buttons open Windows Terminal (`wt.exe`) running `claude` (in a project f
 
 ## 2026-11-18
 Open-Claude buttons now open a **Chats** view: index of past Claude Code sessions (title, project, first prompt, Resume). Built once into userData/chats.json; Refresh re-reads only changed files; no polling. Tested the parser only, not clicked in the running app.
+
+## 2026-11-21: Claude task inbox (from another session's working-tree edits; reviewed, 16 tests pass)
+- Claude (or any script) drops `[{ "text": "...", "project": "..." }]` into `%APPDATA%\task-hub\inbox\claude-tasks.json`. main.js watches the folder (`watchInbox`/`ingestInbox`), merges via `claudeInbox()` in `src/lib.js` (skips blanks and tasks already open; new tasks go to Today with `source:'claude'` + project tag), then renames the file to `.done`.
+- Tasks view shows a "From Claude" group with a project chip and a "Mine" button that converts one to a normal task. `clean()` only keeps `source/project` when source is 'claude'.
+- NOT live-tested in the running app (unit tests only): drop a file and confirm it appears without a restart.

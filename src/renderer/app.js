@@ -121,12 +121,13 @@ function taskRow(t, list, opts = {}) {
   const focused = S.focus.taskId === t.id;
   const row = el('div', { class: 'row' + (t.done ? ' done' : '') + (focused ? ' focus' : '') });
   row.append(el('button', { class: 'chk', 'aria-label': 'Toggle done', onclick: () => { t.done = !t.done; if (t.done && focused) S.focus.taskId = null; save(); render(); } }, '✓'),
-    el('div', { class: 't', title: 'Double-click to edit', ondblclick: (ev) => editText(ev.currentTarget, t) }, t.text),
+    el('div', { class: 't', title: 'Double-click to edit', ondblclick: (ev) => editText(ev.currentTarget, t) }, t.text, t.project ? el('span', { class: 'ptag' }, t.project) : ''),
     el('div', { class: 'a' },
       opts.when && !t.done ? [['▲', 'Move up', -1], ['▼', 'Move down', 1]].map(([g, ti, d]) => el('button', { title: ti, onclick: () => moveTask(t, d) }, g)) : '',
       opts.when && !t.done ? WHEN.filter(([k]) => k !== (t.when || 'week')).map(([k, l]) => el('button', { title: 'Move to ' + l, style: 'width:auto;padding:0 6px;font-size:11px', onclick: () => { t.when = k; save(); render(); } }, l)) : '',
       opts.toSession && !t.done ? el('button', { title: 'Add to focus session', onclick: () => { if (!S.session.some((x) => x.text === t.text && !x.done)) S.session.push({ id: uid(), text: t.text, done: false }); save(); render(); } }, '＋') : '',
       opts.focusable && !t.done ? el('button', { title: 'Focus on this', onclick: () => { S.focus.taskId = focused ? null : t.id; if (!focused) S.focus.goal = t.text; save(); render(); } }, focused ? '◉' : '◎') : '',
+      opts.mine && !t.done ? el('button', { title: 'Move to my tasks', style: 'width:auto;padding:0 6px;font-size:11px', onclick: () => { delete t.source; delete t.project; save(); render(); } }, 'Mine') : '',
       el('button', { title: 'Delete', onclick: () => { const i = list.indexOf(t); if (i >= 0) list.splice(i, 1); if (focused) S.focus.taskId = null; save(); render(); } }, '✕')));
   return row;
 }
@@ -263,8 +264,13 @@ const VIEWS = {
     const open_ = S.tasks.filter((t) => !t.done);
     const b = $('wBody'); b.append(addForm('Add a task (goes into Today)', (v) => { S.tasks.unshift({ id: uid(), text: v, done: false, when: 'today' }); save(); render(); }));
     if (!S.tasks.length) b.append(el('div', { class: 'empty' }, 'Nothing yet. Add your first task above.'));
+    const fromC = open_.filter((t) => t.source === 'claude');
+    if (fromC.length) {
+      b.append(el('div', { class: 'gh' }, `From Claude · ${fromC.length}`));
+      fromC.forEach((t) => b.append(taskRow(t, S.tasks, { focusable: true, toSession: true, mine: true })));
+    }
     WHEN.forEach(([k, l]) => {
-      const list = open_.filter((t) => (t.when || 'week') === k);
+      const list = open_.filter((t) => t.source !== 'claude' && (t.when || 'week') === k);
       b.append(el('div', { class: 'gh' }, `${l} · ${list.length}`));
       if (!list.length) b.append(el('div', { class: 'empty' }, 'Nothing here.'));
       list.forEach((t) => b.append(taskRow(t, S.tasks, { focusable: true, toSession: true, when: true })));

@@ -104,3 +104,5 @@ html[data-role=tab] .panel,html[data-role=tab] .work,html[data-role=side] .taskb
 
 .gi[data-n=calendar] svg{color:var(--c-a)}
 .ttday{display:flex;gap:6px;flex-wrap:wrap}.ttday .chip.today::after{content:' •'}
+
+.ptag{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;font:600 10.5px/16px system-ui;letter-spacing:.03em;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent);vertical-align:1px}

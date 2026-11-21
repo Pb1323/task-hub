@@ -9,7 +9,7 @@ const str = (v, n) => String(v == null ? '' : v).slice(0, n);
 const num = (v, lo, hi, d) => { v = Number(v); return Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; };
 function clean(s, currentSettings) {
   const out = {};
-  if (Array.isArray(s.tasks)) out.tasks = s.tasks.filter((t) => t && typeof t === 'object').slice(0, 500).map((t) => ({ id: str(t.id, 24), text: str(t.text, 140), done: !!t.done, when: ['today', 'week', 'later'].includes(t.when) ? t.when : 'week' }));
+  if (Array.isArray(s.tasks)) out.tasks = s.tasks.filter((t) => t && typeof t === 'object').slice(0, 500).map((t) => ({ id: str(t.id, 24), text: str(t.text, 140), done: !!t.done, when: ['today', 'week', 'later'].includes(t.when) ? t.when : 'week', ...(t.source === 'claude' ? { source: 'claude', project: str(t.project, 40) } : {}) }));
   if (Array.isArray(s.links)) out.links = s.links.filter((l) => l && typeof l === 'object').slice(0, 24).map((l) => ({ name: str(l.name, 24), url: str(l.url, 300), color: str(l.color, 9), glyph: str(l.glyph, 4) }));
   if (s.focus && typeof s.focus === 'object') {
     const f = s.focus;
@@ -156,4 +156,20 @@ function parseRss(xml, max = 8) {
   return out;
 }
 
-module.exports = { today, clean, safeUrl, rollHabits, pickDue, stripMd, norm, parseGoals, toggleGoalLine, parseStatusBoard, folderFor, extractDoc, parseRss, cut };
+// Tasks Claude drops into %APPDATA%	ask-hub\inbox\claude-tasks.json: [{ "text": "...", "project": "..." }].
+// Returns the tasks to add (new ids, source 'claude'), skipping blanks and anything already open in the list.
+function claudeInbox(raw, existing, mkId) {
+  let arr; try { arr = JSON.parse(String(raw).replace(/^﻿/, '')); } catch { return []; }
+  if (!Array.isArray(arr)) return [];
+  const seen = new Set((existing || []).filter((t) => !t.done).map((t) => norm(t.text)));
+  const out = [];
+  for (const x of arr.slice(0, 50)) {
+    const text = str(x && typeof x === 'object' ? x.text : x, 140).trim();
+    if (!text || seen.has(norm(text))) continue;
+    seen.add(norm(text));
+    out.push({ id: mkId(), text, done: false, when: 'today', source: 'claude', project: str(x && x.project, 40).trim() });
+  }
+  return out;
+}
+
+module.exports = { claudeInbox, today, clean, safeUrl, rollHabits, pickDue, stripMd, norm, parseGoals, toggleGoalLine, parseStatusBoard, folderFor, extractDoc, parseRss, cut };
