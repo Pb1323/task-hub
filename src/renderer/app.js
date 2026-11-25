@@ -442,7 +442,7 @@ const VIEWS = {
     if (!DG) { b.append(el('div', { class: 'empty' }, 'Loading digest…')); return ''; }
     const stale = !DG.inspo || DG.inspo.date !== DG.today || !DG.digest || DG.digest.date !== DG.today || DG.digest.sections.length < 5;
     const au = DG.auto || {};
-    const status = au.running ? `Updating in the background (${({ ai: 'researching AI news and startups', funding: 'researching funding and market moves', people: "finding today's people" })[au.running] || 'working'})…`
+    const status = au.running ? `Updating in the background (${({ discord: 'reading Discord', ai: 'researching AI news and startups', funding: 'researching funding and market moves', people: "finding today's people" })[au.running] || 'working'})…`
       : au.last ? `Last automatic update ${new Date(au.last.at).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })}: ${au.last.ok ? 'worked' : au.last.msg}`
       : au.on === false ? 'Automatic update is off (Settings).' : 'Updates itself once a day, after 07:00.';
     b.append(el('div', { class: 'card' }, el('div', { class: 'sub' }, (stale ? `Today's digest isn't loaded yet (digest ${DG.digest ? DG.digest.date : 'none'}, inspiration ${DG.inspo ? DG.inspo.date : 'none'}). ` : '') + status),
@@ -465,7 +465,7 @@ const VIEWS = {
     if (DG.digest) {
       b.append(el('div', { class: 'gh' }, `Daily briefing · ${DG.digest.date} · AI, startups, funding, outlook`));
       DG.digest.sections.forEach((s) => {
-        const key = 'd' + s.title, shown = open.has(key) || DG.digest.sections.indexOf(s) < 2 || /^(Funding|Future)/.test(s.title);
+        const key = 'd' + s.title, shown = open.has(key) || DG.digest.sections.indexOf(s) < 2 || /^(Funding|Future|Discord)/.test(s.title);
         b.append(el('div', { class: 'card' }, el('div', { style: 'display:flex;justify-content:space-between;cursor:pointer', onclick: () => { open.has(key) ? open.delete(key) : open.add(key); renderView(); } }, el('h3', {}, s.title), el('span', { class: 'sub' }, shown ? '▾' : `▸ ${s.items.length}`)),
           shown ? el('div', { class: 'ins' }, s.items.map((x) => el('div', { style: 'padding:6px 0;border-top:1px solid var(--track)' },
             x.title ? el('div', { style: 'font-weight:600' }, x.title) : '', x.meta ? el('div', { class: 'sub' }, x.meta) : '', el('div', {}, x.text), x.idea ? el('div', { class: 'take' }, 'Idea: ' + x.idea) : '', hasUrl(x.url) ? link(x.url, x.source || 'Source') : ''))) : ''));
