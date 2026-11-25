@@ -582,7 +582,7 @@ const BRIEFS = [
 const BRIEF_KEYS = { ai: ['models', 'startups', 'research', 'ondevice'], funding: ['raises', 'moves', 'niches', 'outlook'] };
 // ---------- Discord briefing (local discord-digest-mcp: Python syncs + bundles; ONE Claude call with NO tools summarises) ----------
 const DD_DIR = path.join(DL, 'discord-digest-mcp');
-const DD_TOKEN = path.join(HOME, 'Documents', 'Private', 'discord-token.txt');
+const DD_TOKEN = path.join(process.env.LOCALAPPDATA || path.join(HOME, 'AppData', 'Local'), 'discord-digest', 'token.bin'); // DPAPI-encrypted, written by discord-digest set-token.cmd
 const DD_PY = (() => { const p = path.join(HOME, 'AppData', 'Local', 'Programs', 'Python', 'Python311', 'python.exe'); return fs.existsSync(p) ? p : 'python'; })();
 const DISCORD = { key: 'discord', label: 'Discord briefing', marker: 'Discord: important', secs: ['Discord: important', 'Discord: waiting on you', 'Discord: opportunities', 'Discord: sent audit'], keys: ['important', 'waiting', 'opportunities', 'audit'] };
 const discordReady = () => fs.existsSync(path.join(DD_DIR, 'src', 'discord_digest', 'cli.py')) && (fs.existsSync(DD_TOKEN) || !!process.env.DISCORD_TOKEN);
